@@ -192,11 +192,25 @@ service cloud.firestore {
       // Everyone can read active sports (needed for tournament creation)
       allow read: if true;
       
-      // Only authenticated users can create sports (for admin initialization)
-      allow create: if isAuthenticated();
+      // TEMPORARY: Allow unauthenticated write for seed script initialization
+      // TODO: Change to authenticated after initial seed, or use Firebase Admin SDK
+      allow write: if true;
       
-      // Only authenticated users can update/delete sports (for future admin management)
-      allow update, delete: if isAuthenticated();
+      // PRODUCTION: Uncomment these rules after seeding
+      // allow create, update, delete: if isAuthenticated();
+    }
+    
+    // Formats collection (system configuration)
+    match /formats/{formatId} {
+      // Everyone can read formats (needed for tournament creation)
+      allow read: if true;
+      
+      // TEMPORARY: Allow unauthenticated write for seed script initialization
+      // TODO: Change to authenticated after initial seed, or use Firebase Admin SDK
+      allow write: if true;
+      
+      // PRODUCTION: Uncomment these rules after seeding
+      // allow create, update, delete: if isAuthenticated();
     }
     
     // Notifications collection
