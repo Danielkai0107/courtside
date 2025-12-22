@@ -17,9 +17,11 @@ import Input from "../../components/common/Input";
 import SelectableCard from "../../components/common/SelectableCard";
 import Loading from "../../components/common/Loading";
 import CategoryManager from "../../components/features/CategoryManager";
+import UniversalCategoryManager from "../../components/features/UniversalCategoryManager";
+import type { UniversalCategoryFormData } from "../../components/features/UniversalCategoryManager";
 import styles from "./CreateTournament.module.scss";
 import type { Sport, Tournament } from "../../types";
-import { createCategory } from "../../services/categoryService";
+import { createCategory, createCategoryUniversal } from "../../services/categoryService";
 
 const CreateTournament: React.FC = () => {
   const { currentUser } = useAuth();
@@ -44,8 +46,11 @@ const CreateTournament: React.FC = () => {
   const [registrationDeadline, setRegistrationDeadline] = useState("");
   const [location, setLocation] = useState("");
 
-  // Step 3: Categories
-  const [categories, setCategories] = useState<
+  // Step 3: Categories - 支持雙引擎
+  const [useUniversalEngine, setUseUniversalEngine] = useState(true); // 默認使用通用引擎
+  
+  // 傳統引擎分類
+  const [legacyCategories, setLegacyCategories] = useState<
     Array<{
       name: string;
       matchType: "singles" | "doubles";
@@ -60,6 +65,9 @@ const CreateTournament: React.FC = () => {
       };
     }>
   >([]);
+  
+  // 通用引擎分類
+  const [universalCategories, setUniversalCategories] = useState<UniversalCategoryFormData[]>([]);
 
   // Step 4: Description
   const [description, setDescription] = useState("");
@@ -141,7 +149,11 @@ const CreateTournament: React.FC = () => {
         return true;
 
       case 3:
-        if (categories.length === 0) {
+        const totalCategories = useUniversalEngine 
+          ? universalCategories.length 
+          : legacyCategories.length;
+        
+        if (totalCategories === 0) {
           setError("請至少新增一個賽事分類");
           return false;
         }
@@ -192,7 +204,9 @@ const CreateTournament: React.FC = () => {
           currentUser.displayName || currentUser.email || "匿名主辦方",
         organizerPhotoURL: currentUser.photoURL || undefined,
         stats: {
-          totalCategories: categories.length,
+          totalCategories: useUniversalEngine 
+            ? universalCategories.length 
+            : legacyCategories.length,
           totalMatches: 0,
         },
       };
@@ -215,18 +229,28 @@ const CreateTournament: React.FC = () => {
       }
 
       // 3. Create all categories
-      for (const category of categories) {
-        await createCategory(tournamentId, {
-          name: category.name,
-          matchType: category.matchType,
-          maxParticipants: category.maxParticipants,
-          format: category.format,
-          pointsPerSet: category.pointsPerSet,
-          enableThirdPlaceMatch: category.enableThirdPlaceMatch,
-          groupConfig: category.groupConfig,
-          status: "REGISTRATION_OPEN",
-          currentParticipants: 0,
-        });
+      if (useUniversalEngine) {
+        // 使用通用引擎創建
+        console.log("[CreateTournament] 使用通用引擎創建分類");
+        for (const category of universalCategories) {
+          await createCategoryUniversal(tournamentId, category);
+        }
+      } else {
+        // 使用傳統引擎創建
+        console.log("[CreateTournament] 使用傳統引擎創建分類");
+        for (const category of legacyCategories) {
+          await createCategory(tournamentId, {
+            name: category.name,
+            matchType: category.matchType,
+            maxParticipants: category.maxParticipants,
+            format: category.format,
+            pointsPerSet: category.pointsPerSet,
+            enableThirdPlaceMatch: category.enableThirdPlaceMatch,
+            groupConfig: category.groupConfig,
+            status: "REGISTRATION_OPEN",
+            currentParticipants: 0,
+          });
+        }
       }
 
       navigate(`/organizer/tournaments/${tournamentId}`); // 前往控制台
@@ -355,11 +379,35 @@ const CreateTournament: React.FC = () => {
           {/* Step 3: Categories */}
           {currentStep === 3 && (
             <div className={styles.step}>
-              <CategoryManager
-                categories={categories}
-                onChange={setCategories}
-                defaultPointsPerSet={selectedSport?.defaultPointsPerSet || 21}
-              />
+              <div className={styles.engineSwitch}>
+                <label className={styles.switchLabel}>
+                  <input
+                    type="checkbox"
+                    checked={useUniversalEngine}
+                    onChange={(e) => setUseUniversalEngine(e.target.checked)}
+                  />
+                  <span>使用通用運動引擎（推薦）</span>
+                </label>
+                <p className={styles.switchHint}>
+                  {useUniversalEngine
+                    ? "完全配置驅動，支持任何運動和規則"
+                    : "傳統模式，手動設定賽制和規則"}
+                </p>
+              </div>
+
+              {useUniversalEngine ? (
+                <UniversalCategoryManager
+                  categories={universalCategories}
+                  onChange={setUniversalCategories}
+                  defaultSportId={selectedSport?.id}
+                />
+              ) : (
+                <CategoryManager
+                  categories={legacyCategories}
+                  onChange={setLegacyCategories}
+                  defaultPointsPerSet={(selectedSport as any)?.defaultPointsPerSet || 21}
+                />
+              )}
             </div>
           )}
 

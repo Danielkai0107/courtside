@@ -224,3 +224,36 @@
     flex: 1;
   }
 }
+
+.engineSwitch {
+  margin-bottom: $spacing-lg;
+  padding: $spacing-md;
+  background: rgba($primary-color, 0.05);
+  border-radius: $radius-md;
+  border: 1px solid rgba($primary-color, 0.2);
+}
+
+.switchLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  font-weight: 500;
+  color: $text-primary;
+
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  span {
+    font-size: $font-size-md;
+  }
+}
+
+.switchHint {
+  margin: $spacing-sm 0 0 28px;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}

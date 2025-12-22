@@ -41,7 +41,7 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
           hasScoringConfig: !!categoryDoc?.scoringConfig,
           categoryDoc: categoryDoc,
         });
-        
+
         if (categoryDoc && categoryDoc.formatConfig) {
           setIsUniversalEngine(true);
           console.log("[CategoryPublisher] 檢測到通用引擎分類");
@@ -69,20 +69,20 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
     try {
       // 檢查是否為通用引擎
       const categoryDoc = await getCategory(tournamentId, category.id);
-      
+
       if (categoryDoc && categoryDoc.formatConfig) {
         // 使用通用引擎發布
         console.log("[CategoryPublisher] 使用通用運動引擎發布賽程");
-        
+
         const { formatConfig } = categoryDoc;
-        
+
         // 驗證人數是否符合格式要求
         if (
           participants.length < formatConfig.minParticipants ||
           participants.length > formatConfig.maxParticipants
         ) {
           const errorMsg = `參賽人數 ${participants.length} 不符合格式要求（${formatConfig.minParticipants}-${formatConfig.maxParticipants} 人）`;
-          
+
           // 嘗試找到建議格式
           try {
             const suggested = await findBestFormat(participants.length);
@@ -95,23 +95,23 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
           } catch (err) {
             setError(errorMsg);
           }
-          
+
           setLoading(false);
           return;
         }
-        
+
         // 使用通用生成引擎
         await generateScheduleUniversal(tournamentId, category.id);
       } else {
         // 使用舊邏輯（向後兼容）
         console.log("[CategoryPublisher] 使用傳統引擎發布賽程");
-        
+
         if (courts.length === 0) {
           setError("請先在「場地管理」Tab 新增至少一個場地");
           setLoading(false);
           return;
         }
-        
+
         if (category.format === "KNOCKOUT_ONLY") {
           await generateKnockoutOnly(
             tournamentId,
@@ -122,9 +122,11 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
           );
         } else {
           // 小組賽邏輯保持不變
-          const { suggestGroupConfigs } = await import("../../services/groupingService");
+          const { suggestGroupConfigs } = await import(
+            "../../services/groupingService"
+          );
           const configs = suggestGroupConfigs(participants.length);
-          
+
           if (configs.length === 0) {
             await generateKnockoutOnly(
               tournamentId,
@@ -253,7 +255,8 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
           <h4 className={styles.subtitle}>格式建議</h4>
           <div className={styles.warningBox}>
             <p className={styles.warningText}>
-              目前配置不適合 {participants.length} 位參賽者。建議格式：{suggestedFormat}
+              目前配置不適合 {participants.length} 位參賽者。建議格式：
+              {suggestedFormat}
             </p>
             <p className={styles.warningText}>
               請主辦方重新創建分類，或調整參賽人數。
