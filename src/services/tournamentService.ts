@@ -14,9 +14,11 @@ import {
   QueryConstraint,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Tournament } from "../types";
+import type { Tournament, CategoryDoc, SportDoc } from "../types";
+import type { SportDefinition, FormatDefinition } from "../types/universal-config";
 import { generateBracket } from "./bracketService";
 import { createNotification } from "./notificationService";
+import { getFormat } from "./formatService";
 
 /**
  * Helper function to remove undefined values from object
@@ -596,3 +598,219 @@ export const publishTournament = async (
     // 不影響發布流程
   }
 };
+
+// ============================================
+// 通用運動引擎 - 配置快照邏輯
+// ============================================
+
+/**
+ * 獲取運動定義（包含規則預設）
+ * 
+ * @param sportId 運動ID
+ * @returns 運動定義，如果不存在則返回 null
+ */
+export async function getSport(sportId: string): Promise<SportDefinition | null> {
+  try {
+    const docRef = doc(db, "sports", sportId);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      console.warn(`[TournamentService] 運動不存在: ${sportId}`);
+      return null;
+    }
+
+    const sportData = docSnap.data() as SportDoc;
+
+    return {
+      id: sportData.id,
+      name: sportData.name,
+      icon: sportData.icon,
+      modes: sportData.modes,
+      defaultPresetId: sportData.defaultPresetId,
+      rulePresets: sportData.rulePresets,
+      isActive: sportData.isActive,
+      order: sportData.order,
+    };
+  } catch (error) {
+    console.error(`[TournamentService] 獲取運動失敗 (${sportId}):`, error);
+    throw error;
+  }
+}
+
+/**
+ * 創建分組/項目（帶配置快照）
+ * 
+ * 這是配置快照邏輯的核心：
+ * 1. 查詢 Sport 文檔獲取完整的規則配置
+ * 2. 查詢 Format 文檔獲取完整的賽制模板
+ * 3. 將配置完整拷貝到 Category 文檔中（快照）
+ * 4. 確保賽事規則凍結，不受全局配置變更影響
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryData 分組/項目數據
+ * @returns 創建的分組/項目ID
+ */
+export async function createCategoryWithSnapshot(
+  tournamentId: string,
+  categoryData: {
+    name: string;
+    matchType: "singles" | "doubles";
+    sportId: string;
+    rulePresetId: string;
+    selectedFormatId: string;
+  }
+): Promise<string> {
+  try {
+    console.log(`[TournamentService] 創建分組 ${categoryData.name}，快照配置...`);
+
+    // 1. 獲取運動定義
+    const sport = await getSport(categoryData.sportId);
+    if (!sport) {
+      throw new Error(`運動不存在: ${categoryData.sportId}`);
+    }
+
+    // 2. 查找規則預設
+    const rulePreset = sport.rulePresets.find(
+      (preset) => preset.id === categoryData.rulePresetId
+    );
+    if (!rulePreset) {
+      throw new Error(
+        `規則預設不存在: ${categoryData.rulePresetId} (運動: ${categoryData.sportId})`
+      );
+    }
+
+    console.log(`[TournamentService] 找到規則預設: ${rulePreset.label}`);
+
+    // 3. 獲取賽制格式定義
+    const format = await getFormat(categoryData.selectedFormatId);
+    if (!format) {
+      throw new Error(`賽制格式不存在: ${categoryData.selectedFormatId}`);
+    }
+
+    console.log(`[TournamentService] 找到賽制格式: ${format.name}`);
+
+    // 4. 創建 Category 文檔（快照配置）
+    const categoryDoc: Omit<CategoryDoc, "id"> = {
+      tournamentId,
+      name: categoryData.name,
+      matchType: categoryData.matchType,
+
+      // === 快照配置 ===
+      // 將配置完整拷貝，與全局配置解耦
+      sportId: categoryData.sportId,
+      rulePresetId: categoryData.rulePresetId,
+      scoringConfig: { ...rulePreset.config }, // 深拷貝
+
+      selectedFormatId: categoryData.selectedFormatId,
+      formatConfig: { ...format }, // 深拷貝
+
+      // === 狀態 ===
+      status: "REGISTRATION",
+      currentParticipants: 0,
+      maxParticipants: format.maxParticipants,
+
+      // === 時間戳記 ===
+      createdAt: serverTimestamp() as any,
+      updatedAt: serverTimestamp() as any,
+    };
+
+    // 5. 寫入 Firestore
+    const categoriesRef = collection(
+      db,
+      "tournaments",
+      tournamentId,
+      "categories"
+    );
+    const docRef = await addDoc(categoriesRef, categoryDoc);
+
+    console.log(
+      `[TournamentService] 成功創建分組: ${categoryData.name} (ID: ${docRef.id})`
+    );
+    console.log(`[TournamentService] 快照配置: ${rulePreset.label} + ${format.name}`);
+
+    return docRef.id;
+  } catch (error) {
+    console.error("[TournamentService] 創建分組失敗:", error);
+    throw error;
+  }
+}
+
+/**
+ * 獲取分組/項目（帶完整配置）
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ * @returns 分組文檔，如果不存在則返回 null
+ */
+export async function getCategory(
+  tournamentId: string,
+  categoryId: string
+): Promise<CategoryDoc | null> {
+  try {
+    const docRef = doc(
+      db,
+      "tournaments",
+      tournamentId,
+      "categories",
+      categoryId
+    );
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      console.warn(`[TournamentService] 分組不存在: ${categoryId}`);
+      return null;
+    }
+
+    return {
+      id: docSnap.id,
+      ...docSnap.data(),
+    } as CategoryDoc;
+  } catch (error) {
+    console.error(
+      `[TournamentService] 獲取分組失敗 (${categoryId}):`,
+      error
+    );
+    throw error;
+  }
+}
+
+/**
+ * 更新分組/項目
+ * 
+ * 注意：scoringConfig 和 formatConfig 不應該被更新
+ * 這些配置在創建時快照，應該保持凍結
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ * @param updates 更新內容
+ */
+export async function updateCategory(
+  tournamentId: string,
+  categoryId: string,
+  updates: Partial<
+    Omit<CategoryDoc, "id" | "scoringConfig" | "formatConfig" | "createdAt">
+  >
+): Promise<void> {
+  try {
+    const docRef = doc(
+      db,
+      "tournaments",
+      tournamentId,
+      "categories",
+      categoryId
+    );
+
+    // 移除 undefined 值
+    const cleanUpdates = removeUndefined({
+      ...updates,
+      updatedAt: serverTimestamp(),
+    });
+
+    await updateDoc(docRef, cleanUpdates);
+
+    console.log(`[TournamentService] 成功更新分組: ${categoryId}`);
+  } catch (error) {
+    console.error(`[TournamentService] 更新分組失敗 (${categoryId}):`, error);
+    throw error;
+  }
+}
