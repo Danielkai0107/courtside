@@ -1,0 +1,295 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.matchInfo {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  
+  .sportInfo {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+  }
+  
+  .configInfo {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+}
+
+.error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.aggregateScore {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-primary-bg) 0%, var(--color-bg-secondary) 100%);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-xl);
+  
+  .playerName {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    flex: 1;
+    text-align: center;
+  }
+  
+  .setScore {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    
+    .separator {
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+.setsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.setBox {
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: var(--color-primary-light);
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-bg);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  }
+  
+  &.completed {
+    background-color: var(--color-success-bg);
+    border-color: var(--color-success);
+    
+    &:hover {
+      transform: none;
+    }
+  }
+  
+  .setNumber {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .setScores {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    
+    .setScore {
+      &.winner {
+        color: var(--color-success);
+      }
+    }
+    
+    .separator {
+      color: var(--color-text-secondary);
+      font-weight: var(--font-weight-normal);
+    }
+  }
+  
+  .setStatus {
+    margin-top: var(--spacing-sm);
+    color: var(--color-success);
+    font-size: var(--font-size-lg);
+  }
+}
+
+.currentSet {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  border: 2px solid var(--color-primary);
+  
+  .currentSetTitle {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    
+    .deuce {
+      font-size: var(--font-size-lg);
+      color: var(--color-warning);
+      animation: pulse 1s infinite;
+    }
+  }
+}
+
+.scoreControls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+}
+
+.playerControl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  
+  .playerName {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    text-align: center;
+  }
+  
+  .scoreDisplay {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    padding: var(--spacing-lg);
+    background-color: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    min-width: 120px;
+    text-align: center;
+    position: relative;
+    
+    &.nearWin {
+      color: var(--color-warning);
+      animation: glow 1s ease-in-out infinite;
+    }
+    
+    .capReached {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: var(--color-error);
+      color: white;
+      font-size: var(--font-size-xs);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+    }
+  }
+  
+  .buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    
+    button {
+      min-width: 60px;
+    }
+  }
+}
+
+.submitSection {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.matchCompleted {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, var(--color-bg-secondary) 100%);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--color-success);
+  
+  h3 {
+    font-size: var(--font-size-2xl);
+    color: var(--color-success);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  p {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-primary);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(var(--color-warning-rgb), 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(var(--color-warning-rgb), 0.8);
+  }
+}
+
+// 響應式設計
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+  
+  .aggregateScore {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    
+    .setScore {
+      font-size: var(--font-size-3xl);
+    }
+  }
+  
+  .setsContainer {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: var(--spacing-sm);
+  }
+  
+  .scoreControls {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+  
+  .currentSet {
+    padding: var(--spacing-md);
+  }
+}
+
