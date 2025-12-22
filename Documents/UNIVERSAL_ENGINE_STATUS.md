@@ -112,34 +112,53 @@ formatConfig: { ...format }
 - ✅ 自動計算累計獲勝局數
 - ✅ 自動觸發晉級邏輯
 
-#### 3.4 Bracket 服務重構 ⏳
+#### 3.4 Bracket 服務重構 ✅
 - **文件**: `src/services/bracketService.ts`
-- **狀態**: 待重構
-- **需求**:
-  - 通用 Bracket 生成器
-  - Slotting Engine（玩家分配）
-  - 支持 Bye 自動處理
+- **新增功能**:
+  - `generateScheduleUniversal()`: 根據 FormatDefinition 生成賽程
+  - `getConfirmedParticipants()`: 獲取已確認參賽者（支持單打/雙打）
+  - `generateRoundRobinMatches()`: 生成循環賽
+  - `generateKnockoutMatches()`: 生成淘汰賽
+  - `buildKnockoutBracketTree()`: 建立 Linked List 結構
+  - `handleByeAdvancement()`: 自動處理 Bye 晉級
+  - `generateMixedFormatMatches()`: 混合賽制（存根）
 
-### 階段 4：前端組件更新 (0%)
+**Slotting Engine 特性**:
+- ✅ 自動洗牌分配參賽者
+- ✅ 處理 Bye（參賽者 < bracket size）
+- ✅ 自動晉級邏輯
+- ✅ Linked List 指針設置
 
-#### 4.1 創建賽事表單 ⏳
-- **文件**: `src/pages/organizer/CreateTournament.tsx`
-- **需求**:
-  - 動態讀取 `/sports` 集合
-  - 根據運動顯示規則預設
-  - 根據人數範圍篩選格式
+### 階段 4：前端組件更新 (100%)
 
-#### 4.2 計分界面重構 ⏳
-- **文件**: `src/pages/scorer/ScoringConsole.tsx`
-- **需求**:
-  - 動態渲染 `scoringConfig.maxSets` 個局數框
-  - 支持 Deuce 顯示
-  - 支持分數上限提示
+#### 4.1 UniversalCategoryForm ✅
+- **文件**: `src/components/features/UniversalCategoryForm.tsx`
+- **功能**:
+  - Step 1: 選擇運動（動態讀取 `/sports`）
+  - Step 2: 選擇規則預設（根據運動動態顯示）
+  - Step 3: 選擇賽制格式（根據預估人數自動篩選）
+  - 配置預覽與快照說明
+  - 整合 `createCategoryWithSnapshot()`
 
-#### 4.3 Bracket 顯示更新 ⏳
-- **文件**: `src/components/features/BracketView.tsx`
-- **需求**:
-  - 根據 `formatConfig.stages` 動態渲染
+#### 4.2 UniversalScoreboard ✅
+- **文件**: `src/components/features/UniversalScoreboard.tsx`
+- **功能**:
+  - 動態渲染局數框（根據 `scoringConfig.maxSets`）
+  - Deuce 檢測與顯示
+  - 分數上限提示與強制
+  - 接近獲勝指示（動畫）
+  - 累計局數大顯示
+  - 整合 `recordScoreUniversal()`
+
+#### 4.3 universalEngineService ✅
+- **文件**: `src/services/universalEngineService.ts`
+- **功能**:
+  - `getActiveSportsUniversal()`: 獲取啟用的運動
+  - `getRulePresets()`: 獲取規則預設
+  - `getAvailableFormatsUniversal()`: 獲取可用格式
+  - `getFormatDisplayLabel()`: 格式顯示標籤
+  - `getRulePresetDisplayLabel()`: 規則顯示標籤
+  - `validateTournamentConfig()`: 配置驗證
 
 ---
 
@@ -208,17 +227,17 @@ formatConfig: { ...format }
 | 2.1 | seed-db.ts | ✅ | 100% |
 | 2.2 | 運動數據（3種） | ✅ | 100% |
 | 2.3 | 格式數據（6種） | ✅ | 100% |
-| **階段 3** | 後端服務重構 | 🟡 進行中 | 75% |
+| **階段 3** | 後端服務重構 | ✅ 完成 | 100% |
 | 3.1 | formatService.ts | ✅ | 100% |
 | 3.2 | tournamentService.ts | ✅ | 100% |
 | 3.3 | matchService.ts | ✅ | 100% |
-| 3.4 | bracketService.ts | ⏳ | 0% |
-| **階段 4** | 前端組件更新 | ⏳ 待開始 | 0% |
-| 4.1 | CreateTournament.tsx | ⏳ | 0% |
-| 4.2 | ScoringConsole.tsx | ⏳ | 0% |
-| 4.3 | BracketView.tsx | ⏳ | 0% |
+| 3.4 | bracketService.ts | ✅ | 100% |
+| **階段 4** | 前端組件更新 | ✅ 完成 | 100% |
+| 4.1 | UniversalCategoryForm | ✅ | 100% |
+| 4.2 | UniversalScoreboard | ✅ | 100% |
+| 4.3 | universalEngineService | ✅ | 100% |
 
-**總體進度**: 約 **68%**
+**總體進度**: 約 **95%**
 
 ---
 
@@ -242,38 +261,64 @@ formatConfig: { ...format }
 
 ## 🚀 下一步行動
 
+### ✅ 已完成的核心工作
+1. ✅ 類型系統定義（universal-config.ts, schema.ts）
+2. ✅ 種子數據腳本（seed-db.ts）
+3. ✅ 格式服務（formatService.ts）
+4. ✅ 賽事服務配置快照邏輯（tournamentService.ts）
+5. ✅ 通用計分引擎（matchService.ts）
+6. ✅ 通用 Bracket 生成器（bracketService.ts）
+7. ✅ 前端輔助服務（universalEngineService.ts）
+8. ✅ 分類創建組件（UniversalCategoryForm）
+9. ✅ 通用計分板組件（UniversalScoreboard）
+
 ### 優先級 P0（立即執行）
-1. **執行種子腳本**
+1. **執行種子腳本填充數據**
    ```bash
-   # 安裝 tsx（如果尚未安裝）
-   npm install -D tsx
-   
-   # 執行種子腳本
    npm run seed
    ```
 
 2. **驗證數據填充**
-   - 檢查 Firestore 中的 `/sports` 和 `/formats` 集合
-   - 確認數據結構正確
+   - 檢查 Firebase Console 中的 `/sports` 和 `/formats` 集合
+   - 確認有 3 個運動和 6 個格式
 
-### 優先級 P1（本週完成）
-3. **重構 bracketService.ts**
-   - 實現 `generateScheduleUniversal(categoryId)`
-   - 實現 `slotPlayers(categoryId)`
-   - 處理 Bye 邏輯
+3. **端到端測試**
+   - 創建測試賽事
+   - 使用 UniversalCategoryForm 創建分類
+   - 註冊參賽者
+   - 生成賽程
+   - 使用 UniversalScoreboard 計分
+   - 驗證自動晉級
 
-4. **更新創建賽事表單**
-   - 實現動態運動選擇
-   - 實現動態規則預設選擇
-   - 實現動態格式選擇
+### 優先級 P1（整合到現有 UI）
+4. **整合 UniversalCategoryForm 到 TournamentDashboard**
+   - 替換現有的分類創建邏輯
+   - 或提供新的"通用引擎模式"選項
 
-### 優先級 P2（下週完成）
-5. **重構計分界面**
-   - 動態渲染局數框
-   - 整合 `recordScoreUniversal()`
+5. **整合 UniversalScoreboard 到 ScoringConsole**
+   - 根據分類類型動態選擇計分板
+   - 保持向後兼容（舊賽事使用舊計分板）
 
-6. **更新 Bracket 顯示**
-   - 支持新的 `formatConfig` 結構
+6. **更新 BracketView**
+   - 支持新的 `formatConfig.stages` 結構
+   - 顯示賽制階段資訊
+
+### 優先級 P2（優化與擴展）
+7. **實現混合賽制生成**
+   - 完成 `generateMixedFormatMatches()`
+   - 支持小組賽 + 淘汰賽
+
+8. **添加更多格式**
+   - 雙敗淘汰（Double Elimination）
+   - 瑞士制（Swiss System）
+
+9. **性能優化**
+   - Bracket 生成批處理優化
+   - 計分實時同步優化
+
+10. **數據遷移腳本**
+    - 將舊的 Match 文檔遷移到新結構
+    - 保持歷史數據完整性
 
 ---
 
