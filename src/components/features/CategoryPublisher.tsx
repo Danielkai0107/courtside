@@ -35,8 +35,19 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
     const checkEngineType = async () => {
       try {
         const categoryDoc = await getCategory(tournamentId, category.id);
+        console.log("[CategoryPublisher] 檢查分類配置:", {
+          categoryId: category.id,
+          hasFormatConfig: !!categoryDoc?.formatConfig,
+          hasScoringConfig: !!categoryDoc?.scoringConfig,
+          categoryDoc: categoryDoc,
+        });
+        
         if (categoryDoc && categoryDoc.formatConfig) {
           setIsUniversalEngine(true);
+          console.log("[CategoryPublisher] 檢測到通用引擎分類");
+        } else {
+          setIsUniversalEngine(false);
+          console.log("[CategoryPublisher] 檢測到傳統引擎分類");
         }
       } catch (error) {
         console.error("檢查引擎類型失敗:", error);

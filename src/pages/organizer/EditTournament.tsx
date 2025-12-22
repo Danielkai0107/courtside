@@ -266,8 +266,7 @@ const EditTournament: React.FC = () => {
       const tournamentData: any = {
         name: name.trim(),
         sportId: selectedSport.id,
-        sportType:
-          selectedSport.nameEn.toLowerCase() as Tournament["sportType"],
+        sportType: (selectedSport as any).nameEn?.toLowerCase() || selectedSport.id,
         date: Timestamp.fromDate(new Date(date)),
         registrationDeadline: Timestamp.fromDate(
           new Date(registrationDeadline)

@@ -16,7 +16,12 @@ import {
   runTransaction,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Match, MatchTimelineLog, MatchDoc, MatchScoreSet } from "../types";
+import type {
+  Match,
+  MatchTimelineLog,
+  MatchDoc,
+  MatchScoreSet,
+} from "../types";
 import type { ScoringConfig } from "../types/universal-config";
 import { getCategory } from "./tournamentService";
 
@@ -554,7 +559,7 @@ export const completeMatch = async (
 
 /**
  * 檢查分數是否達到該局的獲勝條件
- * 
+ *
  * @param score 當前分數
  * @param opponentScore 對手分數
  * @param config 計分配置
@@ -573,12 +578,12 @@ function isSetWon(
   // 檢查是否需要領先2分
   if (config.winByTwo) {
     const lead = score - opponentScore;
-    
+
     // 如果有分數上限，檢查是否達到上限
     if (config.cap && score >= config.cap) {
       return true; // 達到上限，直接獲勝
     }
-    
+
     // 需要領先2分
     return lead >= 2;
   }
@@ -589,7 +594,7 @@ function isSetWon(
 
 /**
  * 通用計分引擎 - 記錄分數
- * 
+ *
  * 這是核心函數，完全通用，無任何硬編碼：
  * 1. 讀取 CategoryDoc.scoringConfig
  * 2. 驗證分數是否達到獲勝條件
@@ -597,7 +602,7 @@ function isSetWon(
  * 4. 重新計算 p1Aggregate, p2Aggregate
  * 5. 檢查比賽獲勝條件
  * 6. 觸發自動晉級
- * 
+ *
  * @param matchId 比賽ID
  * @param setIndex 局號（0-based）
  * @param p1Points 選手1分數
@@ -611,7 +616,9 @@ export async function recordScoreUniversal(
 ): Promise<void> {
   try {
     console.log(
-      `[MatchService] 記錄分數: Match=${matchId}, Set=${setIndex + 1}, P1=${p1Points}, P2=${p2Points}`
+      `[MatchService] 記錄分數: Match=${matchId}, Set=${
+        setIndex + 1
+      }, P1=${p1Points}, P2=${p2Points}`
     );
 
     // 1. 獲取比賽文檔
@@ -744,7 +751,7 @@ export async function recordScoreUniversal(
 
 /**
  * 自動晉級 - 將勝者填入下一場比賽
- * 
+ *
  * @param matchId 當前比賽ID
  */
 async function propagateWinner(matchId: string): Promise<void> {
@@ -775,7 +782,7 @@ async function propagateWinner(matchId: string): Promise<void> {
 
     if (match.nextMatchSlot === "p1") {
       updates.player1Id = match.winnerId;
-      updates.player1Name = 
+      updates.player1Name =
         match.winnerId === match.player1Id
           ? match.player1Name
           : match.player2Name;
@@ -791,12 +798,12 @@ async function propagateWinner(matchId: string): Promise<void> {
     const nextMatchSnap = await getDoc(nextMatchRef);
     if (nextMatchSnap.exists()) {
       const nextMatch = nextMatchSnap.data() as MatchDoc;
-      
+
       // 如果兩位選手都已確定，更新狀態為 PENDING_COURT
       const bothPlayersReady =
-        (match.nextMatchSlot === "p1"
+        match.nextMatchSlot === "p1"
           ? match.winnerId && nextMatch.player2Id
-          : nextMatch.player1Id && match.winnerId);
+          : nextMatch.player1Id && match.winnerId;
 
       if (bothPlayersReady) {
         updates.status = "PENDING_COURT";

@@ -165,8 +165,10 @@ function assignCourtsToMatches(
   matches: Match[],
   courts: { id: string; name: string }[]
 ): void {
-  console.log(`開始場地分配：${matches.length} 場比賽，${courts.length} 個場地`);
-  
+  console.log(
+    `開始場地分配：${matches.length} 場比賽，${courts.length} 個場地`
+  );
+
   if (courts.length === 0) {
     console.warn(`沒有可用的場地，跳過場地分配`);
     return;
@@ -186,7 +188,9 @@ function assignCourtsToMatches(
 
   // 判斷是小組賽還是淘汰賽
   const hasGroupStage = matchesNeedingCourts.some((m) => m.stage === "group");
-  const hasKnockoutStage = matchesNeedingCourts.some((m) => m.stage === "knockout");
+  const hasKnockoutStage = matchesNeedingCourts.some(
+    (m) => m.stage === "knockout"
+  );
 
   console.log(`賽制分析：小組賽=${hasGroupStage}, 淘汰賽=${hasKnockoutStage}`);
 
@@ -201,8 +205,10 @@ function assignCourtsToMatches(
   }
 
   // 驗證分配結果
-  const assignedCount = matchesNeedingCourts.filter(m => m.courtId).length;
-  console.log(`場地分配完成：${assignedCount}/${matchesNeedingCourts.length} 場比賽已分配`);
+  const assignedCount = matchesNeedingCourts.filter((m) => m.courtId).length;
+  console.log(
+    `場地分配完成：${assignedCount}/${matchesNeedingCourts.length} 場比賽已分配`
+  );
 }
 
 /**
@@ -230,7 +236,9 @@ function assignGroupStageCourts(
       match.courtId = court.id;
       match.status = "PENDING_COURT";
     });
-    console.log(`Group ${label} → ${court.name} (${groups[label].length} 場比賽)`);
+    console.log(
+      `Group ${label} → ${court.name} (${groups[label].length} 場比賽)`
+    );
   });
 }
 
@@ -361,7 +369,9 @@ async function autoProgressByeMatches(
         continue;
       }
 
-      console.log(`Processing BYE match ${match.id}, winner: ${winnerId} (${winnerName})`);
+      console.log(
+        `Processing BYE match ${match.id}, winner: ${winnerId} (${winnerName})`
+      );
 
       // 使用真實 Firestore ID
       const realMatchId = idMap.get(match.id);
@@ -414,7 +424,7 @@ async function autoProgressByeMatches(
       console.error(`Failed to process BYE match ${match.id}:`, error);
     }
   }
-  
+
   console.log(`Completed processing ${byeMatches.length} BYE matches`);
 }
 
@@ -792,13 +802,13 @@ export const generateKnockoutOnly = async (
     const player2 = slots[i + 1];
     const hasBye = player1 === "BYE" || player2 === "BYE";
     const bothBye = player1 === "BYE" && player2 === "BYE";
-    
+
     // 跳過 BYE vs BYE 的比賽（不需要創建）
     if (bothBye) {
       console.log(`Skipping BYE vs BYE match at position ${i / 2 + 1}`);
       continue;
     }
-    
+
     const roundLabel = getRoundLabel(totalRounds, 1, bracketSize);
 
     const match = createMatchNode({
@@ -906,7 +916,9 @@ function generateSeedingRules(
   totalGroups: number,
   advancePerGroup: number
 ): Array<{ slot1: string; slot2: string }> {
-  const groupLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").slice(0, totalGroups);
+  const groupLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    .split("")
+    .slice(0, totalGroups);
   const rules: Array<{ slot1: string; slot2: string }> = [];
 
   // 簡化版交叉賽制：A1 vs B2, C1 vs D2...
@@ -958,14 +970,14 @@ function getRoundLabel(
 
 /**
  * 通用賽程生成器（基於 FormatDefinition）
- * 
+ *
  * 這是格式引擎的核心實現：
  * 1. 讀取 CategoryDoc.formatConfig
  * 2. 獲取所有已確認的參賽者
  * 3. 驗證人數是否符合格式
  * 4. 根據 formatConfig.stages 生成對應結構
  * 5. 執行 Slotting（分配參賽者）
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  */
@@ -1019,11 +1031,7 @@ export async function generateScheduleUniversal(
 
       if (stage.type === "round_robin") {
         // 純循環賽
-        await generateRoundRobinMatches(
-          tournamentId,
-          categoryId,
-          participants
-        );
+        await generateRoundRobinMatches(tournamentId, categoryId, participants);
       } else if (stage.type === "knockout") {
         // 純淘汰賽
         await generateKnockoutMatches(
@@ -1050,9 +1058,7 @@ export async function generateScheduleUniversal(
       currentParticipants: participantCount,
     });
 
-    console.log(
-      `[BracketService] 賽程生成完成: ${participantCount} 位參賽者`
-    );
+    console.log(`[BracketService] 賽程生成完成: ${participantCount} 位參賽者`);
   } catch (error) {
     console.error("[BracketService] 生成賽程失敗:", error);
     throw error;
@@ -1061,7 +1067,7 @@ export async function generateScheduleUniversal(
 
 /**
  * 獲取已確認的參賽者
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  * @param matchType 比賽類型（單打或雙打）
@@ -1078,12 +1084,7 @@ async function getConfirmedParticipants(
       const { getDocs, collection, query, where } = await import(
         "firebase/firestore"
       );
-      const playersRef = collection(
-        db,
-        "tournaments",
-        tournamentId,
-        "players"
-      );
+      const playersRef = collection(db, "tournaments", tournamentId, "players");
       const q = query(
         playersRef,
         where("categoryId", "==", categoryId),
@@ -1124,7 +1125,7 @@ async function getConfirmedParticipants(
 
 /**
  * 生成循環賽賽程
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  * @param participants 參賽者列表
@@ -1188,7 +1189,7 @@ async function generateRoundRobinMatches(
 
 /**
  * 生成淘汰賽賽程
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  * @param participants 參賽者列表
@@ -1201,9 +1202,7 @@ async function generateKnockoutMatches(
   bracketSize: number
 ): Promise<void> {
   try {
-    console.log(
-      `[BracketService] 生成淘汰賽賽程: Bracket Size=${bracketSize}`
-    );
+    console.log(`[BracketService] 生成淘汰賽賽程: Bracket Size=${bracketSize}`);
 
     // 1. 洗牌分配（Slotting Engine）
     const shuffled = shuffleArray([...participants]);
@@ -1253,7 +1252,7 @@ async function generateKnockoutMatches(
 
 /**
  * 建立淘汰賽 Bracket 樹（Linked List 結構）
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  * @param slots 參賽者槽位（包含 BYE）
@@ -1340,19 +1339,31 @@ function buildKnockoutBracketTree(
 
       if (prevMatch1Index < matches.length - roundMatchCount) {
         matches[
-          matches.length - roundMatchCount - previousRoundCount + prevMatch1Index
+          matches.length -
+            roundMatchCount -
+            previousRoundCount +
+            prevMatch1Index
         ].nextMatchId = matchKey;
         matches[
-          matches.length - roundMatchCount - previousRoundCount + prevMatch1Index
+          matches.length -
+            roundMatchCount -
+            previousRoundCount +
+            prevMatch1Index
         ].nextMatchSlot = "p1";
       }
 
       if (prevMatch2Index < matches.length - roundMatchCount) {
         matches[
-          matches.length - roundMatchCount - previousRoundCount + prevMatch2Index
+          matches.length -
+            roundMatchCount -
+            previousRoundCount +
+            prevMatch2Index
         ].nextMatchId = matchKey;
         matches[
-          matches.length - roundMatchCount - previousRoundCount + prevMatch2Index
+          matches.length -
+            roundMatchCount -
+            previousRoundCount +
+            prevMatch2Index
         ].nextMatchSlot = "p2";
       }
     }
@@ -1365,7 +1376,7 @@ function buildKnockoutBracketTree(
 
 /**
  * 處理 Bye 自動晉級
- * 
+ *
  * @param matches Match 陣列
  */
 async function handleByeAdvancement(matches: Partial<Match>[]): Promise<void> {
@@ -1432,7 +1443,7 @@ async function handleByeAdvancement(matches: Partial<Match>[]): Promise<void> {
 
 /**
  * 生成混合賽制（小組賽 + 淘汰賽）
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  * @param participants 參賽者列表

@@ -1,10 +1,10 @@
 /**
  * 種子數據腳本 - 填充通用運動引擎的初始數據
- * 
+ *
  * 這個腳本會填充：
  * 1. Sports 集合 - 運動定義（桌球、羽毛球、匹克球）
  * 2. Formats 集合 - 賽制格式模板（2-20人）
- * 
+ *
  * 執行方式：
  * npm run seed
  * 或
@@ -12,13 +12,11 @@
  */
 
 import { initializeApp } from "firebase/app";
-import { 
-  getFirestore, 
-  doc, 
-  setDoc, 
-  Timestamp
-} from "firebase/firestore";
-import type { SportDefinition, FormatDefinition } from "../types/universal-config";
+import { getFirestore, doc, setDoc, Timestamp } from "firebase/firestore";
+import type {
+  SportDefinition,
+  FormatDefinition,
+} from "../types/universal-config";
 import * as dotenv from "dotenv";
 
 // 載入環境變數
@@ -37,7 +35,9 @@ const firebaseConfig = {
 // 驗證配置
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
   console.error("❌ Firebase 配置不完整，請檢查 .env 文件");
-  console.error("需要的環境變數：VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID 等");
+  console.error(
+    "需要的環境變數：VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID 等"
+  );
   process.exit(1);
 }
 
@@ -364,8 +364,12 @@ async function seedFormats() {
         updatedAt: now,
       });
       console.log(`✅ 成功創建賽制: ${format.name} (${format.id})`);
-      console.log(`   - 人數範圍: ${format.minParticipants}-${format.maxParticipants} 人`);
-      console.log(`   - 階段: ${format.stages.map(s => s.type).join(" → ")}\n`);
+      console.log(
+        `   - 人數範圍: ${format.minParticipants}-${format.maxParticipants} 人`
+      );
+      console.log(
+        `   - 階段: ${format.stages.map((s) => s.type).join(" → ")}\n`
+      );
     } catch (error) {
       console.error(`❌ 創建賽制失敗 (${format.id}):`, error);
     }
@@ -394,7 +398,12 @@ async function main() {
     console.log("數據摘要：");
     console.log(`  - 運動數量: ${sportsData.length} 個`);
     console.log(`  - 賽制格式: ${formatsData.length} 個`);
-    console.log(`  - 規則預設總數: ${sportsData.reduce((sum, s) => sum + s.rulePresets.length, 0)} 個`);
+    console.log(
+      `  - 規則預設總數: ${sportsData.reduce(
+        (sum, s) => sum + s.rulePresets.length,
+        0
+      )} 個`
+    );
     console.log("\n您現在可以開始創建賽事了！\n");
 
     process.exit(0);
@@ -406,4 +415,3 @@ async function main() {
 
 // 執行
 main();
-

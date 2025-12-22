@@ -1,6 +1,6 @@
 /**
  * 通用分類創建表單
- * 
+ *
  * 展示如何使用通用運動引擎創建分類：
  * 1. 選擇運動
  * 2. 選擇規則預設
@@ -117,10 +117,7 @@ const UniversalCategoryForm: React.FC<Props> = ({
     setAvailableFormats(filtered);
 
     // 如果當前選擇的格式不在可用列表中，重置
-    if (
-      selectedFormatId &&
-      !filtered.find((f) => f.id === selectedFormatId)
-    ) {
+    if (selectedFormatId && !filtered.find((f) => f.id === selectedFormatId)) {
       setSelectedFormatId(filtered.length > 0 ? filtered[0].id : "");
     } else if (!selectedFormatId && filtered.length > 0) {
       setSelectedFormatId(filtered[0].id);
@@ -210,9 +207,7 @@ const UniversalCategoryForm: React.FC<Props> = ({
         <Select
           label="比賽類型"
           value={matchType}
-          onChange={(value) =>
-            setMatchType(value as "singles" | "doubles")
-          }
+          onChange={(value) => setMatchType(value as "singles" | "doubles")}
           options={[
             { value: "singles", label: "單打" },
             { value: "doubles", label: "雙打" },
@@ -317,10 +312,7 @@ const UniversalCategoryForm: React.FC<Props> = ({
             取消
           </Button>
         )}
-        <Button
-          onClick={handleSubmit}
-          disabled={loading || !selectedFormatId}
-        >
+        <Button onClick={handleSubmit} disabled={loading || !selectedFormatId}>
           {loading ? "創建中..." : "創建分類"}
         </Button>
       </div>
@@ -344,14 +336,14 @@ const UniversalCategoryForm: React.FC<Props> = ({
             </li>
             <li>
               <strong>人數範圍：</strong>
-              {formats.find((f) => f.id === selectedFormatId)?.minParticipants}
-              -
+              {formats.find((f) => f.id === selectedFormatId)?.minParticipants}-
               {formats.find((f) => f.id === selectedFormatId)?.maxParticipants}
               人
             </li>
           </ul>
           <p className={styles.note}>
-            ℹ️ 這些配置將在創建時完整拷貝到分類中，之後不會受到全局規則變更的影響。
+            ℹ️
+            這些配置將在創建時完整拷貝到分類中，之後不會受到全局規則變更的影響。
           </p>
         </div>
       )}
@@ -360,4 +352,3 @@ const UniversalCategoryForm: React.FC<Props> = ({
 };
 
 export default UniversalCategoryForm;
-

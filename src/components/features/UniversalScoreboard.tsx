@@ -1,6 +1,6 @@
 /**
  * 通用計分板組件
- * 
+ *
  * 根據 ScoringConfig 動態渲染計分界面：
  * - 動態局數框（根據 maxSets）
  * - Deuce 顯示
@@ -174,9 +174,9 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
           return (
             <div
               key={index}
-              className={`${styles.setBox} ${
-                isActive ? styles.active : ""
-              } ${set?.isCompleted ? styles.completed : ""}`}
+              className={`${styles.setBox} ${isActive ? styles.active : ""} ${
+                set?.isCompleted ? styles.completed : ""
+              }`}
               onClick={() => {
                 if (!set?.isCompleted) {
                   setCurrentSetIndex(index);
@@ -203,9 +203,7 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
                   {set?.p2Score || 0}
                 </span>
               </div>
-              {set?.isCompleted && (
-                <div className={styles.setStatus}>✓</div>
-              )}
+              {set?.isCompleted && <div className={styles.setStatus}>✓</div>}
             </div>
           );
         })}
@@ -245,7 +243,9 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
                 </Button>
                 <Button
                   onClick={() => handleScoreChange("p1", 1)}
-                  disabled={loading || (config.cap ? p1Score >= config.cap : false)}
+                  disabled={
+                    loading || (config.cap ? p1Score >= config.cap : false)
+                  }
                 >
                   +1
                 </Button>
@@ -277,7 +277,9 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
                 </Button>
                 <Button
                   onClick={() => handleScoreChange("p2", 1)}
-                  disabled={loading || (config.cap ? p2Score >= config.cap : false)}
+                  disabled={
+                    loading || (config.cap ? p2Score >= config.cap : false)
+                  }
                 >
                   +1
                 </Button>
@@ -287,11 +289,7 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
 
           {/* 提交按鈕 */}
           <div className={styles.submitSection}>
-            <Button
-              onClick={handleSubmitScore}
-              disabled={loading}
-              fullWidth
-            >
+            <Button onClick={handleSubmitScore} disabled={loading} fullWidth>
               {loading ? "提交中..." : "確認分數"}
             </Button>
           </div>
@@ -315,4 +313,3 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
 };
 
 export default UniversalScoreboard;
-

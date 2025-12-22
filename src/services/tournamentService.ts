@@ -35,7 +35,7 @@ const removeUndefined = <T extends Record<string, any>>(obj: T): Partial<T> => {
 const uniqueTournaments = (tournaments: Tournament[]): Tournament[] => {
   const tournamentMap = new Map<string, Tournament>();
 
-    tournaments.forEach((tournament) => {
+  tournaments.forEach((tournament) => {
     if (tournamentMap.has(tournament.id)) {
       console.warn(
         `Duplicate tournament detected and removed: ${tournament.id} - ${tournament.name}`
@@ -146,7 +146,7 @@ const enrichTournamentsWithOrganizerInfo = async (
   const tournamentsNeedingInfo = tournaments.filter(
     (t) => !t.organizerName || !t.organizerPhotoURL
   );
-  
+
   if (tournamentsNeedingInfo.length === 0) {
     return tournaments;
   }
@@ -158,12 +158,12 @@ const enrichTournamentsWithOrganizerInfo = async (
 
   // 批量查詢 users
   const organizerMap = new Map<string, { name: string; photoURL?: string }>();
-  
+
   for (const organizerId of organizerIds) {
     try {
       const userRef = doc(db, "users", organizerId);
       const userSnap = await getDoc(userRef);
-      
+
       if (userSnap.exists()) {
         const userData = userSnap.data();
         organizerMap.set(organizerId, {
@@ -172,7 +172,10 @@ const enrichTournamentsWithOrganizerInfo = async (
         });
       }
     } catch (error) {
-      console.error(`Failed to fetch organizer info for ${organizerId}:`, error);
+      console.error(
+        `Failed to fetch organizer info for ${organizerId}:`,
+        error
+      );
     }
   }
 
@@ -233,7 +236,7 @@ export const getTournaments = async (filters?: {
 
   // Ensure no duplicates
   const uniqueTourns = uniqueTournaments(tournaments);
-  
+
   // 補充發布者資訊
   return await enrichTournamentsWithOrganizerInfo(uniqueTourns);
 };
@@ -252,9 +255,11 @@ export const subscribeTournament = (
         id: docSnap.id,
         ...docSnap.data(),
       } as Tournament;
-      
+
       // 補充發布者資訊
-      const enrichedTournament = await enrichTournamentWithOrganizerInfo(tournament);
+      const enrichedTournament = await enrichTournamentWithOrganizerInfo(
+        tournament
+      );
       callback(enrichedTournament);
     } else {
       callback(null);
@@ -303,10 +308,12 @@ export const subscribeTournaments = (
 
     // Ensure no duplicates
     const uniqueTourns = uniqueTournaments(tournaments);
-    
+
     // 補充發布者資訊
-    const enrichedTournaments = await enrichTournamentsWithOrganizerInfo(uniqueTourns);
-    
+    const enrichedTournaments = await enrichTournamentsWithOrganizerInfo(
+      uniqueTourns
+    );
+
     callback(enrichedTournaments);
   });
 };
@@ -461,9 +468,7 @@ export const completeTournament = async (
 /**
  * 取消賽事
  */
-export const cancelTournament = async (
-  tournamentId: string
-): Promise<void> => {
+export const cancelTournament = async (tournamentId: string): Promise<void> => {
   const tournament = await getTournament(tournamentId);
   if (!tournament) {
     throw new Error("Tournament not found");
@@ -505,7 +510,9 @@ export const cancelTournament = async (
       );
 
     await Promise.all(notificationPromises);
-    console.log(`Sent ${notificationPromises.length} tournament cancelled notifications`);
+    console.log(
+      `Sent ${notificationPromises.length} tournament cancelled notifications`
+    );
   } catch (error) {
     console.error("Failed to send cancellation notifications:", error);
     // 不影響取消流程
@@ -532,7 +539,10 @@ export const publishTournament = async (
   }
 
   // 檢查是否為新架構（有 stats.totalCategories）
-  if (tournament.stats?.totalCategories && tournament.stats.totalCategories > 0) {
+  if (
+    tournament.stats?.totalCategories &&
+    tournament.stats.totalCategories > 0
+  ) {
     throw new Error(
       "此賽事使用新的三層架構，請到各個分類中分別發布賽程。舊的統一發布功能不適用於新架構。"
     );
@@ -553,13 +563,7 @@ export const publishTournament = async (
     pointsPerSet: 21,
   };
 
-  await generateBracket(
-    tournamentId,
-    selectedPlayers,
-    courts,
-    format,
-    config
-  );
+  await generateBracket(tournamentId, selectedPlayers, courts, format, config);
 
   // 3. 狀態轉換
   await transitionTournamentStatus(tournamentId, tournament.status, "ONGOING");
@@ -605,11 +609,13 @@ export const publishTournament = async (
 
 /**
  * 獲取運動定義（包含規則預設）
- * 
+ *
  * @param sportId 運動ID
  * @returns 運動定義，如果不存在則返回 null
  */
-export async function getSport(sportId: string): Promise<SportDefinition | null> {
+export async function getSport(
+  sportId: string
+): Promise<SportDefinition | null> {
   try {
     const docRef = doc(db, "sports", sportId);
     const docSnap = await getDoc(docRef);
@@ -639,13 +645,13 @@ export async function getSport(sportId: string): Promise<SportDefinition | null>
 
 /**
  * 創建分組/項目（帶配置快照）
- * 
+ *
  * 這是配置快照邏輯的核心：
  * 1. 查詢 Sport 文檔獲取完整的規則配置
  * 2. 查詢 Format 文檔獲取完整的賽制模板
  * 3. 將配置完整拷貝到 Category 文檔中（快照）
  * 4. 確保賽事規則凍結，不受全局配置變更影響
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryData 分組/項目數據
  * @returns 創建的分組/項目ID
@@ -661,7 +667,9 @@ export async function createCategoryWithSnapshot(
   }
 ): Promise<string> {
   try {
-    console.log(`[TournamentService] 創建分組 ${categoryData.name}，快照配置...`);
+    console.log(
+      `[TournamentService] 創建分組 ${categoryData.name}，快照配置...`
+    );
 
     // 1. 獲取運動定義
     const sport = await getSport(categoryData.sportId);
@@ -726,7 +734,9 @@ export async function createCategoryWithSnapshot(
     console.log(
       `[TournamentService] 成功創建分組: ${categoryData.name} (ID: ${docRef.id})`
     );
-    console.log(`[TournamentService] 快照配置: ${rulePreset.label} + ${format.name}`);
+    console.log(
+      `[TournamentService] 快照配置: ${rulePreset.label} + ${format.name}`
+    );
 
     return docRef.id;
   } catch (error) {
@@ -737,7 +747,7 @@ export async function createCategoryWithSnapshot(
 
 /**
  * 獲取分組/項目（帶完整配置）
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  * @returns 分組文檔，如果不存在則返回 null
@@ -766,20 +776,17 @@ export async function getCategory(
       ...docSnap.data(),
     } as CategoryDoc;
   } catch (error) {
-    console.error(
-      `[TournamentService] 獲取分組失敗 (${categoryId}):`,
-      error
-    );
+    console.error(`[TournamentService] 獲取分組失敗 (${categoryId}):`, error);
     throw error;
   }
 }
 
 /**
  * 更新分組/項目
- * 
+ *
  * 注意：scoringConfig 和 formatConfig 不應該被更新
  * 這些配置在創建時快照，應該保持凍結
- * 
+ *
  * @param tournamentId 賽事ID
  * @param categoryId 分組ID
  * @param updates 更新內容
