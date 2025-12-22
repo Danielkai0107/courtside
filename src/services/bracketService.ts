@@ -951,3 +951,512 @@ function getRoundLabel(
 
   return `R${Math.pow(2, remainingRounds)}`;
 }
+
+// ============================================
+// 通用運動引擎 - 通用 Bracket 生成器
+// ============================================
+
+/**
+ * 通用賽程生成器（基於 FormatDefinition）
+ * 
+ * 這是格式引擎的核心實現：
+ * 1. 讀取 CategoryDoc.formatConfig
+ * 2. 獲取所有已確認的參賽者
+ * 3. 驗證人數是否符合格式
+ * 4. 根據 formatConfig.stages 生成對應結構
+ * 5. 執行 Slotting（分配參賽者）
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ */
+export async function generateScheduleUniversal(
+  tournamentId: string,
+  categoryId: string
+): Promise<void> {
+  try {
+    console.log(
+      `[BracketService] 開始生成賽程: Tournament=${tournamentId}, Category=${categoryId}`
+    );
+
+    // 1. 獲取分組配置
+    const { getCategory } = await import("./tournamentService");
+    const category = await getCategory(tournamentId, categoryId);
+
+    if (!category) {
+      throw new Error(`分組不存在: ${categoryId}`);
+    }
+
+    const formatConfig = category.formatConfig;
+
+    console.log(
+      `[BracketService] 使用賽制格式: ${formatConfig.name} (${formatConfig.minParticipants}-${formatConfig.maxParticipants} 人)`
+    );
+
+    // 2. 獲取所有已確認的參賽者
+    const participants = await getConfirmedParticipants(
+      tournamentId,
+      categoryId,
+      category.matchType
+    );
+
+    console.log(`[BracketService] 參賽者數量: ${participants.length}`);
+
+    // 3. 驗證人數是否符合格式
+    const participantCount = participants.length;
+
+    if (
+      participantCount < formatConfig.minParticipants ||
+      participantCount > formatConfig.maxParticipants
+    ) {
+      throw new Error(
+        `參賽者數量 ${participantCount} 不符合格式要求（範圍: ${formatConfig.minParticipants}-${formatConfig.maxParticipants}）`
+      );
+    }
+
+    // 4. 根據格式類型生成賽程
+    if (formatConfig.stages.length === 1) {
+      const stage = formatConfig.stages[0];
+
+      if (stage.type === "round_robin") {
+        // 純循環賽
+        await generateRoundRobinMatches(
+          tournamentId,
+          categoryId,
+          participants
+        );
+      } else if (stage.type === "knockout") {
+        // 純淘汰賽
+        await generateKnockoutMatches(
+          tournamentId,
+          categoryId,
+          participants,
+          stage.size || formatConfig.maxParticipants
+        );
+      }
+    } else {
+      // 混合賽制（小組賽 + 淘汰賽）
+      await generateMixedFormatMatches(
+        tournamentId,
+        categoryId,
+        participants,
+        formatConfig
+      );
+    }
+
+    // 5. 更新分組狀態
+    const { updateCategory } = await import("./tournamentService");
+    await updateCategory(tournamentId, categoryId, {
+      status: "ONGOING",
+      currentParticipants: participantCount,
+    });
+
+    console.log(
+      `[BracketService] 賽程生成完成: ${participantCount} 位參賽者`
+    );
+  } catch (error) {
+    console.error("[BracketService] 生成賽程失敗:", error);
+    throw error;
+  }
+}
+
+/**
+ * 獲取已確認的參賽者
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ * @param matchType 比賽類型（單打或雙打）
+ * @returns 參賽者列表
+ */
+async function getConfirmedParticipants(
+  tournamentId: string,
+  categoryId: string,
+  matchType: "singles" | "doubles"
+): Promise<Array<{ id: string; name: string }>> {
+  try {
+    if (matchType === "singles") {
+      // 單打：從 players 子集合讀取
+      const { getDocs, collection, query, where } = await import(
+        "firebase/firestore"
+      );
+      const playersRef = collection(
+        db,
+        "tournaments",
+        tournamentId,
+        "players"
+      );
+      const q = query(
+        playersRef,
+        where("categoryId", "==", categoryId),
+        where("status", "==", "confirmed")
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+      }));
+    } else {
+      // 雙打：從 teams 子集合讀取
+      const { getDocs, collection, query, where } = await import(
+        "firebase/firestore"
+      );
+      const teamsRef = collection(db, "tournaments", tournamentId, "teams");
+      const q = query(
+        teamsRef,
+        where("categoryId", "==", categoryId),
+        where("status", "==", "confirmed")
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: `${data.player1Name} / ${data.player2Name}`,
+        };
+      });
+    }
+  } catch (error) {
+    console.error("[BracketService] 獲取參賽者失敗:", error);
+    throw error;
+  }
+}
+
+/**
+ * 生成循環賽賽程
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ * @param participants 參賽者列表
+ */
+async function generateRoundRobinMatches(
+  tournamentId: string,
+  categoryId: string,
+  participants: Array<{ id: string; name: string }>
+): Promise<void> {
+  try {
+    console.log(`[BracketService] 生成循環賽賽程...`);
+
+    const batch = writeBatch(db);
+    const matchesRef = collection(db, "matches");
+    let matchOrder = 1;
+
+    // 生成所有組合
+    for (let i = 0; i < participants.length; i++) {
+      for (let j = i + 1; j < participants.length; j++) {
+        const p1 = participants[i];
+        const p2 = participants[j];
+
+        const matchData: Partial<Match> = {
+          tournamentId,
+          categoryId,
+          stage: "group",
+          groupLabel: "A",
+          round: 1,
+          matchOrder: matchOrder++,
+          player1Id: p1.id,
+          player2Id: p2.id,
+          player1Name: p1.name,
+          player2Name: p2.name,
+          nextMatchId: null,
+          nextMatchSlot: null,
+          courtId: null,
+          status: "PENDING_COURT",
+          sets: [],
+          p1Aggregate: 0,
+          p2Aggregate: 0,
+          winnerId: null,
+        };
+
+        const matchRef = doc(matchesRef);
+        batch.set(matchRef, {
+          ...matchData,
+          createdAt: serverTimestamp(),
+        });
+      }
+    }
+
+    await batch.commit();
+
+    const totalMatches = (participants.length * (participants.length - 1)) / 2;
+    console.log(`[BracketService] 循環賽生成完成: ${totalMatches} 場比賽`);
+  } catch (error) {
+    console.error("[BracketService] 生成循環賽失敗:", error);
+    throw error;
+  }
+}
+
+/**
+ * 生成淘汰賽賽程
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ * @param participants 參賽者列表
+ * @param bracketSize Bracket 大小（例如：16）
+ */
+async function generateKnockoutMatches(
+  tournamentId: string,
+  categoryId: string,
+  participants: Array<{ id: string; name: string }>,
+  bracketSize: number
+): Promise<void> {
+  try {
+    console.log(
+      `[BracketService] 生成淘汰賽賽程: Bracket Size=${bracketSize}`
+    );
+
+    // 1. 洗牌分配（Slotting Engine）
+    const shuffled = shuffleArray([...participants]);
+
+    // 2. 處理 Bye（如果參賽者數量 < bracketSize）
+    const slots: Array<{ id: string; name: string } | "BYE"> = [];
+    for (let i = 0; i < bracketSize; i++) {
+      if (i < shuffled.length) {
+        slots.push(shuffled[i]);
+      } else {
+        slots.push("BYE");
+      }
+    }
+
+    // 3. 生成 Bracket 樹
+    const matches = buildKnockoutBracketTree(
+      tournamentId,
+      categoryId,
+      slots,
+      bracketSize
+    );
+
+    // 4. 批量寫入 Firestore
+    const batch = writeBatch(db);
+    const matchesRef = collection(db, "matches");
+
+    for (const match of matches) {
+      const matchRef = doc(matchesRef);
+      batch.set(matchRef, {
+        ...match,
+        id: matchRef.id,
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    await batch.commit();
+
+    console.log(`[BracketService] 淘汰賽生成完成: ${matches.length} 場比賽`);
+
+    // 5. 處理 Bye 自動晉級
+    await handleByeAdvancement(matches);
+  } catch (error) {
+    console.error("[BracketService] 生成淘汰賽失敗:", error);
+    throw error;
+  }
+}
+
+/**
+ * 建立淘汰賽 Bracket 樹（Linked List 結構）
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ * @param slots 參賽者槽位（包含 BYE）
+ * @param bracketSize Bracket 大小
+ * @returns Match 陣列
+ */
+function buildKnockoutBracketTree(
+  tournamentId: string,
+  categoryId: string,
+  slots: Array<{ id: string; name: string } | "BYE">,
+  bracketSize: number
+): Partial<Match>[] {
+  const matches: Partial<Match>[] = [];
+  const totalRounds = Math.log2(bracketSize);
+  const matchIdMap = new Map<string, string>(); // 用於追蹤 matchId
+
+  // Round 1: 初始配對
+  for (let i = 0; i < slots.length; i += 2) {
+    const p1 = slots[i];
+    const p2 = slots[i + 1];
+    const hasBye = p1 === "BYE" || p2 === "BYE";
+
+    const matchKey = `r1-m${i / 2 + 1}`;
+    matchIdMap.set(matchKey, `temp-${matchKey}`);
+
+    const match: Partial<Match> = {
+      tournamentId,
+      categoryId,
+      stage: "knockout",
+      roundLabel: getRoundLabel(totalRounds, 1, bracketSize),
+      round: 1,
+      matchOrder: i / 2 + 1,
+      player1Id: p1 === "BYE" ? null : p1.id,
+      player2Id: p2 === "BYE" ? null : p2.id,
+      player1Name: p1 === "BYE" ? undefined : p1.name,
+      player2Name: p2 === "BYE" ? undefined : p2.name,
+      status: hasBye ? "PENDING_PLAYER" : "PENDING_COURT",
+      sets: [],
+      p1Aggregate: 0,
+      p2Aggregate: 0,
+      winnerId: null,
+      courtId: null,
+      nextMatchId: null,
+      nextMatchSlot: null,
+    };
+
+    matches.push(match);
+  }
+
+  // Round 2 ~ Final: 建立空白晉級場次
+  let previousRoundCount = slots.length / 2;
+
+  for (let round = 2; round <= totalRounds; round++) {
+    const roundMatchCount = previousRoundCount / 2;
+
+    for (let i = 0; i < roundMatchCount; i++) {
+      const matchKey = `r${round}-m${i + 1}`;
+      matchIdMap.set(matchKey, `temp-${matchKey}`);
+
+      const match: Partial<Match> = {
+        tournamentId,
+        categoryId,
+        stage: "knockout",
+        roundLabel: getRoundLabel(totalRounds, round, bracketSize),
+        round,
+        matchOrder: i + 1,
+        player1Id: null,
+        player2Id: null,
+        status: "PENDING_PLAYER",
+        sets: [],
+        p1Aggregate: 0,
+        p2Aggregate: 0,
+        winnerId: null,
+        courtId: null,
+        nextMatchId: null,
+        nextMatchSlot: null,
+      };
+
+      matches.push(match);
+
+      // 設置前一輪比賽的 nextMatchId 和 nextMatchSlot
+      const prevMatch1Index = i * 2;
+      const prevMatch2Index = i * 2 + 1;
+
+      if (prevMatch1Index < matches.length - roundMatchCount) {
+        matches[
+          matches.length - roundMatchCount - previousRoundCount + prevMatch1Index
+        ].nextMatchId = matchKey;
+        matches[
+          matches.length - roundMatchCount - previousRoundCount + prevMatch1Index
+        ].nextMatchSlot = "player1";
+      }
+
+      if (prevMatch2Index < matches.length - roundMatchCount) {
+        matches[
+          matches.length - roundMatchCount - previousRoundCount + prevMatch2Index
+        ].nextMatchId = matchKey;
+        matches[
+          matches.length - roundMatchCount - previousRoundCount + prevMatch2Index
+        ].nextMatchSlot = "player2";
+      }
+    }
+
+    previousRoundCount = roundMatchCount;
+  }
+
+  return matches;
+}
+
+/**
+ * 處理 Bye 自動晉級
+ * 
+ * @param matches Match 陣列
+ */
+async function handleByeAdvancement(matches: Partial<Match>[]): Promise<void> {
+  try {
+    console.log(`[BracketService] 處理 Bye 自動晉級...`);
+
+    const byeMatches = matches.filter(
+      (m) =>
+        m.status === "PENDING_PLAYER" &&
+        (m.player1Id === null || m.player2Id === null)
+    );
+
+    if (byeMatches.length === 0) {
+      console.log(`[BracketService] 沒有 Bye 需要處理`);
+      return;
+    }
+
+    for (const match of byeMatches) {
+      // 確定勝者
+      const winnerId = match.player1Id || match.player2Id;
+      const winnerName = match.player1Name || match.player2Name;
+
+      if (!winnerId) {
+        continue; // 雙方都是 BYE，跳過
+      }
+
+      // 更新比賽狀態為已完成
+      const { updateDoc, doc } = await import("firebase/firestore");
+      const matchRef = doc(db, "matches", match.id!);
+
+      await updateDoc(matchRef, {
+        winnerId,
+        status: "COMPLETED",
+        endTime: serverTimestamp(),
+      });
+
+      // 如果有下一場，填入勝者
+      if (match.nextMatchId && match.nextMatchSlot) {
+        const nextMatchRef = doc(db, "matches", match.nextMatchId);
+        const updates: any = {};
+
+        if (match.nextMatchSlot === "player1") {
+          updates.player1Id = winnerId;
+          updates.player1Name = winnerName;
+        } else {
+          updates.player2Id = winnerId;
+          updates.player2Name = winnerName;
+        }
+
+        await updateDoc(nextMatchRef, updates);
+
+        console.log(
+          `[BracketService] Bye 晉級: ${winnerName} → Match ${match.nextMatchId}`
+        );
+      }
+    }
+
+    console.log(`[BracketService] Bye 處理完成: ${byeMatches.length} 場`);
+  } catch (error) {
+    console.error("[BracketService] 處理 Bye 失敗:", error);
+    // 不拋出錯誤，繼續執行
+  }
+}
+
+/**
+ * 生成混合賽制（小組賽 + 淘汰賽）
+ * 
+ * @param tournamentId 賽事ID
+ * @param categoryId 分組ID
+ * @param participants 參賽者列表
+ * @param formatConfig 賽制配置
+ */
+async function generateMixedFormatMatches(
+  tournamentId: string,
+  categoryId: string,
+  participants: Array<{ id: string; name: string }>,
+  formatConfig: any
+): Promise<void> {
+  try {
+    console.log(`[BracketService] 生成混合賽制（小組賽 + 淘汰賽）...`);
+
+    // TODO: 實現小組賽 + 淘汰賽混合邏輯
+    // 這需要：
+    // 1. 將參賽者分組
+    // 2. 生成各組的循環賽
+    // 3. 生成淘汰賽（晉級者）
+    // 4. 設置 Linked List 連結
+
+    throw new Error("混合賽制暫未實現，請先使用純淘汰賽或純循環賽");
+  } catch (error) {
+    console.error("[BracketService] 生成混合賽制失敗:", error);
+    throw error;
+  }
+}
