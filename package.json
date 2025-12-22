@@ -13,6 +13,7 @@
   "dependencies": {
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "firebase": "^12.7.0",
     "lucide-react": "^0.562.0",
     "material-symbols": "^0.40.2",

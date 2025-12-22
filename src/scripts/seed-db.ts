@@ -8,7 +8,7 @@
  * 執行方式：
  * npm run seed
  * 或
- * npx ts-node src/scripts/seed-db.ts
+ * npx tsx src/scripts/seed-db.ts
  */
 
 import { initializeApp } from "firebase/app";
@@ -17,9 +17,13 @@ import {
   collection, 
   doc, 
   setDoc, 
-  serverTimestamp 
+  Timestamp
 } from "firebase/firestore";
 import type { SportDefinition, FormatDefinition } from "../types/universal-config";
+import * as dotenv from "dotenv";
+
+// 載入環境變數
+dotenv.config();
 
 // Firebase 配置（從環境變數讀取）
 const firebaseConfig = {
@@ -30,6 +34,13 @@ const firebaseConfig = {
   messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.VITE_FIREBASE_APP_ID,
 };
+
+// 驗證配置
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error("❌ Firebase 配置不完整，請檢查 .env 文件");
+  console.error("需要的環境變數：VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID 等");
+  process.exit(1);
+}
 
 // 初始化 Firebase
 const app = initializeApp(firebaseConfig);
@@ -326,10 +337,11 @@ async function seedSports() {
   for (const sport of sportsData) {
     try {
       const docRef = doc(db, "sports", sport.id);
+      const now = Timestamp.now();
       await setDoc(docRef, {
         ...sport,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: now,
+        updatedAt: now,
       });
       console.log(`✅ 成功創建運動: ${sport.name} (${sport.id})`);
       console.log(`   - 模式: ${sport.modes.join(", ")}`);
@@ -346,10 +358,11 @@ async function seedFormats() {
   for (const format of formatsData) {
     try {
       const docRef = doc(db, "formats", format.id);
+      const now = Timestamp.now();
       await setDoc(docRef, {
         ...format,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: now,
+        updatedAt: now,
       });
       console.log(`✅ 成功創建賽制: ${format.name} (${format.id})`);
       console.log(`   - 人數範圍: ${format.minParticipants}-${format.maxParticipants} 人`);
