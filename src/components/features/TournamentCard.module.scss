@@ -1,0 +1,90 @@
+@import "../../styles/variables";
+
+.tournamentCard {
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+}
+
+.banner {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 4px 4px 0 0;
+}
+
+.sportType {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: 12px;
+  background-color: #fafafa;
+}
+
+.Wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.status {
+  font-size: $font-size-sm;
+  font-weight: 400;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background-color: $primary-color;
+  color: #fff;
+  z-index: 100;
+}
+
+.title {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: 400;
+  color: $text-secondary;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.publisher {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.organizerName {
+  font-size: 14px;
+  color: $text-secondary;
+  font-weight: 400;
+}

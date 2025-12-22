@@ -1,0 +1,70 @@
+@import "../../styles/variables";
+
+.selectGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &.fullWidth {
+    width: 100%;
+  }
+}
+
+.label {
+  font-size: 14px;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.selectWrapper {
+  position: relative;
+}
+
+.select {
+  width: 100%;
+  height: 40px;
+  padding: $spacing-md;
+  padding: 4px 4px 4px 12px;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  font-size: 16px; /* 防止移動設備自動放大 */
+  color: $text-primary;
+  background: $card-bg;
+  transition: all 0.2s ease;
+  appearance: none;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $border-active;
+  }
+
+  &.error {
+    border-color: $error-color;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.1);
+    }
+  }
+
+  &:disabled {
+    background: $bg-color;
+    color: $text-disabled;
+    cursor: not-allowed;
+  }
+}
+
+.icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: $text-secondary;
+}
+
+.errorText {
+  font-size: $font-size-sm;
+  color: $error-color;
+}

@@ -1,0 +1,276 @@
+@import "../../styles/variables";
+
+.tournamentMatchesCard {
+  cursor: default;
+  overflow: hidden;
+
+  .header {
+    width: 100%;
+    position: relative;
+    padding: $spacing-sm $spacing-md;
+    background: #ffffff;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    min-height: 70px;
+
+    // 主色漸層遮罩
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(2, 18, 47, 0.5) 0%,
+        rgba(2, 18, 47, 0.7) 50%,
+        rgba(2, 18, 47, 0.85) 100%
+      );
+      z-index: 1;
+      transition: all 0.3s ease;
+    }
+
+    // 骨架加載動畫
+    &.loading {
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(10, 80, 211, 0.8) 0%,
+          rgba(10, 80, 211, 0.6) 50%,
+          rgba(10, 80, 211, 0.8) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s ease-in-out infinite;
+        z-index: 2;
+      }
+    }
+
+    .headerContent {
+      position: relative;
+      z-index: 3;
+    }
+
+    .headerTop {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-sm;
+
+      .tournamentName {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .liveTag {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        border-radius: $radius-lg;
+        font-size: $font-size-sm;
+        font-weight: 600;
+        backdrop-filter: blur(4px);
+
+        .liveDot {
+          width: 6px;
+          height: 6px;
+          background: $error-color;
+          border-radius: 50%;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+      }
+    }
+
+    .headerInfo {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      font-size: $font-size-sm;
+      opacity: 0.95;
+
+      .infoItem {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+
+  .matchesList {
+    display: flex;
+    padding: $spacing-md;
+    flex-direction: column;
+    gap: $spacing-sm;
+    .matchItem {
+      border-radius: $radius-sm;
+      margin-bottom: $spacing-sm;
+      background: $bg-color;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid $border-color;
+      padding: $spacing-md;
+      background: #fafafa;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      &:hover {
+        background: darken($bg-color, 3%);
+        transform: translateX(2px);
+      }
+
+      .matchInfo {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        margin-bottom: $spacing-sm;
+        font-size: $font-size-sm;
+        padding-bottom: 12px;
+        border-bottom: 1px solid $border-color;
+
+        .matchStageWrapper {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          .bracketButton {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            background: transparent;
+            border: none;
+            color: $primary-color;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+          }
+
+          .matchStage {
+            font-size: $font-size-base;
+            font-weight: 400;
+            color: $text-secondary;
+          }
+        }
+
+        .courtInfo {
+          padding: 2px 8px;
+          background: $primary-color;
+          color: white;
+          border-radius: 4px;
+        }
+      }
+
+      .matchup {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: $spacing-sm;
+
+        .player {
+          width: 100%;
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+
+          .playerName {
+            font-size: $font-size-base;
+            font-weight: 400;
+            color: $text-primary;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .score {
+            font-size: $font-size-base;
+            font-weight: 600;
+            color: #000000;
+            min-width: 30px;
+            text-align: center;
+          }
+        }
+      }
+
+      .matchFooter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: $spacing-sm;
+        padding-top: $spacing-sm;
+        border-top: 1px solid $border-color;
+        font-size: $font-size-sm;
+
+        .matchTime {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          color: $text-secondary;
+        }
+
+        .liveIndicator {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 500;
+          color: $primary-color;
+          margin-left: auto; // 永遠固定在右邊
+
+          .liveDot {
+            width: 6px;
+            height: 6px;
+            background: $primary-color;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+          }
+        }
+      }
+    }
+
+    .noMatches {
+      padding: $spacing-lg;
+      text-align: center;
+      color: $text-secondary;
+      font-size: $font-size-sm;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

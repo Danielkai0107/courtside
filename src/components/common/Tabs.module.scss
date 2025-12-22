@@ -1,0 +1,144 @@
+@import "../../styles/variables";
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid $border-color;
+  gap: $spacing-md;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none; // Firefox
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // 確保滾動順暢
+  scroll-snap-type: none;
+}
+
+.tab {
+  flex: 1;
+  padding: $spacing-md;
+  background: none;
+  border: none;
+  color: $text-secondary;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  &.active {
+    color: $primary-color;
+    font-weight: 600;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: $primary-color;
+      border-radius: 3px 3px 0 0;
+    }
+  }
+
+  .badge {
+    position: absolute;
+    display: block;
+    margin-left: $spacing-xs;
+    padding: 4px 6px;
+    background: $error-color;
+    color: white;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(120%, -45%);
+    
+  }
+}
+
+// Swipeable Tabs Container
+.swipeableTabsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.swipeableContent {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+
+  scroll-behavior: smooth;
+  scrollbar-width: none; // Firefox
+  -webkit-scrollbar {
+    display: none;
+  }
+
+  // 嵌套層級：內層 tabs 的滑動優先級更高
+  &.nested {
+    z-index: 2;
+  }
+
+  // 滑動中的視覺反饋
+  &.swiping {
+    user-select: none;
+    cursor: grabbing;
+  }
+
+  // 過渡動畫
+  &.transitioning {
+    & > * {
+      animation-duration: 0.3s;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      animation-fill-mode: both;
+    }
+
+    &.slide-left > * {
+      animation-name: slideInFromRight;
+    }
+
+    &.slide-right > * {
+      animation-name: slideInFromLeft;
+    }
+  }
+}
+
+// 從右側滑入動畫（向左切換）
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// 從左側滑入動畫（向右切換）
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,209 @@
+@import "../../styles/variables";
+
+// 對戰圖容器
+.bracketView {
+  width: 100%;
+  overflow-x: auto;
+  padding: $spacing-md 0;
+}
+
+.bracketContainer {
+  display: flex;
+  gap: $spacing-xl;
+  min-width: max-content;
+  padding: $spacing-md;
+}
+
+// 每一輪
+.round {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 280px;
+}
+
+.roundTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 $spacing-md 0;
+  text-align: center;
+  padding: $spacing-sm;
+  background: $bg-color;
+  border-radius: $radius-sm;
+}
+
+.matchesColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  justify-content: space-around;
+}
+
+// Match Card
+.matchCard {
+  background: white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  position: relative;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  font-weight: 500;
+
+  &.gray {
+    background: $bg-color;
+    color: $text-secondary;
+  }
+
+  &.yellow {
+    background: #fff4e5;
+    color: #f59e0b;
+  }
+
+  &.blue {
+    background: #eff6ff;
+    color: $primary-color;
+  }
+
+  &.orange {
+    background: #fff4e5;
+    color: $primary-color;
+  }
+
+  &.green {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+}
+
+.courtName {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.matchup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  flex: 1;
+}
+
+.player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm;
+  background: $bg-color;
+  border-radius: $radius-sm;
+  transition: all 0.2s;
+
+  &.winner {
+    background: #ffe5d0;
+    border: 2px solid $primary-color;
+    font-weight: 600;
+  }
+
+  &.bye {
+    opacity: 0.5;
+    font-style: italic;
+  }
+}
+
+.playerName {
+  font-size: $font-size-base;
+  color: $text-primary;
+}
+
+.score {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $primary-color;
+  min-width: 32px;
+  text-align: right;
+}
+
+.vs {
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.byeNotice {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  text-align: center;
+  padding: $spacing-xs;
+  background: $bg-color;
+  border-radius: $radius-sm;
+}
+
+// 舊版樣式（保留向下相容）
+.section {
+  margin-bottom: $spacing-xl;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 $spacing-md 0;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  background: $error-color;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.matchList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl;
+  color: $text-secondary;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: $font-size-base;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}

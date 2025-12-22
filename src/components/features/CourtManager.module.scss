@@ -1,0 +1,110 @@
+@import "../../styles/variables";
+
+.courtManager {
+  margin-top: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 4px;
+  margin-bottom: $spacing-md;
+}
+
+.courtList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.courtItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md;
+  border-radius: 8px;
+  background: #f2f4f7;
+}
+
+.courtInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
+}
+
+.courtName {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.courtStatus {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+
+  &.idle {
+    background: $success-color;
+    color: #fff;
+  }
+
+  &.in_use {
+    background: $primary-color;
+    color: #fff;
+  }
+}
+
+.summary {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid $border-color;
+}
+
+.emptyMessage,
+.loadingMessage {
+  text-align: center;
+  color: $text-secondary;
+  padding: 2rem;
+  margin: 0;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: $font-size-base;
+}
+
+.modalActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding-top: $font-size-base;
+  border-top: 1px solid $border-color;
+}

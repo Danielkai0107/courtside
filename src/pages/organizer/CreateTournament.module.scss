@@ -1,0 +1,226 @@
+@import "../../styles/variables";
+
+.createTournament {
+  min-height: 100dvh;
+  background: $bg-color;
+  padding-bottom: 80px;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: $spacing-md;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  padding: $spacing-sm;
+  cursor: pointer;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.content {
+  padding: 72px $spacing-md $spacing-md;
+}
+
+.error {
+  padding: $spacing-md;
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid $error-color;
+  border-radius: $radius-sm;
+  color: $error-color;
+  font-size: $font-size-sm;
+  margin: $spacing-md 0;
+}
+
+.formContent {
+  margin-top: $spacing-lg;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-size: 14px;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.optionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: $spacing-md;
+}
+
+.bannerPreview {
+  width: 100%;
+  height: 160px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  background: $border-color;
+  margin-bottom: $spacing-sm;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.uploadButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border: 2px dashed $border-color;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  font-size: $font-size-base;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
+.hint {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.warningText {
+  font-size: $font-size-sm;
+  color: $warning-color;
+  background: rgba(255, 193, 7, 0.1);
+  padding: $spacing-md;
+  border-radius: $radius-sm;
+  border: 1px solid $warning-color;
+  margin-top: $spacing-md;
+}
+
+.infoBox {
+  padding: $spacing-lg;
+  background: rgba(0, 230, 118, 0.05);
+  border: 2px solid rgba(0, 230, 118, 0.2);
+  border-radius: $radius-md;
+}
+
+.formatInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.formatIcon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.formatTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.formatDesc {
+  font-size: $font-size-base;
+  color: $text-secondary;
+  line-height: 1.5;
+}
+
+.textarea {
+  width: 100%;
+  padding: $spacing-md;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  font-size: 16px; /* 防止移動設備自動放大 */
+  font-family: inherit;
+  color: $text-primary;
+  background: $card-bg;
+  transition: all 0.2s ease;
+  resize: vertical;
+
+  &::placeholder {
+    color: $text-placeholder;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $border-active;
+  }
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $card-bg;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progressBar {
+  width: 100%;
+  display: flex;
+  gap: 0;
+  height: 4px;
+  gap: 6px;
+}
+
+.progressSegment {
+  flex: 1;
+  background: $border-color;
+  transition: background-color 0.3s ease;
+  border-radius: 12px;
+
+  &.completed {
+    background: $primary-color;
+  }
+}
+
+.footerButtons {
+  width: 100%;
+  padding: $spacing-md;
+  display: flex;
+  gap: $spacing-md;
+  justify-content: space-between;
+  button {
+    flex: 1;
+  }
+}

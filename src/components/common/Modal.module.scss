@@ -1,0 +1,104 @@
+@import "../../styles/variables";
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-md;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  background: $card-bg;
+  border-radius: $radius-lg;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &.sm {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  &.md {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  &.lg {
+    width: 100%;
+    max-width: 800px;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-color;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: $spacing-xs;
+  cursor: pointer;
+  color: $text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $bg-color;
+    color: $text-primary;
+  }
+}
+
+.content {
+  padding: $spacing-lg;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0; // 重要：允許 flex 子元素正確滾動
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

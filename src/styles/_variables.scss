@@ -1,0 +1,63 @@
+// 主色調（橘色系統）
+$primary-color: #0a50d3;
+$primary-light: #0a50d3;
+$primary-dark: #0a50d3;
+$primary-gradient: #0a50d3;
+
+// 背景色
+$bg-color: #ffffff;
+$card-bg: #ffffff;
+$text-bg: #f2f4f7;
+
+// 文字顏色
+$text-color: #333333;
+$text-primary: #333333;
+$text-secondary: #475467;
+$text-tertiary: #cccccc;
+$text-muted: #999999;
+$text-placeholder: #cccccc;
+$text-disabled: #e0e0e0;
+
+// 邊框
+$border-color: #e0e0e0;
+$border-active: $primary-color;
+
+// 狀態顏色
+$accent-color: #72b664; // Green for success/live status
+$success-color: #72b664; // Success color (same as accent)
+$error-color: #ff5252;
+$warning-color: #ff8438;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// Typography
+$font-family-base: "DM Sans", system-ui, -apple-system, sans-serif;
+$font-size-sm: 0.75rem;
+$font-size-base: 0.875rem;
+$font-size-md: $font-size-base;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.2rem;
+
+// 圓角
+$radius-sm: 8px;
+$radius-md: 10px;
+$radius-lg: 12px;
+$radius-pill: 9999px;
+
+// 陰影
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+$shadow-bottom: 0 -2px 8px rgba(0, 0, 0, 0.1);
+
+// 間距（額外定義）
+$spacing-xxs: 4px;
+
+// Breakpoints
+$breakpoint-mobile: 768px;
+$breakpoint-tablet: 1024px;

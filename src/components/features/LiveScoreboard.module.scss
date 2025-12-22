@@ -1,0 +1,134 @@
+@import '../../styles/variables';
+
+.scoreboard {
+  position: relative;
+}
+
+.liveTag {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: $error-color;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: $font-size-sm;
+  font-weight: 700;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.scores {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-lg 0;
+}
+
+.playerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.playerName {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.score {
+  font-size: 48px;
+  font-weight: 700;
+  color: $text-secondary;
+  transition: color 0.3s ease;
+
+  &.winning {
+    color: $primary-color;
+  }
+}
+
+.divider {
+  text-align: center;
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $text-secondary;
+  padding: $spacing-md 0;
+}
+
+.timeline {
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $border-color;
+}
+
+.timelineTitle {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 $spacing-md 0;
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.timelineItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm;
+  background: $bg-color;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+}
+
+.timelineTime {
+  color: $text-secondary;
+}
+
+.timelineAction {
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.finishedInfo {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: $bg-color;
+  border-radius: $radius-sm;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.error {
+  padding: $spacing-lg;
+  text-align: center;
+  color: $error-color;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
+}
+

@@ -1,0 +1,101 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.notificationCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: 12px 12px 12px 24px;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid $border-color;
+
+  &.unread {
+    background: white;
+  }
+
+  &.read {
+    background: #f5f5f5;
+    opacity: 0.8;
+  }
+
+  .unreadIndicator {
+    position: absolute;
+    top: $spacing-md;
+    left: -8px;
+    width: 8px;
+    height: 8px;
+    background: $primary-color;
+    border-radius: 50%;
+  }
+
+  .icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 0; // 確保文字能正確截斷
+
+    .title {
+      font-size: $font-size-md;
+      font-weight: 600;
+      color: $text-color;
+    }
+
+    .message {
+      font-size: $font-size-base;
+      color: $text-secondary;
+      line-height: 1.5;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+
+      .time {
+        font-size: $font-size-sm;
+        color: $text-muted;
+      }
+
+      svg {
+        color: $text-muted;
+      }
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      width: 100%;
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .deleteButton {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+}

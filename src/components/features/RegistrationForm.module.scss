@@ -1,0 +1,156 @@
+@import "../../styles/variables";
+
+.form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-bottom: 12px;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  font-size: 16px; /* 防止移動設備自動放大 */
+  background: white;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: $font-size-base;
+  margin: 0.5rem 0;
+
+  span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+  }
+}
+
+.partnerSearch {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+
+  > div:first-child {
+    flex: 1;
+  }
+}
+
+.partnerCard {
+  padding: $font-size-base;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid $border-color;
+}
+
+.partnerInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.partnerAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.partnerName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.partnerStatus {
+  font-size: 0.875rem;
+  color: var(--success-color);
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  margin: 0;
+  background: var(--background-secondary);
+  border-radius: 4px;
+}
+
+.error {
+  padding: $spacing-md;
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid $error-color;
+  border-radius: $radius-sm;
+  color: $error-color;
+  font-size: $font-size-sm;
+}
+
+.statusBadge {
+  padding: $spacing-md;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: flex-end;
+}
+
+.formFooter {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  background: var(--background-primary);
+  border-radius: 0 0 $radius-lg $radius-lg;
+  button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,218 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.currentRole;
+    }
+    
+    function isOrganizer() {
+      return isAuthenticated() && getUserRole() == 'organizer';
+    }
+    
+    function isScorer() {
+      return isAuthenticated() && getUserRole() == 'scorer';
+    }
+    
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isAuthenticated();
+      // Users can only write their own profile
+      allow write: if isOwner(userId);
+    }
+    
+    // Tournaments collection
+    match /tournaments/{tournamentId} {
+      // Everyone can read public tournaments
+      allow read: if true;
+      
+      // Only authenticated users with organizer role can create
+      allow create: if isAuthenticated() && 
+                      request.resource.data.organizerId == request.auth.uid;
+      
+      // Only the organizer can update/delete their tournament
+      allow update, delete: if isAuthenticated() && 
+                               resource.data.organizerId == request.auth.uid;
+      
+      // Categories subcollection (三層架構)
+      match /categories/{categoryId} {
+        // Everyone can read categories (for public viewing)
+        allow read: if true;
+        
+        // Tournament organizer can create/update/delete categories
+        allow create, update, delete: if isAuthenticated() && 
+                                        get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.organizerId == request.auth.uid;
+        
+        // Teams subcollection (雙打隊伍)
+        match /teams/{teamId} {
+          // Everyone can read teams (for public viewing)
+          allow read: if true;
+          
+          // Authenticated users can create teams (報名雙打 OR 主辦方手動新增)
+          allow create: if isAuthenticated() && 
+                          (request.resource.data.player1Id == request.auth.uid ||
+                           request.resource.data.player2Id == request.auth.uid ||
+                           get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.organizerId == request.auth.uid);
+          
+          // Tournament organizer can manage teams
+          allow update, delete: if isAuthenticated() && 
+                                  get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.organizerId == request.auth.uid;
+          
+          // Team members can update their own team status
+          allow update: if isAuthenticated() && 
+                          (resource.data.player1Id == request.auth.uid ||
+                           resource.data.player2Id == request.auth.uid);
+        }
+        
+        // Registrations subcollection (單打報名，未來使用)
+        match /registrations/{registrationId} {
+          // Everyone can read registrations
+          allow read: if true;
+          
+          // Authenticated users can register themselves
+          allow create: if isAuthenticated() && 
+                          request.resource.data.uid == request.auth.uid;
+          
+          // Tournament organizer can manage registrations
+          allow update, delete: if isAuthenticated() && 
+                                  get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.organizerId == request.auth.uid;
+          
+          // Players can update their own registration
+          allow update: if isAuthenticated() && 
+                          resource.data.uid == request.auth.uid;
+        }
+      }
+      
+      // Players subcollection (向下兼容)
+      match /players/{playerId} {
+        // Everyone can read players (for public viewing)
+        allow read: if true;
+        
+        // Authenticated users can register themselves
+        allow create: if isAuthenticated() && 
+                        request.resource.data.uid == request.auth.uid;
+        
+        // Tournament organizer can manage players
+        allow create, update, delete: if isAuthenticated() && 
+                                        get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.organizerId == request.auth.uid;
+        
+        // Players can update their own registration
+        allow update: if isAuthenticated() && 
+                        resource.data.uid == request.auth.uid;
+      }
+      
+      // Staff subcollection
+      match /staff/{staffId} {
+        // Staff members can read
+        allow read: if isAuthenticated();
+        
+        // Tournament organizer can manage staff
+        allow create, update, delete: if isAuthenticated() && 
+                                        get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.organizerId == request.auth.uid;
+        
+        // Staff members can update their own status (accept/decline invitation)
+        allow update: if isAuthenticated() && 
+                        resource.data.email == request.auth.token.email;
+      }
+    }
+    
+    // Matches collection
+    match /matches/{matchId} {
+      // Everyone can read matches
+      allow read: if true;
+      
+      // Tournament organizer can create matches (via bracket generation)
+      allow create: if isAuthenticated() && 
+                      exists(/databases/$(database)/documents/tournaments/$(request.resource.data.tournamentId)) &&
+                      get(/databases/$(database)/documents/tournaments/$(request.resource.data.tournamentId)).data.organizerId == request.auth.uid;
+      
+      // Assigned scorer, any scorer role user, and tournament organizer can update match (scores, status, progression)
+      allow update: if isAuthenticated() && 
+                      (resource.data.scorerId == request.auth.uid ||
+                       get(/databases/$(database)/documents/tournaments/$(resource.data.tournamentId)).data.organizerId == request.auth.uid ||
+                       getUserRole() == 'scorer');
+      
+      // Tournament organizer can delete matches
+      allow delete: if isAuthenticated() && 
+                      get(/databases/$(database)/documents/tournaments/$(resource.data.tournamentId)).data.organizerId == request.auth.uid;
+    }
+    
+    // Courts collection
+    match /courts/{courtId} {
+      // Everyone can read courts (for public viewing)
+      allow read: if true;
+      
+      // Tournament organizer can create courts
+      allow create: if isAuthenticated() && 
+                      request.resource.data.organizerId == request.auth.uid;
+      
+      // Tournament organizer, scorers, and match automation can update court status
+      allow update: if isAuthenticated() && 
+                      (resource.data.organizerId == request.auth.uid ||
+                       getUserRole() == 'scorer');
+      
+      // Tournament organizer can delete courts
+      allow delete: if isAuthenticated() && 
+                      resource.data.organizerId == request.auth.uid;
+    }
+    
+    // CollectionGroup queries for shadow account linking
+    match /{path=**}/players/{playerId} {
+      // Authenticated users can read players via collectionGroup query (for shadow account linking)
+      allow read: if isAuthenticated();
+      
+      // Authenticated users can update players via collectionGroup query (for shadow account linking)
+      // Only if the email matches their own email
+      allow update: if isAuthenticated() && 
+                      resource.data.email == request.auth.token.email &&
+                      resource.data.isShadow == true;
+    }
+    
+    // CollectionGroup queries for staff
+    match /{path=**}/staff/{staffId} {
+      // Authenticated users can read their own staff invitations via collectionGroup query
+      allow read: if isAuthenticated() && 
+                    (resource.data.email == request.auth.token.email ||
+                     resource.data.uid == request.auth.uid);
+    }
+    
+    // Sports collection (system configuration)
+    match /sports/{sportId} {
+      // Everyone can read active sports (needed for tournament creation)
+      allow read: if true;
+      
+      // Only authenticated users can create sports (for admin initialization)
+      allow create: if isAuthenticated();
+      
+      // Only authenticated users can update/delete sports (for future admin management)
+      allow update, delete: if isAuthenticated();
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Allow reading if authenticated (we'll filter by userId in the query)
+      // The query itself ensures users only see their own notifications
+      allow read: if isAuthenticated();
+      
+      // Only update/delete your own notifications (mark as read, delete)
+      allow update, delete: if isAuthenticated() && 
+                              resource.data.userId == request.auth.uid;
+      
+      // System services can create notifications (any authenticated user can create)
+      // In production, this should be restricted to Cloud Functions only
+      allow create: if isAuthenticated();
+    }
+  }
+}
+

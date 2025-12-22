@@ -1,0 +1,113 @@
+@import '../../styles/variables';
+
+.matchCard {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.status {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+
+  &.scheduled {
+    color: $primary-color;
+  }
+
+  &.live {
+    background: rgba(255, 82, 82, 0.1);
+    color: $error-color;
+  }
+
+  &.finished {
+    background: rgba(0, 0, 0, 0.05);
+    color: $text-secondary;
+  }
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.matchup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.playerName {
+  font-size: $font-size-base;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.score {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $primary-color;
+  min-width: 40px;
+  text-align: right;
+}
+
+.vs {
+  text-align: center;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-secondary;
+  padding: $spacing-xs 0;
+}
+
+.liveIndicator {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $error-color;
+  font-weight: 600;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  background: $error-color;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+

@@ -1,0 +1,257 @@
+@import "../../styles/variables";
+
+.categoryPlayersManager {
+  display: flex;
+  flex-direction: column;
+  gap: $font-size-base;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $font-size-base;
+}
+
+.statsCard {
+  padding: $font-size-base;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $font-size-base;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: $text-secondary;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $primary-color;
+
+  &.statSuccess {
+    color: $success-color;
+  }
+
+  &.statWarning {
+    color: $warning-color;
+  }
+
+  &.statDanger {
+    color: $error-color;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-start;
+}
+
+.participantsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.participantCard {
+  padding: $spacing-md 0;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.participantItem {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.titleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.participantAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: $bg-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-secondary;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid $border-color;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.teamAvatars {
+  display: flex;
+  align-items: center;
+
+  .participantAvatar {
+    margin-right: -14px;
+  }
+}
+
+.participantDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.playerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.participantName {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.participantEmail {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.participantMeta {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.participantActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-xs;
+  justify-content: flex-end;
+}
+
+.badge {
+  font-size: $font-size-sm;
+  padding: 4px 8px;
+  background: $bg-color;
+  color: $text-secondary;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.badgeSuccess {
+  font-size: $font-size-sm;
+  padding: 4px 8px;
+  background: rgba(0, 230, 118, 0.1);
+  color: $success-color;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.emptyMessage {
+  text-align: center;
+  color: $text-secondary;
+  padding: 2rem;
+  margin: 0;
+}
+
+.loadingMessage {
+  text-align: center;
+  color: $text-secondary;
+  padding: $font-size-base;
+  margin: 0;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: $font-size-base;
+}
+
+.testInfo {
+  padding: $font-size-base;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid $warning-color;
+  border-radius: 8px;
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: $text-secondary;
+    line-height: 1.5;
+
+    &:first-child {
+      font-weight: 600;
+      color: $warning-color;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.searchSection {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+
+  > div:first-child {
+    flex: 1;
+  }
+}
+
+.foundUser {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(0, 230, 118, 0.1);
+  border-radius: 4px;
+  color: $success-color;
+  font-size: 0.875rem;
+}
+
+.divider {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-secondary;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid $border-color;
+}
+
+.modalActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding-top: $font-size-base;
+  border-top: 1px solid $border-color;
+}

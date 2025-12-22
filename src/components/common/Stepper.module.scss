@@ -1,0 +1,81 @@
+@import '../../styles/variables';
+
+.stepper {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg 0;
+}
+
+.stepWrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+
+  &:last-child {
+    flex: 0;
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  background: $bg-color;
+  color: $text-secondary;
+  border: 2px solid $border-color;
+  transition: all 0.3s ease;
+
+  &.active {
+    background: $primary-color;
+    color: white;
+    border-color: $primary-color;
+    transform: scale(1.1);
+  }
+
+  &.completed {
+    background: $primary-color;
+    color: white;
+    border-color: $primary-color;
+  }
+}
+
+.label {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+
+  &.active {
+    color: $primary-color;
+    font-weight: 600;
+  }
+
+  &.completed {
+    color: $text-primary;
+  }
+}
+
+.line {
+  flex: 1;
+  height: 2px;
+  background: $border-color;
+  margin: 0 $spacing-sm;
+  transition: all 0.3s ease;
+
+  &.completed {
+    background: $primary-color;
+  }
+}
+

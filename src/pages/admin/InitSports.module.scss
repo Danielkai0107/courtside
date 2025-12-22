@@ -1,0 +1,102 @@
+@import "../../styles/variables";
+
+.initSports {
+  min-height: 100dvh;
+  background: $bg-color;
+  padding-bottom: 80px;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: $spacing-md;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  padding: $spacing-sm;
+  cursor: pointer;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.content {
+  padding: 72px $spacing-md $spacing-md;
+
+  h3 {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 $spacing-md 0;
+  }
+}
+
+.description {
+  color: $text-secondary;
+  margin: 0 0 $spacing-lg 0;
+  line-height: 1.6;
+}
+
+.dataPreview {
+  background: $bg-color;
+  padding: $spacing-md;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-lg;
+
+  h4 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 $spacing-sm 0;
+  }
+
+  pre {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: "Monaco", "Courier New", monospace;
+  }
+}
+
+.success {
+  padding: $spacing-md;
+  background: rgba(0, 230, 118, 0.1);
+  border: 1px solid $accent-color;
+  border-radius: $radius-sm;
+  color: $accent-color;
+  margin-bottom: $spacing-md;
+  font-weight: 500;
+}
+
+.error {
+  padding: $spacing-md;
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid $error-color;
+  border-radius: $radius-sm;
+  color: $error-color;
+  margin-bottom: $spacing-md;
+  font-weight: 500;
+}
+
+
+
+

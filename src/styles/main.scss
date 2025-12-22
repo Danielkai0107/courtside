@@ -1,0 +1,40 @@
+@import "variables";
+@import "mixins";
+@import "reset";
+
+// CSS Variables for runtime theming
+:root {
+  --primary-color: #{$primary-color};
+  --primary-light: #{$primary-light};
+  --primary-dark: #{$primary-dark};
+  --primary-color-rgb: 255, 107, 0;
+
+  --background-primary: #{$card-bg};
+  --background-secondary: #{$bg-color};
+
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-tertiary: #{$text-tertiary};
+  --text-muted: #{$text-muted};
+
+  --border-color: #{$border-color};
+
+  --success-color: #{$success-color};
+  --error-color: #{$error-color};
+  --warning-color: #{$warning-color};
+}
+
+// Utility classes
+.text-center {
+  text-align: center;
+}
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+
+.container {
+  @include mobile-container;
+}

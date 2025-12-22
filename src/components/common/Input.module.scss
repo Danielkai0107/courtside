@@ -1,0 +1,57 @@
+@import "../../styles/variables";
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &.fullWidth {
+    width: 100%;
+  }
+}
+
+.label {
+  font-size: 14px;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-md;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  font-size: 16px; /* 防止移動設備自動放大 */
+  color: $text-primary;
+  background: $card-bg;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $text-placeholder;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $border-active;
+  }
+
+  &.error {
+    border-color: $error-color;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.1);
+    }
+  }
+
+  &:disabled {
+    background: $bg-color;
+    color: $text-disabled;
+    cursor: not-allowed;
+  }
+}
+
+.errorText {
+  font-size: $font-size-sm;
+  color: $error-color;
+}

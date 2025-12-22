@@ -1,0 +1,519 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.tournamentMatches {
+  @include page-container;
+  padding-top: 62px;
+}
+
+.header {
+  @include page-header;
+  padding: 0 24px 0 60px;
+  .backButton {
+    position: absolute;
+    left: 12px;
+  }
+}
+
+.backButton {
+  @include header-back-button;
+}
+
+.headerTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.content {
+  padding: 24px;
+}
+
+.infoCard {
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 $spacing-sm 0;
+  }
+}
+
+.hint {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.stats {
+  display: flex;
+  gap: $spacing-sm;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+}
+
+.round {
+  margin-bottom: $spacing-xl;
+}
+
+.roundTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 $spacing-md 0;
+  padding: $spacing-sm $spacing-md;
+  background: $bg-color;
+  border-radius: $radius-sm;
+  border-left: 4px solid $primary-color;
+}
+
+.matchList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.matchCard {
+  background: white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.matchHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  font-weight: 500;
+
+  &.PENDING_PLAYER,
+  &.PENDING_COURT {
+    background: $bg-color;
+    color: $text-secondary;
+  }
+
+  &.SCHEDULED,
+  &.scheduled {
+    background: #eff6ff;
+    color: $primary-color;
+  }
+
+  &.IN_PROGRESS,
+  &.live {
+    background: #fff4e5;
+    color: $primary-color;
+  }
+
+  &.COMPLETED,
+  &.finished {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+}
+
+.courtName {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.matchup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm;
+  background: $bg-color;
+  border-radius: $radius-sm;
+  transition: all 0.2s;
+
+  &.winner {
+    background: #ffe5d0;
+    border: 2px solid $primary-color;
+    font-weight: 600;
+  }
+}
+
+.playerName {
+  font-size: $font-size-base;
+  color: $text-primary;
+}
+
+.score {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $primary-color;
+  min-width: 32px;
+  text-align: right;
+}
+
+.vs {
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.byeNotice {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  text-align: center;
+  padding: $spacing-xs;
+  background: $bg-color;
+  border-radius: $radius-sm;
+  margin-top: $spacing-xs;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: $spacing-xl;
+  color: $error-color;
+  text-align: center;
+}
+
+// 小組賽樣式（與 CategoryDetail 一致）
+.groupsTab {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.groupCard {
+  padding: $spacing-md;
+}
+
+.groupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.groupTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.viewMatchesButton {
+  background: none;
+  border: none;
+  color: $success-color;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  padding: $spacing-xs $spacing-sm;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.standingsTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.standingsHeader {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 1fr;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $bg-color;
+  border-radius: 4px 4px 0 0;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+.standingsRow {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 1fr;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border-bottom: 1px solid $border-color;
+  align-items: center;
+
+  &.qualified {
+    border-left: 4px solid $success-color;
+    background: rgba(0, 230, 118, 0.03);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.colTeam {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.rank {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-secondary;
+  min-width: 20px;
+}
+
+.teamName {
+  font-size: $font-size-sm;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.colPts {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $text-primary;
+  text-align: center;
+}
+
+.colStat {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  text-align: center;
+}
+
+.colPd {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  text-align: right;
+
+  &.positive {
+    color: $success-color;
+  }
+
+  &.negative {
+    color: $error-color;
+  }
+}
+
+.groupMatches {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.matchInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm;
+}
+
+.matchStatus {
+  font-weight: 600;
+  color: $primary-color;
+}
+
+// 對陣圖樣式
+.bracketTab {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.matchesList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.matchPlayers {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.playerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm;
+  background: $bg-color;
+  border-radius: 4px;
+}
+
+.playerName {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  flex: 1;
+}
+
+.playerScore {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $primary-color;
+  min-width: 30px;
+  text-align: right;
+}
+
+.winnerBadge {
+  color: $success-color;
+  font-size: $font-size-lg;
+  margin-right: $spacing-sm;
+}
+
+.courtLabel {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.matchStatus {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: $bg-color;
+  color: $text-secondary;
+}
+
+// 球員列表
+.playersTab {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.playersList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.playerItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+}
+
+.playerRank {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-secondary;
+  min-width: 30px;
+}
+
+.tabContent {
+  margin-top: $spacing-md;
+}
+
+.emptyMessage {
+  text-align: center;
+  color: $text-secondary;
+  padding: 2rem;
+  margin: 0;
+}
+
+// 類別列表樣式
+.tournamentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+
+  span:last-child {
+    color: $text-primary;
+    font-weight: 500;
+  }
+}
+
+.sectionTitle {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+  margin: $spacing-md 0;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.categoryCard {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.categoryHeader {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.categoryName {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.categoryType {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.categoryStats {
+  display: flex;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $text-tertiary;
+  margin-right: $spacing-md;
+}
+
+.categoryArrow {
+  font-size: 1.5rem;
+  color: $primary-color;
+}

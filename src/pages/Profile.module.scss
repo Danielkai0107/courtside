@@ -1,0 +1,204 @@
+@import "../styles/variables";
+@import "../styles/mixins";
+
+.profile {
+  @include page-container;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.header {
+  @include page-header;
+}
+
+.headerTitle {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
+.content {
+  padding-bottom: 100px;
+}
+
+.userInfo {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: 12px 24px;
+  border-top: 1px solid $border-color;
+  border-bottom: 1px solid $border-color;
+}
+
+.avatarContainer {
+  position: relative;
+  cursor: pointer;
+  display: block;
+  width: 44px;
+  height: 44px;
+}
+
+.avatar {
+  // 樣式由 AvatarWithSkeleton 組件處理
+}
+
+.avatarOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: white;
+  font-size: 10px;
+  font-weight: 500;
+
+  .avatarContainer:hover & {
+    opacity: 1;
+  }
+}
+
+.uploading {
+  font-size: $font-size-sm;
+  color: white;
+}
+
+.userInfoContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.email {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.section {
+  padding: 24px;
+  border-bottom: 1px solid $border-color;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 $spacing-sm 0;
+}
+
+.sectionDescription {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin: 0 0 $spacing-md 0;
+}
+
+.globalNotice {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($primary-color, 0.05);
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-md;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: 1.4;
+
+  svg {
+    flex-shrink: 0;
+    color: $primary-color;
+  }
+}
+
+.sportSelector {
+  width: 100%;
+}
+
+.roleCards {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.quickAction {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md !important;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  margin-bottom: $spacing-md;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.actionIcon {
+  width: 40px;
+  height: 40px;
+  padding: $spacing-sm;
+  color: $primary-color;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+}
+
+.actionTitle {
+  display: block;
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 4px;
+}
+
+.actionSubtitle {
+  display: block;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.logoutButton {
+  width: calc(100% - 48px);
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  margin-top: 24px;
+  margin-left: 24px;
+}
+
+.notLoggedIn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: $spacing-xl;
+  text-align: center;
+  gap: $spacing-lg;
+
+  p {
+    color: $text-secondary;
+    margin: 0;
+  }
+}

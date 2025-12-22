@@ -1,0 +1,271 @@
+@import "../../styles/variables";
+
+.scoringConsole {
+  min-height: 100vh;
+  background: $bg-color;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: $spacing-md;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  padding: $spacing-sm;
+  cursor: pointer;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerTitle {
+  flex: 1;
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.liveTag {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: $error-color;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: $font-size-sm;
+  font-weight: 700;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.content {
+  padding: 72px $spacing-md $spacing-md;
+}
+
+.matchInfoCard {
+  margin-bottom: $spacing-md;
+  padding: $spacing-md !important;
+}
+
+.matchInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid $border-color;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.startCard {
+  text-align: center;
+  padding: $spacing-xl !important;
+
+  p {
+    margin: 0 0 $spacing-lg 0;
+    color: $text-secondary;
+  }
+}
+
+.pendingInfo {
+  font-size: $font-size-sm;
+  color: $warning-color !important;
+  font-weight: 600;
+}
+
+.playerPreview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-md;
+  margin: $spacing-lg 0;
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+
+  span:nth-child(2) {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+}
+
+.scoreboard {
+  background: $card-bg;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-md;
+  margin-bottom: $spacing-lg;
+}
+
+.playerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md 0;
+}
+
+.playerName {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.score {
+  font-size: 64px;
+  font-weight: 700;
+  color: $primary-color;
+}
+
+.vs {
+  text-align: center;
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $text-secondary;
+  padding: $spacing-lg 0;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.scoreButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+}
+
+.scoreButtonA,
+.scoreButtonB {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-xl;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-size-base;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 120px;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.scoreButtonA {
+  background: #000000;
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 107, 0, 0.4);
+  }
+}
+
+.scoreButtonB {
+  background: linear-gradient(135deg, #2979ff 0%, #448aff 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(41, 121, 255, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(41, 121, 255, 0.4);
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: space-between;
+}
+
+.undoButton {
+  flex: 1;
+}
+
+.finishedCard {
+  text-align: center;
+  padding: $spacing-xl !important;
+
+  p {
+    margin: 0 0 $spacing-md 0;
+    color: $text-secondary;
+  }
+}
+
+.winner {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $primary-color !important;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: $spacing-xl;
+  text-align: center;
+  gap: $spacing-lg;
+
+  p {
+    font-size: $font-size-lg;
+    color: $text-secondary;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
+}

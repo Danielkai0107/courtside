@@ -1,0 +1,251 @@
+@import "../../styles/variables";
+
+.publisher {
+  display: flex;
+  flex-direction: column;
+  gap: $font-size-base;
+}
+
+.infoCard {
+  padding: 16px;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 $font-size-base 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $font-size-base;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-wrap: nowrap;
+}
+
+.configCard {
+}
+
+.configsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.configOption {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: $font-size-base;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--background-secondary);
+  }
+
+  &.selected {
+    border-color: var(--primary-color);
+    background: #f2f4f7;
+  }
+}
+
+.configHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.configLabel {
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recommendedBadge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: var(--success-color);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.selectedBadge {
+  color: var(--success-color);
+  font-size: 1.25rem;
+}
+
+.configDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.configStats {
+  width: 100%;
+  text-align: right;
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+.customConfig {
+  padding-top: $font-size-base;
+  border-top: 1px solid var(--border-color);
+}
+
+.customTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+}
+
+.customHint {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem 0;
+  padding: 0.75rem;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 4px;
+}
+
+.customPreview {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(0, 230, 118, 0.1);
+  border: 1px solid var(--success-color);
+  border-radius: 4px;
+  color: var(--success-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.customInputs {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+
+  label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px; /* 防止移動設備自動放大 */
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+  }
+}
+
+.warning {
+  padding: $font-size-base;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  color: #f57c00;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.warningBox {
+  padding: 1.5rem;
+  background: rgba(255, 193, 7, 0.1);
+  border: 2px solid $warning-color;
+  border-radius: 8px;
+  margin: $font-size-base 0;
+}
+
+.warningTitle {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $warning-color;
+  margin: 0 0 0.75rem 0;
+}
+
+.warningText {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+
+  strong {
+    color: $text-primary;
+    font-weight: 600;
+  }
+}
+
+.warningStats {
+  display: flex;
+  gap: $font-size-base;
+  margin-top: $font-size-base;
+  padding-top: $font-size-base;
+  border-top: 1px solid rgba(255, 193, 7, 0.3);
+  font-size: 0.875rem;
+  color: $text-secondary;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.error {
+  padding: $font-size-base;
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid var(--error-color);
+  border-radius: 4px;
+  color: var(--error-color);
+  font-size: 0.875rem;
+}
+
+.actions {
+  padding-top: 0.5rem;
+}

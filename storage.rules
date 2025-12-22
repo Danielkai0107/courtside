@@ -1,0 +1,56 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Tournament banners
+    match /tournaments/{tournamentId}/banners/{fileName} {
+      // Anyone can read banners (public)
+      allow read: if true;
+      
+      // Only authenticated users can upload
+      // File size limit: 5MB
+      // Allowed types: images only
+      allow write: if isAuthenticated() && 
+                     request.resource.size < 5 * 1024 * 1024 &&
+                     request.resource.contentType.matches('image/.*');
+    }
+    
+    // Category banners (三層架構)
+    match /tournaments/{tournamentId}/categories/{categoryId}/banners/{fileName} {
+      // Anyone can read category banners (public)
+      allow read: if true;
+      
+      // Only authenticated users can upload
+      // File size limit: 5MB
+      // Allowed types: images only
+      allow write: if isAuthenticated() && 
+                     request.resource.size < 5 * 1024 * 1024 &&
+                     request.resource.contentType.matches('image/.*');
+    }
+    
+    // User avatars
+    match /users/{userId}/avatars/{fileName} {
+      // Anyone can read avatars (public)
+      allow read: if true;
+      
+      // Users can only upload their own avatar
+      // File size limit: 2MB
+      // Allowed types: images only
+      allow write: if isAuthenticated() && 
+                     request.auth.uid == userId &&
+                     request.resource.size < 2 * 1024 * 1024 &&
+                     request.resource.contentType.matches('image/.*');
+    }
+    
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
