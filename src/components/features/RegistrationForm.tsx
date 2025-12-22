@@ -202,7 +202,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
       console.error("驗證報名資格失敗:", err);
       // 繼續執行，不阻止報名
     }
-    }
 
     if (registrationStatus === "confirmed") {
       setError("您已成功報名此分類");
