@@ -12,6 +12,7 @@ import {
 import { db } from "./firebase";
 import type { Player } from "../types";
 import { createNotification } from "./notificationService";
+import { getCategory } from "./tournamentService";
 
 /**
  * 用戶報名賽事
@@ -442,4 +443,42 @@ export const getUserRegisteredTournaments = async (
   });
 
   return validRegistrations;
+};
+
+/**
+ * 檢查是否可以報名指定分類
+ * 
+ * 驗證分類狀態、配置完整性和名額限制
+ */
+export const canRegisterForCategory = async (
+  tournamentId: string,
+  categoryId: string
+): Promise<{ canRegister: boolean; reason?: string }> => {
+  try {
+    const category = await getCategory(tournamentId, categoryId);
+
+    if (!category) {
+      return { canRegister: false, reason: "分類不存在" };
+    }
+
+    // 檢查狀態
+    if (category.status !== "REGISTRATION" && category.status !== "REGISTRATION_OPEN") {
+      return { canRegister: false, reason: "報名尚未開放或已截止" };
+    }
+
+    // 檢查通用引擎配置完整性
+    if (category.formatConfig && !category.scoringConfig) {
+      return { canRegister: false, reason: "分類配置不完整，請聯繫主辦方" };
+    }
+
+    // 檢查名額
+    if (category.currentParticipants >= category.maxParticipants) {
+      return { canRegister: false, reason: "名額已滿" };
+    }
+
+    return { canRegister: true };
+  } catch (error) {
+    console.error("[RegistrationService] 檢查報名資格失敗:", error);
+    return { canRegister: false, reason: "檢查失敗，請稍後再試" };
+  }
 };

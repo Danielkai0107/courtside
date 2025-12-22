@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { Category } from "../types";
+import { createCategoryWithSnapshot } from "./tournamentService";
 
 /**
  * Helper function to remove undefined values from object
@@ -26,12 +27,37 @@ const removeUndefined = <T extends Record<string, any>>(obj: T): Partial<T> => {
 };
 
 /**
- * 創建新的 Category（分組/項目）
+ * 創建新的 Category（使用通用運動引擎）
+ * 
+ * 使用配置快照邏輯創建分類，支持完整的通用引擎功能
+ */
+export const createCategoryUniversal = async (
+  tournamentId: string,
+  categoryData: {
+    name: string;
+    matchType: "singles" | "doubles";
+    sportId: string;
+    rulePresetId: string;
+    selectedFormatId: string;
+  }
+): Promise<string> => {
+  console.log("[CategoryService] 使用通用引擎創建分類:", categoryData);
+  return await createCategoryWithSnapshot(tournamentId, categoryData);
+};
+
+/**
+ * 創建新的 Category（傳統方式 - 向後兼容）
+ * 
+ * @deprecated 請使用 createCategoryUniversal 以獲得完整的通用引擎支持
  */
 export const createCategory = async (
   tournamentId: string,
   categoryData: Omit<Category, "id" | "createdAt" | "updatedAt" | "tournamentId">
 ): Promise<string> => {
+  console.warn(
+    "[CategoryService] createCategory 使用傳統模式。建議使用 createCategoryUniversal 以獲得通用引擎支持。"
+  );
+  
   const cleanData = removeUndefined({
     ...categoryData,
     tournamentId,

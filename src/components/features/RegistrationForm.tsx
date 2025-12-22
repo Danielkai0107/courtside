@@ -183,6 +183,26 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
       setError("您已報名此分類，正在等待主辦方確認中");
       return;
     }
+    
+    // 驗證分類配置（通用引擎）
+    try {
+      const { canRegisterForCategory } = await import(
+        "../../services/registrationService"
+      );
+      const validation = await canRegisterForCategory(
+        tournamentId,
+        selectedCategoryId
+      );
+      
+      if (!validation.canRegister) {
+        setError(validation.reason || "無法報名此分類");
+        return;
+      }
+    } catch (err) {
+      console.error("驗證報名資格失敗:", err);
+      // 繼續執行，不阻止報名
+    }
+    }
 
     if (registrationStatus === "confirmed") {
       setError("您已成功報名此分類");
