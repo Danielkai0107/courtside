@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "seed": "tsx src/scripts/seed-db.ts"
+    "seed": "tsx src/scripts/seed-db.ts",
+    "test:engine": "tsx src/scripts/test-universal-engine.ts"
   },
   "dependencies": {
     "classnames": "^2.5.1",
