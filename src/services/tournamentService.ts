@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { Tournament, CategoryDoc, SportDoc } from "../types";
-import type { SportDefinition, FormatDefinition } from "../types/universal-config";
+import type { SportDefinition } from "../types/universal-config";
 import { generateBracket } from "./bracketService";
 import { createNotification } from "./notificationService";
 import { getFormat } from "./formatService";
@@ -541,8 +541,8 @@ export const publishTournament = async (
   // 舊架構向下兼容邏輯
   const selectedPlayerIds = selectedPlayers.map((p) => p.uid || p.id);
 
-  // 1. 更新 selectedPlayerIds
-  await updateTournament(tournamentId, { selectedPlayerIds });
+  // 1. 更新 selectedPlayerIds (舊欄位，僅用於向後兼容)
+  await updateTournament(tournamentId, { selectedPlayerIds } as any);
 
   // 2. 執行抽籤算法（傳入完整選手資料）
   // 注意：這裡需要 format 和 config，但新架構的 tournament 沒有這些欄位

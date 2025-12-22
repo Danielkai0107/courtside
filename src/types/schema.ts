@@ -8,7 +8,7 @@
  */
 
 import { Timestamp } from "firebase/firestore";
-import { ScoringConfig, FormatDefinition } from "./universal-config";
+import type { ScoringConfig, FormatDefinition } from "./universal-config";
 
 /**
  * 賽事文檔 (tournaments 集合)
@@ -433,7 +433,20 @@ export interface StaffDoc {
 /**
  * 運動文檔 (sports 集合 - 全局配置)
  */
-export interface SportDoc extends SportDefinition {
+export interface SportDoc {
+  id: string;
+  name: string;
+  icon?: string;
+  modes: Array<"singles" | "doubles" | "team">;
+  defaultPresetId: string;
+  rulePresets: Array<{
+    id: string;
+    label: string;
+    description?: string;
+    config: ScoringConfig;
+  }>;
+  isActive?: boolean;
+  order?: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -441,7 +454,20 @@ export interface SportDoc extends SportDefinition {
 /**
  * 賽制格式文檔 (formats 集合 - 全局配置)
  */
-export interface FormatDoc extends FormatDefinition {
+export interface FormatDoc {
+  id: string;
+  name: string;
+  description?: string;
+  minParticipants: number;
+  maxParticipants: number;
+  stages: Array<{
+    type: "round_robin" | "knockout" | "group_stage";
+    count?: number;
+    advance?: number;
+    size?: number;
+    name?: string;
+  }>;
+  supportSeeding?: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

@@ -11,7 +11,7 @@
 import React, { useState, useEffect } from "react";
 import { recordScoreUniversal } from "../../services/matchService";
 import { getCategory } from "../../services/tournamentService";
-import type { MatchDoc, CategoryDoc, MatchScoreSet } from "../../types/schema";
+import type { MatchDoc, CategoryDoc } from "../../types/schema";
 import type { ScoringConfig } from "../../types/universal-config";
 import Button from "../common/Button";
 import styles from "./UniversalScoreboard.module.scss";
@@ -42,7 +42,6 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
           setConfig(cat.scoringConfig);
 
           // 設置當前局為第一個未完成的局
-          const firstIncompleteSet = cat.scoringConfig.maxSets - 1;
           for (let i = 0; i < cat.scoringConfig.maxSets; i++) {
             if (!match.sets[i] || !match.sets[i].isCompleted) {
               setCurrentSetIndex(i);
@@ -109,7 +108,7 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
   };
 
   // 檢查是否接近獲勝
-  const isNearWin = (score: number, opponentScore: number): boolean => {
+  const isNearWin = (score: number): boolean => {
     if (score < config.pointsPerSet - 2) {
       return false;
     }
@@ -228,7 +227,7 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
               </div>
               <div
                 className={`${styles.scoreDisplay} ${
-                  isNearWin(p1Score, p2Score) ? styles.nearWin : ""
+                  isNearWin(p1Score) ? styles.nearWin : ""
                 }`}
               >
                 {p1Score}
@@ -260,7 +259,7 @@ const UniversalScoreboard: React.FC<Props> = ({ match, onScoreUpdate }) => {
               </div>
               <div
                 className={`${styles.scoreDisplay} ${
-                  isNearWin(p2Score, p1Score) ? styles.nearWin : ""
+                  isNearWin(p2Score) ? styles.nearWin : ""
                 }`}
               >
                 {p2Score}

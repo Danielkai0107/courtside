@@ -210,8 +210,8 @@ const UniversalCategoryForm: React.FC<Props> = ({
         <Select
           label="比賽類型"
           value={matchType}
-          onChange={(e) =>
-            setMatchType(e.target.value as "singles" | "doubles")
+          onChange={(value) =>
+            setMatchType(value as "singles" | "doubles")
           }
           options={[
             { value: "singles", label: "單打" },
@@ -230,7 +230,7 @@ const UniversalCategoryForm: React.FC<Props> = ({
         <Select
           label="運動項目"
           value={selectedSportId}
-          onChange={(e) => setSelectedSportId(e.target.value)}
+          onChange={(value) => setSelectedSportId(value)}
           options={sports.map((sport) => ({
             value: sport.id,
             label: `${sport.icon || ""} ${sport.name}`,
@@ -249,7 +249,7 @@ const UniversalCategoryForm: React.FC<Props> = ({
           <Select
             label="計分規則"
             value={selectedRulePresetId}
-            onChange={(e) => setSelectedRulePresetId(e.target.value)}
+            onChange={(value) => setSelectedRulePresetId(value)}
             options={rulePresets.map((preset) => ({
               value: preset.id,
               label: getRulePresetDisplayLabel(preset),
@@ -289,7 +289,7 @@ const UniversalCategoryForm: React.FC<Props> = ({
             <Select
               label="賽制格式"
               value={selectedFormatId}
-              onChange={(e) => setSelectedFormatId(e.target.value)}
+              onChange={(value) => setSelectedFormatId(value)}
               options={availableFormats.map((format) => ({
                 value: format.id,
                 label: getFormatDisplayLabel(format),

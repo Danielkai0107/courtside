@@ -16,7 +16,7 @@ import {
   runTransaction,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Match, MatchTimelineLog, MatchDoc, MatchScoreSet, CategoryDoc } from "../types";
+import type { Match, MatchTimelineLog, MatchDoc, MatchScoreSet } from "../types";
 import type { ScoringConfig } from "../types/universal-config";
 import { getCategory } from "./tournamentService";
 
@@ -191,7 +191,8 @@ export const startMatch = async (matchId: string): Promise<void> => {
 };
 
 /**
- * 記錄得分
+ * 記錄得分（舊版本，向後兼容）
+ * @deprecated 請使用 recordScoreUniversal 以獲得完整的通用引擎支持
  */
 export const recordScore = async (
   matchId: string,
@@ -201,9 +202,12 @@ export const recordScore = async (
   const matchDoc = await getMatch(matchId);
   if (!matchDoc) throw new Error("Match not found");
 
+  // 使用 any 類型以支持舊的 Match 結構
+  const match = matchDoc as any;
+
   const newScore = {
-    ...matchDoc.score,
-    [player]: matchDoc.score[player] + points,
+    ...match.score,
+    [player]: match.score[player] + points,
   };
 
   const logEntry: MatchTimelineLog = {
@@ -216,20 +220,26 @@ export const recordScore = async (
   const docRef = doc(db, "matches", matchId);
   await updateDoc(docRef, {
     score: newScore,
-    timeline: [...matchDoc.timeline, logEntry],
+    timeline: [...match.timeline, logEntry],
   });
 };
 
 /**
- * 復原最後一次操作
+ * 復原最後一次操作（舊版本，向後兼容）
+ * @deprecated 請使用新的通用引擎計分系統
  */
 export const undoLastAction = async (matchId: string): Promise<void> => {
   const matchDoc = await getMatch(matchId);
-  if (!matchDoc || matchDoc.timeline.length === 0) {
+  if (!matchDoc) throw new Error("Match not found");
+
+  // 使用 any 類型以支持舊的 Match 結構
+  const match = matchDoc as any;
+
+  if (!match.timeline || match.timeline.length === 0) {
     throw new Error("No action to undo");
   }
 
-  const timeline = [...matchDoc.timeline];
+  const timeline = [...match.timeline];
   const lastAction = timeline.pop();
 
   if (!lastAction || lastAction.action !== "score") {
@@ -237,8 +247,8 @@ export const undoLastAction = async (matchId: string): Promise<void> => {
   }
 
   const newScore = {
-    ...matchDoc.score,
-    [lastAction.team]: matchDoc.score[lastAction.team] - lastAction.val,
+    ...match.score,
+    [lastAction.team]: match.score[lastAction.team] - lastAction.val,
   };
 
   const undoLog: MatchTimelineLog = {
@@ -454,9 +464,9 @@ export const completeMatch = async (
     if (match.nextMatchId && winnerId && nextMatchData) {
       const nextMatchRef = doc(db, "matches", match.nextMatchId);
       const updateField =
-        match.nextMatchSlot === "player1" ? "player1Id" : "player2Id";
+        match.nextMatchSlot === "p1" ? "player1Id" : "player2Id";
       const updateNameField =
-        match.nextMatchSlot === "player1" ? "player1Name" : "player2Name";
+        match.nextMatchSlot === "p1" ? "player1Name" : "player2Name";
 
       // 獲取勝者名稱
       const winnerName =
@@ -475,7 +485,7 @@ export const completeMatch = async (
 
       // 檢查下一場是否兩位選手都到齊
       const otherPlayerField =
-        match.nextMatchSlot === "player1" ? "player2Id" : "player1Id";
+        match.nextMatchSlot === "p1" ? "player2Id" : "player1Id";
       if (nextMatchData[otherPlayerField]) {
         transaction.update(nextMatchRef, {
           status: "PENDING_COURT",
@@ -491,9 +501,9 @@ export const completeMatch = async (
     if (match.loserNextMatchId && loserId && loserNextMatchData) {
       const loserNextMatchRef = doc(db, "matches", match.loserNextMatchId);
       const loserUpdateField =
-        match.loserNextMatchSlot === "player1" ? "player1Id" : "player2Id";
+        match.loserNextMatchSlot === "p1" ? "player1Id" : "player2Id";
       const loserUpdateNameField =
-        match.loserNextMatchSlot === "player1" ? "player1Name" : "player2Name";
+        match.loserNextMatchSlot === "p1" ? "player1Name" : "player2Name";
 
       // 獲取敗者名稱
       const loserName =
@@ -512,7 +522,7 @@ export const completeMatch = async (
 
       // 檢查敗部下一場是否兩位選手都到齊
       const otherLoserField =
-        match.loserNextMatchSlot === "player1" ? "player2Id" : "player1Id";
+        match.loserNextMatchSlot === "p1" ? "player2Id" : "player1Id";
       if (loserNextMatchData[otherLoserField]) {
         transaction.update(loserNextMatchRef, {
           status: "PENDING_COURT",

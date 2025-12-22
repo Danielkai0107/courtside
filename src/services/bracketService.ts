@@ -6,7 +6,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Match, Court } from "../types";
+import type { Match } from "../types";
 
 /**
  * Fisher-Yates 洗牌演算法
@@ -113,11 +113,11 @@ function buildBracketTree(
       // 設定前一輪的 nextMatchId（檢查邊界）
       if (previousRoundMatches[i]) {
         previousRoundMatches[i].nextMatchId = match.id;
-        previousRoundMatches[i].nextMatchSlot = "player1";
+        previousRoundMatches[i].nextMatchSlot = "p1";
       }
       if (previousRoundMatches[i + 1]) {
         previousRoundMatches[i + 1].nextMatchId = match.id;
-        previousRoundMatches[i + 1].nextMatchSlot = "player2";
+        previousRoundMatches[i + 1].nextMatchSlot = "p2";
       }
 
       roundMatches.push(match);
@@ -144,11 +144,11 @@ function buildBracketTree(
     if (semiFinals.length >= 2) {
       if (semiFinals[0]) {
         semiFinals[0].loserNextMatchId = thirdPlaceMatch.id;
-        semiFinals[0].loserNextMatchSlot = "player1";
+        semiFinals[0].loserNextMatchSlot = "p1";
       }
       if (semiFinals[1]) {
         semiFinals[1].loserNextMatchId = thirdPlaceMatch.id;
-        semiFinals[1].loserNextMatchSlot = "player2";
+        semiFinals[1].loserNextMatchSlot = "p2";
       }
     }
 
@@ -228,7 +228,7 @@ function assignGroupStageCourts(
     const court = courts[index % courts.length];
     groups[label].forEach((match) => {
       match.courtId = court.id;
-      match.status = "SCHEDULED";
+      match.status = "PENDING_COURT";
     });
     console.log(`Group ${label} → ${court.name} (${groups[label].length} 場比賽)`);
   });
@@ -266,7 +266,7 @@ function assignKnockoutCourts(
   ["FI", "3RD", "SF"].forEach((roundLabel) => {
     byRound[roundLabel]?.forEach((match) => {
       match.courtId = courts[0]?.id;
-      match.status = "SCHEDULED";
+      match.status = "PENDING_COURT";
       assignedCount++;
     });
   });
@@ -276,7 +276,7 @@ function assignKnockoutCourts(
     byRound[roundLabel]?.forEach((match, index) => {
       const court = courts[index % courts.length];
       match.courtId = court.id;
-      match.status = "SCHEDULED";
+      match.status = "PENDING_COURT";
       assignedCount++;
     });
   });
@@ -391,9 +391,9 @@ async function autoProgressByeMatches(
 
         const nextMatchRef = doc(db, "matches", realNextMatchId);
         const updateField =
-          match.nextMatchSlot === "player1" ? "player1Id" : "player2Id";
+          match.nextMatchSlot === "p1" ? "player1Id" : "player2Id";
         const updateNameField =
-          match.nextMatchSlot === "player1" ? "player1Name" : "player2Name";
+          match.nextMatchSlot === "p1" ? "player1Name" : "player2Name";
 
         const updateData: any = {
           [updateField]: winnerId,
@@ -634,11 +634,11 @@ export const generateKnockoutStage = (
       // 設定前一輪的 nextMatchId（檢查邊界）
       if (previousRoundMatches[i]) {
         previousRoundMatches[i].nextMatchId = match.id;
-        previousRoundMatches[i].nextMatchSlot = "player1";
+        previousRoundMatches[i].nextMatchSlot = "p1";
       }
       if (previousRoundMatches[i + 1]) {
         previousRoundMatches[i + 1].nextMatchId = match.id;
-        previousRoundMatches[i + 1].nextMatchSlot = "player2";
+        previousRoundMatches[i + 1].nextMatchSlot = "p2";
       }
 
       roundMatches.push(match);
@@ -668,11 +668,11 @@ export const generateKnockoutStage = (
     if (semiFinals.length >= 2) {
       if (semiFinals[0]) {
         semiFinals[0].loserNextMatchId = thirdPlaceMatch.id;
-        semiFinals[0].loserNextMatchSlot = "player1";
+        semiFinals[0].loserNextMatchSlot = "p1";
       }
       if (semiFinals[1]) {
         semiFinals[1].loserNextMatchId = thirdPlaceMatch.id;
-        semiFinals[1].loserNextMatchSlot = "player2";
+        semiFinals[1].loserNextMatchSlot = "p2";
       }
     }
 
@@ -842,11 +842,11 @@ export const generateKnockoutOnly = async (
       // 設定前一輪的 nextMatchId（檢查邊界）
       if (previousRoundMatches[i]) {
         previousRoundMatches[i].nextMatchId = match.id;
-        previousRoundMatches[i].nextMatchSlot = "player1";
+        previousRoundMatches[i].nextMatchSlot = "p1";
       }
       if (previousRoundMatches[i + 1]) {
         previousRoundMatches[i + 1].nextMatchId = match.id;
-        previousRoundMatches[i + 1].nextMatchSlot = "player2";
+        previousRoundMatches[i + 1].nextMatchSlot = "p2";
       }
 
       roundMatches.push(match);
@@ -875,11 +875,11 @@ export const generateKnockoutOnly = async (
     if (semiFinals.length >= 2) {
       if (semiFinals[0]) {
         semiFinals[0].loserNextMatchId = thirdPlaceMatch.id;
-        semiFinals[0].loserNextMatchSlot = "player1";
+        semiFinals[0].loserNextMatchSlot = "p1";
       }
       if (semiFinals[1]) {
         semiFinals[1].loserNextMatchId = thirdPlaceMatch.id;
-        semiFinals[1].loserNextMatchSlot = "player2";
+        semiFinals[1].loserNextMatchSlot = "p2";
       }
     }
 
@@ -939,7 +939,7 @@ function generateSeedingRules(
 function getRoundLabel(
   totalRounds: number,
   currentRound: number,
-  bracketSize: number
+  _bracketSize: number
 ): string {
   const remainingRounds = totalRounds - currentRound + 1;
 
@@ -1344,7 +1344,7 @@ function buildKnockoutBracketTree(
         ].nextMatchId = matchKey;
         matches[
           matches.length - roundMatchCount - previousRoundCount + prevMatch1Index
-        ].nextMatchSlot = "player1";
+        ].nextMatchSlot = "p1";
       }
 
       if (prevMatch2Index < matches.length - roundMatchCount) {
@@ -1353,7 +1353,7 @@ function buildKnockoutBracketTree(
         ].nextMatchId = matchKey;
         matches[
           matches.length - roundMatchCount - previousRoundCount + prevMatch2Index
-        ].nextMatchSlot = "player2";
+        ].nextMatchSlot = "p2";
       }
     }
 
@@ -1407,7 +1407,7 @@ async function handleByeAdvancement(matches: Partial<Match>[]): Promise<void> {
         const nextMatchRef = doc(db, "matches", match.nextMatchId);
         const updates: any = {};
 
-        if (match.nextMatchSlot === "player1") {
+        if (match.nextMatchSlot === "p1") {
           updates.player1Id = winnerId;
           updates.player1Name = winnerName;
         } else {
@@ -1439,10 +1439,10 @@ async function handleByeAdvancement(matches: Partial<Match>[]): Promise<void> {
  * @param formatConfig 賽制配置
  */
 async function generateMixedFormatMatches(
-  tournamentId: string,
-  categoryId: string,
-  participants: Array<{ id: string; name: string }>,
-  formatConfig: any
+  _tournamentId: string,
+  _categoryId: string,
+  _participants: Array<{ id: string; name: string }>,
+  _formatConfig: any
 ): Promise<void> {
   try {
     console.log(`[BracketService] 生成混合賽制（小組賽 + 淘汰賽）...`);
