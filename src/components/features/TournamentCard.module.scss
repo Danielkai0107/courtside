@@ -13,6 +13,24 @@
   width: 100%;
   overflow: hidden;
   border-radius: 4px 4px 0 0;
+  position: relative;
+
+  // 遮罩層
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(2, 18, 47, 0.75) 0%,
+      rgba(2, 18, 47, 0.5) 50%,
+      rgba(2, 18, 47, 0.3) 100%
+    );
+    pointer-events: none;
+  }
 }
 
 .sportType {
@@ -30,10 +48,16 @@
 }
 
 .Wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: $spacing-sm;
+  padding: 12px;
+  z-index: 2;
 }
 
 .status {
@@ -54,8 +78,9 @@
 
 .info {
   display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
 }
 
 .infoItem {
@@ -65,6 +90,28 @@
   font-size: $font-size-sm;
   font-weight: 400;
   color: $text-secondary;
+
+  &:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &:last-child {
+    flex-shrink: 0;
+  }
+}
+
+.dateText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.locationText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 
 @keyframes pulse {
@@ -85,6 +132,7 @@
 
 .organizerName {
   font-size: 14px;
-  color: $text-secondary;
-  font-weight: 400;
+  color: white;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }

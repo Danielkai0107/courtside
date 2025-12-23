@@ -1,0 +1,71 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.dateTimeline {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0 16px 16px;
+  min-width: 70px;
+  background: transparent;
+  overflow-y: auto;
+  scrollbar-width: none;
+  position: relative;
+
+  -webkit-scrollbar {
+    display: none;
+  }
+}
+
+.dateItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  position: relative;
+  min-height: 120px; // 每個日期區域的最小高度
+
+  &.isFirst {
+    min-height: auto;
+  }
+
+  // 過去日期
+  &.past {
+    opacity: 0.6;
+  }
+}
+
+.dateText {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  min-width: 40px;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.dotLine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $border-color;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.line {
+  width: 2px;
+  flex: 1;
+  min-height: 100px;
+  background: $border-color;
+  margin-top: 4px;
+
+  .dateItem:last-child & {
+    display: none;
+  }
+}

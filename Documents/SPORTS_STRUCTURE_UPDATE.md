@@ -169,3 +169,4 @@ await initAllSports();
 - `src/components/features/CategoryManager.tsx` - 分類管理元件
 - `src/pages/organizer/CreateTournament.tsx` - 建立賽事頁面
 
+

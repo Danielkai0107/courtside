@@ -19,6 +19,7 @@
   align-items: center;
   gap: $spacing-md;
   border-bottom: 1px solid $border-color;
+  height: 50px;
 }
 
 .backButton {
@@ -116,6 +117,17 @@
   font-size: 14px;
   color: $text-primary;
   font-weight: 500;
+}
+
+.dateTimeRow {
+  display: flex;
+  gap: $spacing-md;
+  align-items: flex-start;
+  margin-top: 8px;
+
+  > :global(.MuiTextField-root) {
+    flex: 1;
+  }
 }
 
 .optionsGrid {

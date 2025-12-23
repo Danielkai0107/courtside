@@ -259,7 +259,7 @@ const TournamentDashboard: React.FC = () => {
       <div className={styles.header}>
         <button
           className={styles.backButton}
-          onClick={() => navigate("/my-games")}
+          onClick={() => navigate("/my-organizer")}
           aria-label="返回"
         >
           <ArrowLeft size={24} />
@@ -380,17 +380,23 @@ const TournamentDashboard: React.FC = () => {
                       </div>
                     )}
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>賽事日期</span>
+                      <span className={styles.infoLabel}>開始日期</span>
                       <span className={styles.infoValue}>
-                        {tournament.date.toDate().toLocaleDateString("zh-TW")}
+                        {(tournament.startDate || tournament.date)
+                          .toDate()
+                          .toLocaleDateString("zh-TW")}
                       </span>
                     </div>
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>報名截止</span>
+                      <span className={styles.infoLabel}>結束日期</span>
                       <span className={styles.infoValue}>
-                        {tournament.registrationDeadline
-                          .toDate()
-                          .toLocaleDateString("zh-TW")}
+                        {tournament.endDate
+                          ? tournament.endDate
+                              .toDate()
+                              .toLocaleDateString("zh-TW")
+                          : (tournament.startDate || tournament.date)
+                              .toDate()
+                              .toLocaleDateString("zh-TW")}
                       </span>
                     </div>
                     {tournament.description && (
@@ -501,7 +507,7 @@ const TournamentDashboard: React.FC = () => {
                             await cancelTournament(id!);
                             alert("賽事已取消，即將返回我的主辦頁面");
                             // 自動返回到我的主辦頁面
-                            navigate("/my-games?tab=organizer");
+                            navigate("/my-organizer");
                           } catch (err: any) {
                             alert(err.message || "取消賽事失敗");
                           }

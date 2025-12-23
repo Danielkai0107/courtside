@@ -343,13 +343,16 @@ export const calculateTournamentStatus = (
     return "REGISTRATION_CLOSED";
   }
 
-  // 如果報名尚未截止且未額滿，狀態為 open
-  if (now.toMillis() < tournament.registrationDeadline.toMillis()) {
-    return "REGISTRATION_OPEN";
+  // 向下相容：如果有舊的 registrationDeadline，使用它
+  if (tournament.registrationDeadline) {
+    if (now.toMillis() < tournament.registrationDeadline.toMillis()) {
+      return "REGISTRATION_OPEN";
+    }
+    return "REGISTRATION_CLOSED";
   }
 
-  // 報名截止後，狀態為 locked
-  return "REGISTRATION_CLOSED";
+  // 新架構：沒有報名截止日期，由主辦方手動控制狀態
+  return tournament.status;
 };
 
 /**

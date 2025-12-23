@@ -1,0 +1,156 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.tournamentBanner {
+  position: relative;
+  display: flex;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  height: 120px;
+  overflow: hidden;
+
+  &:active {
+    transform: translateX(2px);
+  }
+}
+
+.thumbnailWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: $radius-md;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  .thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  // 遮罩層
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(2, 18, 47, 0.5) 0%,
+      rgba(2, 18, 47, 0.7) 50%,
+      rgba(2, 18, 47, 0.85) 100%
+    );
+    pointer-events: none;
+  }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+}
+
+.timeRange {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.footer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #fff;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+
+  .material-symbols-rounded {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.tag {
+  font-size: $font-size-xs;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &.REGISTRATION_OPEN {
+    background: #e0e000;
+    color: #333;
+  }
+
+  &.REGISTRATION_CLOSED {
+    background: rgba($primary-color, 0.9);
+
+    color: white;
+  }
+
+  &.ONGOING {
+    background: rgba($primary-color, 0.9);
+    color: white;
+  }
+
+  &.COMPLETED {
+    background: rgba(white, 0.9);
+    color: $text-primary;
+  }
+
+  &.CANCELLED {
+    background: rgba($error-color, 0.9);
+    color: white;
+  }
+
+  &.DRAFT {
+    background: rgba(white, 0.9);
+    color: $text-primary;
+  }
+}

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import clsx from "clsx";
 import {
   subscribeTournaments,
   getTournaments,
@@ -8,7 +10,7 @@ import { getCourts } from "../services/courtService";
 import { getActiveSports } from "../services/sportService";
 import { useSportPreference } from "../hooks/useSportPreference";
 import TournamentMatchesCard from "../components/features/TournamentMatchesCard";
-import TournamentCard from "../components/features/TournamentCard";
+import TournamentBanner from "../components/features/TournamentBanner";
 import Tabs from "../components/common/Tabs";
 import Loading from "../components/common/Loading";
 import IndexBuildingNotice from "../components/common/IndexBuildingNotice";
@@ -17,13 +19,15 @@ import styles from "./Home.module.scss";
 import type { Tournament, Match, Sport } from "../types";
 
 const Home: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     preferredSportId,
     updateSportPreference,
     loading: loadingSportPref,
     needsFirstSelection,
   } = useSportPreference();
-  const [activeTab, setActiveTab] = useState("live");
+  // 從 URL 參數讀取頁籤狀態，如果沒有則默認為 "live"
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "live");
   const [liveTournaments, setLiveTournaments] = useState<Tournament[]>([]);
   const [exploreTournaments, setExploreTournaments] = useState<Tournament[]>(
     []
@@ -44,6 +48,12 @@ const Home: React.FC = () => {
     { id: "live", label: "直播中" },
     { id: "explore", label: "探索賽事" },
   ];
+
+  // 切換頁籤時更新 URL
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
 
   // Load sports from database
   useEffect(() => {
@@ -227,6 +237,73 @@ const Home: React.FC = () => {
     }
   };
 
+  // 按日期分組賽事
+  const getTournamentsByDate = () => {
+    const groups = new Map<string, Tournament[]>();
+
+    exploreTournaments.forEach((tournament) => {
+      // 優先使用 startDate，向下相容 date
+      const tournamentDate = tournament.startDate || tournament.date;
+      if (!tournamentDate) return;
+
+      const date = tournamentDate.toDate();
+      const dateKey = date.toISOString().split("T")[0]; // YYYY-MM-DD
+
+      if (!groups.has(dateKey)) {
+        groups.set(dateKey, []);
+      }
+      groups.get(dateKey)!.push(tournament);
+    });
+
+    // 排序並轉換為陣列
+    return Array.from(groups.entries())
+      .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+      .map(([dateKey, tournaments]) => {
+        const date = new Date(dateKey);
+        const now = new Date();
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+        const dateOnly = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate()
+        );
+
+        return {
+          dateKey,
+          displayDate: `${date.getMonth() + 1}/${date.getDate()}`,
+          isPast: dateOnly < today,
+          isToday: dateOnly.getTime() === today.getTime(),
+          tournaments,
+        };
+      });
+  };
+
+  // 檢查賽事是否已結束或過期
+  const isTournamentExpired = (tournament: Tournament) => {
+    // 優先使用 endDate，向下相容 date
+    const tournamentEndDate = tournament.endDate || tournament.date;
+    if (!tournamentEndDate) return false;
+    const now = new Date();
+    const tournamentDate = tournamentEndDate.toDate();
+    const tournamentEndOfDay = new Date(
+      tournamentDate.getFullYear(),
+      tournamentDate.getMonth(),
+      tournamentDate.getDate(),
+      23,
+      59,
+      59
+    );
+    return (
+      tournamentEndOfDay < now ||
+      tournament.status === "COMPLETED" ||
+      tournament.status === "CANCELLED"
+    );
+  };
+
   // 獲取當前選擇的運動項目顯示文字
   const getCurrentSportDisplay = () => {
     if (!preferredSportId) return "";
@@ -275,7 +352,7 @@ const Home: React.FC = () => {
       <Tabs
         tabs={tabs}
         activeTab={activeTab}
-        onChange={setActiveTab}
+        onChange={handleTabChange}
         enableSwipe={true}
         swipeThreshold={60}
       >
@@ -304,8 +381,39 @@ const Home: React.FC = () => {
             <IndexBuildingNotice />
           ) : exploreTournaments.length > 0 ? (
             <div className={styles.exploreTournamentList}>
-              {exploreTournaments.map((tournament) => (
-                <TournamentCard key={tournament.id} tournament={tournament} />
+              {getTournamentsByDate().map((dateGroup, index) => (
+                <div key={dateGroup.dateKey} className={styles.dateGroup}>
+                  <div className={styles.dateColumn}>
+                    <div
+                      className={clsx(styles.dateText, {
+                        [styles.past]: dateGroup.isPast,
+                        [styles.today]: dateGroup.isToday,
+                      })}
+                    >
+                      {dateGroup.displayDate}
+                    </div>
+                    <div className={styles.timeline}>
+                      <div className={styles.dot}></div>
+                      {index < getTournamentsByDate().length - 1 && (
+                        <div className={styles.line}></div>
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles.tournamentsColumn}>
+                    {dateGroup.tournaments.map((tournament) => (
+                      <TournamentBanner
+                        key={tournament.id}
+                        tournament={tournament}
+                        fromTab={activeTab}
+                        className={
+                          isTournamentExpired(tournament)
+                            ? styles.expiredTournament
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           ) : (

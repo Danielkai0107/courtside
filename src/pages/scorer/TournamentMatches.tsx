@@ -73,7 +73,7 @@ const TournamentMatches: React.FC = () => {
   return (
     <div className={styles.tournamentMatches}>
       <div className={styles.header}>
-        <button onClick={() => navigate("/scorer")} className={styles.backButton}>
+        <button onClick={() => navigate("/my-scorer")} className={styles.backButton}>
           <ArrowLeft size={24} />
         </button>
         <h1 className={styles.headerTitle}>{tournament.name}</h1>
@@ -85,7 +85,11 @@ const TournamentMatches: React.FC = () => {
           <div className={styles.tournamentInfo}>
             <div className={styles.infoRow}>
               <span>日期：</span>
-              <span>{tournament.date.toDate().toLocaleDateString("zh-TW")}</span>
+              <span>
+                {(tournament.startDate || tournament.date)
+                  .toDate()
+                  .toLocaleDateString("zh-TW")}
+              </span>
             </div>
             <div className={styles.infoRow}>
               <span>地點：</span>

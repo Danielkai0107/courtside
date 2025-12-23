@@ -22,6 +22,11 @@ const EventDetail: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
+  // 獲取來源頁面和頁籤信息
+  const searchParams = new URLSearchParams(window.location.search);
+  const fromPage = searchParams.get("from");
+  const fromTab = searchParams.get("tab");
+
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,7 +206,7 @@ const EventDetail: React.FC = () => {
     return (
       <div className={styles.error}>
         <p>找不到此賽事</p>
-        <Button onClick={() => navigate("/events")}>返回賽事列表</Button>
+        <Button onClick={() => navigate("/")}>返回首頁</Button>
       </div>
     );
   }
@@ -215,6 +220,54 @@ const EventDetail: React.FC = () => {
       day: "numeric",
       weekday: "long",
     });
+  };
+
+  const formatDateRange = () => {
+    if (!tournament) return "";
+    
+    // 優先使用新的 startDate/endDate
+    const start = tournament.startDate || tournament.date;
+    const end = tournament.endDate;
+
+    if (!start) return "";
+
+    const startDate = start.toDate();
+    const startStr = startDate.toLocaleDateString("zh-TW", {
+      month: "long",
+      day: "numeric",
+    });
+    const startTime = startDate.toLocaleTimeString("zh-TW", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    if (!end) {
+      // 沒有結束時間，只顯示開始時間
+      return `${formatDate(start)} ${startTime}`;
+    }
+
+    const endDate = end.toDate();
+    const endStr = endDate.toLocaleDateString("zh-TW", {
+      month: "long",
+      day: "numeric",
+    });
+    const endTime = endDate.toLocaleTimeString("zh-TW", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    // 判斷是否為同一天
+    if (
+      startDate.getFullYear() === endDate.getFullYear() &&
+      startDate.getMonth() === endDate.getMonth() &&
+      startDate.getDate() === endDate.getDate()
+    ) {
+      return `${formatDate(start)} ${startTime} - ${endTime}`;
+    } else {
+      return `${startStr} ${startTime} - ${endStr} ${endTime}`;
+    }
   };
 
   // 新架構下，報名是按 category 的，所以總是顯示報名按鈕（在 Modal 中選擇分類）
@@ -235,7 +288,17 @@ const EventDetail: React.FC = () => {
   return (
     <div className={styles.eventDetail}>
       <div className={styles.header}>
-        <button className={styles.backButton} onClick={() => navigate(-1)}>
+        <button
+          className={styles.backButton}
+          onClick={() => {
+            // 如果是從首頁來的，返回時恢復頁籤狀態
+            if (fromPage === "home" && fromTab) {
+              navigate(`/?tab=${fromTab}`);
+            } else {
+              navigate(-1);
+            }
+          }}
+        >
           <ArrowLeft size={24} />
         </button>
         <h2 className={styles.headerTitle}>錦標賽</h2>
@@ -274,7 +337,7 @@ const EventDetail: React.FC = () => {
               <p className={styles.organizer}>
                 {tournament.organizerName || "主辦方"}
               </p>
-              <p className={styles.date}>{formatDate(tournament.date)}</p>
+              <p className={styles.date}>{formatDateRange()}</p>
             </div>
           </div>
           {canRegister && (
@@ -497,7 +560,7 @@ const EventDetail: React.FC = () => {
                     <div className={styles.infoRow}>
                       <span className={styles.infoLabel}>錦標賽日期</span>
                       <span className={styles.infoValue}>
-                        {formatDate(tournament.date)}
+                        {formatDateRange()}
                       </span>
                     </div>
                     <div className={styles.infoRow}>

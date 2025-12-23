@@ -95,6 +95,17 @@ const MyTournamentMatches: React.FC = () => {
     });
   };
 
+  const formatDateRange = () => {
+    if (!tournament) return "";
+    
+    // 優先使用新的 startDate/endDate
+    const start = tournament.startDate || tournament.date;
+    const end = tournament.endDate;
+
+    if (!start) return "";
+    return formatDate(start);
+  };
+
   const formatTime = (timestamp: any) => {
     if (!timestamp) return "";
     const date = timestamp.toDate();
@@ -160,7 +171,7 @@ const MyTournamentMatches: React.FC = () => {
             <div className={styles.headerInfo}>
               <span className={styles.infoItem}>
                 <Calendar size={14} />
-                {formatDate(tournament.date)}
+                {formatDateRange()}
               </span>
               <span className={styles.infoItem}>
                 <MapPin size={14} />

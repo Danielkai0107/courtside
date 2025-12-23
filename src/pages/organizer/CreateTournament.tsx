@@ -41,8 +41,10 @@ const CreateTournament: React.FC = () => {
   const [bannerPreview, setBannerPreview] = useState("");
 
   // Step 2: Time & Location
-  const [date, setDate] = useState("");
-  const [registrationDeadline, setRegistrationDeadline] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [location, setLocation] = useState("");
 
   // Step 3: Categories
@@ -137,16 +139,27 @@ const CreateTournament: React.FC = () => {
         return true;
 
       case 2:
-        if (!date) {
-          setError("請選擇比賽日期");
+        if (!startDate) {
+          setError("請選擇開始日期");
           return false;
         }
-        if (!registrationDeadline) {
-          setError("請選擇報名截止日期");
+        if (!startTime) {
+          setError("請選擇開始時間");
           return false;
         }
-        if (new Date(registrationDeadline) >= new Date(date)) {
-          setError("報名截止日期必須早於比賽日期");
+        if (!endDate) {
+          setError("請選擇結束日期");
+          return false;
+        }
+        if (!endTime) {
+          setError("請選擇結束時間");
+          return false;
+        }
+        // 組合日期和時間進行比較
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+        if (endDateTime <= startDateTime) {
+          setError("結束時間必須晚於開始時間");
           return false;
         }
         if (!location.trim()) {
@@ -191,15 +204,17 @@ const CreateTournament: React.FC = () => {
         return;
       }
 
+      // 組合日期和時間
+      const startDateTime = new Date(`${startDate}T${startTime}`);
+      const endDateTime = new Date(`${endDate}T${endTime}`);
+
       // Build tournament data - simplified for new architecture
       const tournamentData: any = {
         name: name.trim(),
         sportId: selectedSport.id,
         sportType: selectedSport.id as Tournament["sportType"],
-        date: Timestamp.fromDate(new Date(date)),
-        registrationDeadline: Timestamp.fromDate(
-          new Date(registrationDeadline)
-        ),
+        startDate: Timestamp.fromDate(startDateTime),
+        endDate: Timestamp.fromDate(endDateTime),
         location: location.trim(),
         status: "DRAFT",
         organizerId: currentUser.uid,
@@ -350,29 +365,73 @@ const CreateTournament: React.FC = () => {
           {/* Step 2: Time & Location */}
           {currentStep === 2 && (
             <div className={styles.step}>
-              <TextField
-                label="比賽日期"
-                type="datetime-local"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                fullWidth
-                variant="outlined"
-                size="medium"
-                InputLabelProps={{ shrink: true }}
-              />
+              <div className={styles.formGroup}>
+                <label className={styles.label}>開始日期與時間</label>
+                <div className={styles.dateTimeRow}>
+                  <TextField
+                    label="開始日期"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      // 自動帶入相同值到結束日期
+                      if (!endDate) {
+                        setEndDate(e.target.value);
+                      }
+                    }}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    size="medium"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    label="開始時間"
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => {
+                      setStartTime(e.target.value);
+                      // 自動帶入相同值到結束時間
+                      if (!endTime) {
+                        setEndTime(e.target.value);
+                      }
+                    }}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    size="medium"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </div>
+              </div>
 
-              <TextField
-                label="報名截止日期"
-                type="datetime-local"
-                value={registrationDeadline}
-                onChange={(e) => setRegistrationDeadline(e.target.value)}
-                required
-                fullWidth
-                variant="outlined"
-                size="medium"
-                InputLabelProps={{ shrink: true }}
-              />
+              <div className={styles.formGroup}>
+                <label className={styles.label}>結束日期與時間</label>
+                <div className={styles.dateTimeRow}>
+                  <TextField
+                    label="結束日期"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    size="medium"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    label="結束時間"
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    required
+                    fullWidth
+                    variant="outlined"
+                    size="medium"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </div>
+              </div>
 
               <TextField
                 label="比賽地點"

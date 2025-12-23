@@ -38,8 +38,10 @@ export interface UserProfile {
 export interface Tournament {
   id: string; // Document ID
   name: string;
-  date: Timestamp;
-  registrationDeadline: Timestamp;
+  startDate: Timestamp; // 賽事開始日期時間
+  endDate: Timestamp; // 賽事結束日期時間
+  date?: Timestamp; // 向下相容，舊資料可能還有此欄位
+  registrationDeadline?: Timestamp; // 向下相容，舊資料可能還有此欄位
   location: string;
   description?: string;
   bannerURL?: string;
