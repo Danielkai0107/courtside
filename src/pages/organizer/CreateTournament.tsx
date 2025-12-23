@@ -215,6 +215,7 @@ const CreateTournament: React.FC = () => {
         sportType: selectedSport.id as Tournament["sportType"],
         startDate: Timestamp.fromDate(startDateTime),
         endDate: Timestamp.fromDate(endDateTime),
+        date: Timestamp.fromDate(startDateTime), // 向下相容，用於排序
         location: location.trim(),
         status: "DRAFT",
         organizerId: currentUser.uid,
