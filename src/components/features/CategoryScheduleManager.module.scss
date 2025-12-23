@@ -91,7 +91,147 @@
 .publishedActions {
   display: flex;
   gap: 0.75rem;
+  flex-wrap: wrap;
+  
   button {
-    width: 100%;
+    flex: 1;
+    min-width: 150px;
+  }
+}
+
+// 警告彈窗樣式
+.warningModalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.warningIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 107, 0, 0.1);
+}
+
+.warningMessage {
+  text-align: center;
+  font-size: 1rem;
+  color: $text-primary;
+  line-height: 1.6;
+}
+
+.warningStats {
+  width: 100%;
+  padding: 1rem;
+  background: $bg-color;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  
+  span {
+    color: $text-secondary;
+  }
+  
+  strong {
+    color: $text-primary;
+    font-weight: 600;
+  }
+}
+
+.warningHint {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(33, 150, 243, 0.1);
+  border-left: 3px solid #2196f3;
+  border-radius: 4px;
+  
+  p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: $text-primary;
+  }
+  
+  ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    
+    li {
+      margin: 0.25rem 0;
+      font-size: 0.875rem;
+      color: $text-secondary;
+    }
+  }
+}
+
+.warningActions {
+  width: 100%;
+  display: flex;
+  gap: 0.75rem;
+}
+
+// 確認彈窗樣式
+.confirmModalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: $text-primary;
+    line-height: 1.6;
+  }
+}
+
+.confirmStats {
+  padding: 1rem;
+  background: $bg-color;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+// 響應式設計
+@media (max-width: 768px) {
+  .publishedActions {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .publishedStats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .confirmActions {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
   }
 }

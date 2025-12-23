@@ -49,6 +49,7 @@ export const inviteStaff = async (
     role: staffData.role,
     status: "invited",
     invitedAt: serverTimestamp(),
+    notified: false, // 新增：標記是否已發送通知
   };
 
   // 如果是已註冊用戶
@@ -95,7 +96,13 @@ export const inviteStaff = async (
             },
           ],
         });
-        console.log("✅ [inviteStaff] 通知已創建");
+        
+        // 標記為已通知，防止重複創建
+        await updateDoc(doc(db, "tournaments", tournamentId, "staff", docRef.id), {
+          notified: true,
+        });
+        
+        console.log("✅ [inviteStaff] 通知已創建並標記為已通知");
       }
     } catch (error) {
       console.error("❌ [inviteStaff] 創建通知失敗:", error);

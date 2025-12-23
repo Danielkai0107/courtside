@@ -10,30 +10,27 @@ import {
 } from "../services/storageService";
 import { getActiveSports } from "../services/sportService";
 import { useAuth } from "../contexts/AuthContext";
-import { useRoleSwitch } from "../contexts/RoleSwitchContext";
 import { useSportPreference } from "../hooks/useSportPreference";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
-import Select from "../components/common/Select";
-import SelectableCard from "../components/common/SelectableCard";
 import AvatarWithSkeleton from "../components/common/AvatarWithSkeleton";
+import SportSelectionModal from "../components/common/SportSelectionModal";
 import styles from "./Profile.module.scss";
-import type { UserRole, Sport } from "../types";
+import type { Sport } from "../types";
 
 const Profile: React.FC = () => {
   const { currentUser, logout, loading } = useAuth();
-  const { startTransition } = useRoleSwitch();
   const {
     preferredSportId,
     updateSportPreference,
     loading: loadingSportPref,
+    needsFirstSelection,
   } = useSportPreference();
   const navigate = useNavigate();
-  const [currentRole, setCurrentRole] = useState<UserRole>("user");
   const [sports, setSports] = useState<Sport[]>([]);
   const [loadingSports, setLoadingSports] = useState(true);
-  const [updating, setUpdating] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showSportModal, setShowSportModal] = useState(false);
 
   // 只在 Auth 完全加載後才檢查登入狀態
   useEffect(() => {
@@ -58,55 +55,6 @@ const Profile: React.FC = () => {
 
     loadSports();
   }, []);
-
-  useEffect(() => {
-    // Load current role from Firestore
-    if (currentUser) {
-      const loadUserRole = async () => {
-        try {
-          const userDoc = await import("firebase/firestore").then(
-            ({ getDoc, doc }) => getDoc(doc(db, "users", currentUser.uid))
-          );
-          if (userDoc.exists()) {
-            setCurrentRole(userDoc.data().currentRole || "user");
-          }
-        } catch (error) {
-          console.error("Failed to load user role:", error);
-        }
-      };
-      loadUserRole();
-    }
-  }, [currentUser]);
-
-  const handleRoleChange = async (role: UserRole) => {
-    if (!currentUser) return;
-
-    setUpdating(true);
-
-    // 啟動切換動畫
-    startTransition(role, async () => {
-      try {
-        const userRef = doc(db, "users", currentUser.uid);
-        await updateDoc(userRef, {
-          currentRole: role,
-        });
-        setCurrentRole(role);
-
-        // Navigate based on role
-        if (role === "organizer") {
-          navigate("/organizer");
-        } else if (role === "scorer") {
-          navigate("/scorer");
-        } else {
-          navigate("/");
-        }
-      } catch (error) {
-        console.error("Failed to update role:", error);
-      } finally {
-        setUpdating(false);
-      }
-    });
-  };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!currentUser) return;
@@ -143,22 +91,25 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleSportPreferenceChange = async (sportId: string) => {
+  const handleSportPreferenceChange = async (
+    sportId: string,
+    sportName: string
+  ) => {
     try {
-      await updateSportPreference(sportId);
+      await updateSportPreference(sportId, sportName);
+      setShowSportModal(false);
     } catch (error) {
       console.error("Failed to update sport preference:", error);
       alert("更新項目偏好失敗，請稍後再試");
     }
   };
 
-  const sportOptions = [
-    { value: "all", label: "全部項目" },
-    ...sports.map((sport) => ({
-      value: sport.id,
-      label: `${sport.icon} ${sport.name}`,
-    })),
-  ];
+  // 獲取當前選擇的運動項目顯示文字
+  const getCurrentSportDisplay = () => {
+    if (!preferredSportId) return "";
+    const sport = sports.find((s) => s.id === preferredSportId);
+    return sport ? `${sport.icon} ${sport.name}` : "";
+  };
 
   if (!currentUser) {
     return (
@@ -171,6 +122,42 @@ const Profile: React.FC = () => {
 
   return (
     <div className={styles.profile}>
+      {/* 首次選擇項目彈窗 */}
+      <SportSelectionModal
+        isOpen={needsFirstSelection && !loadingSportPref}
+        onSelect={updateSportPreference}
+        title="選擇你的運動項目"
+      />
+
+      {/* 切換項目彈窗 */}
+      <SportSelectionModal
+        isOpen={showSportModal}
+        onSelect={handleSportPreferenceChange}
+        currentSportId={preferredSportId}
+        title="切換運動項目"
+      />
+
+      <div className={styles.header}>
+        <h1 className={styles.headerTitle}>CourtSide</h1>
+        {!loadingSports && !loadingSportPref && preferredSportId && (
+          <button
+            className={styles.sportButton}
+            onClick={() => setShowSportModal(true)}
+          >
+            {getCurrentSportDisplay()}
+            <span
+              className="material-symbols-rounded"
+              style={{
+                fontVariationSettings:
+                  '"FILL" 0, "wght" 300, "GRAD" 0, "opsz" 20',
+              }}
+            >
+              swap_horiz
+            </span>
+          </button>
+        )}
+      </div>
+
       <div className={styles.content}>
         <Card className={styles.userInfo}>
           <label className={styles.avatarContainer}>
@@ -204,61 +191,6 @@ const Profile: React.FC = () => {
             <p className={styles.email}>{currentUser.email}</p>
           </div>
         </Card>
-
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>運動項目</h3>
-          <p className={styles.sectionDescription}>選擇您感興趣的運動項目</p>
-
-          <div className={styles.globalNotice}>
-            <span>
-              此設定會影響所有視角的賽事顯示，包含「賽事直播」、「賽事列表」、「主辦方」及「紀錄員」頁面
-            </span>
-          </div>
-
-          {!loadingSports && !loadingSportPref && sportOptions.length > 0 && (
-            <Select
-              options={sportOptions}
-              value={preferredSportId}
-              onChange={handleSportPreferenceChange}
-              fullWidth={true}
-              className={styles.sportSelector}
-            />
-          )}
-        </div>
-
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>目前角色</h3>
-          <p className={styles.sectionDescription}>切換角色以存取不同功能</p>
-
-          <div className={styles.roleCards}>
-            <SelectableCard
-              title="選手、觀眾"
-              value=""
-              subtitle="報名、瀏覽"
-              selected={currentRole === "user"}
-              onClick={() => handleRoleChange("user")}
-              disabled={updating}
-            />
-
-            <SelectableCard
-              title="主辦方"
-              value=""
-              subtitle="建立賽事"
-              selected={currentRole === "organizer"}
-              onClick={() => handleRoleChange("organizer")}
-              disabled={updating}
-            />
-
-            <SelectableCard
-              title="紀錄員"
-              value=""
-              subtitle="記錄比分"
-              selected={currentRole === "scorer"}
-              onClick={() => handleRoleChange("scorer")}
-              disabled={updating}
-            />
-          </div>
-        </div>
 
         <Button
           variant="ghost"

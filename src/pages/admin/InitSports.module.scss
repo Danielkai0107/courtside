@@ -49,10 +49,55 @@
   }
 }
 
+.mainCard {
+  margin-bottom: $spacing-lg;
+}
+
 .description {
   color: $text-secondary;
   margin: 0 0 $spacing-lg 0;
   line-height: 1.6;
+}
+
+.sportsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.sportHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.sportDescription {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  margin: 0 0 $spacing-md 0;
+  line-height: 1.5;
+}
+
+.successIcon {
+  color: $accent-color;
+  flex-shrink: 0;
+}
+
+.featureList {
+  margin: $spacing-sm 0 $spacing-md 0;
+  padding-left: $spacing-lg;
+  color: $text-secondary;
+  
+  li {
+    margin-bottom: $spacing-xs;
+    line-height: 1.6;
+  }
 }
 
 .dataPreview {
@@ -96,6 +141,8 @@
   margin-bottom: $spacing-md;
   font-weight: 500;
 }
+
+
 
 
 

@@ -148,7 +148,7 @@ const Notifications: React.FC = () => {
           {
             label: "未讀",
             value: "unread",
-            badge: unreadCount > 0 ? unreadCount : undefined,
+            badge: unreadCount > 0 ? -1 : undefined, // -1 表示只顯示紅點
           },
         ]}
         activeTab={activeTab}

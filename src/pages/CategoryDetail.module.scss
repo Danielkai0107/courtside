@@ -343,6 +343,15 @@
   font-weight: 500;
 }
 
+.placeholderBadge {
+  background: $background-light;
+  color: $text-secondary;
+  padding: 4px 8px;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: 500;
+}
+
 .matchStatus {
   font-size: $font-size-sm;
   padding: 4px 8px;

@@ -1,0 +1,153 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1100;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  animation: slideUp 0.3s ease;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.content {
+  padding: 32px 24px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: $text-primary;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.description {
+  font-size: 14px;
+  color: $text-secondary;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: $text-secondary;
+}
+
+.sportList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
+.sportCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: $background-secondary;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: lighten($background-secondary, 2%);
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    background: rgba($primary-color, 0.1);
+    border-color: $primary-color;
+  }
+}
+
+.icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  text-align: center;
+}
+
+.checkmark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: $primary-color;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-top: 16px;
+  border-top: 1px solid $border-color;
+}
+
+@media (max-width: 768px) {
+  .sportList {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .sportCard {
+    padding: 20px 12px;
+  }
+
+  .icon {
+    font-size: 40px;
+  }
+}

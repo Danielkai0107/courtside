@@ -40,10 +40,7 @@
   padding-bottom: 120px; // 避免被底部導航欄遮擋
 }
 
-// 當沒有 banner 時，content 需要避開 header
-.eventDetail:not(:has(.banner)) .content {
-  padding-top: 80px;
-}
+// Banner 現在總是存在，移除此規則
 
 .basicInfo {
   text-align: center;

@@ -16,10 +16,11 @@ import {
   updateCategory,
   createCategory,
 } from "../../services/categoryService";
+import { getFormat } from "../../services/formatService";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSportPreference } from "../../hooks/useSportPreference";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
-import SelectableCard from "../../components/common/SelectableCard";
 import Loading from "../../components/common/Loading";
 import CategoryManager from "../../components/features/CategoryManager";
 import styles from "./CreateTournament.module.scss";
@@ -29,6 +30,7 @@ const EditTournament: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const { preferredSportId, loading: loadingSportPref } = useSportPreference();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -64,6 +66,15 @@ const EditTournament: React.FC = () => {
       format: "KNOCKOUT_ONLY" | "GROUP_THEN_KNOCKOUT";
       pointsPerSet: number;
       enableThirdPlaceMatch: boolean;
+      selectedFormat?: any; // FormatTemplate
+      ruleConfig?: {
+        matchType: "set_based" | "point_based";
+        maxSets: number;
+        pointsPerSet: number;
+        setsToWin: number;
+        winByTwo: boolean;
+        cap?: number;
+      };
       groupConfig?: {
         totalGroups: number;
         advancePerGroup: number;
@@ -141,17 +152,34 @@ const EditTournament: React.FC = () => {
           setSelectedSport(sport);
         }
 
-        // Convert categories
-        const categoriesForm = categoriesData.map((cat) => ({
-          id: cat.id,
-          name: cat.name,
-          matchType: cat.matchType,
-          maxParticipants: cat.maxParticipants,
-          format: cat.format,
-          pointsPerSet: cat.pointsPerSet,
-          enableThirdPlaceMatch: cat.enableThirdPlaceMatch,
-          groupConfig: cat.groupConfig || undefined,
-        }));
+        // Convert categories - 載入完整的模板資料
+        const categoriesForm = await Promise.all(
+          categoriesData.map(async (cat) => {
+            let selectedFormat = undefined;
+            
+            // 如果有 selectedFormatId，載入完整的模板資料
+            if (cat.selectedFormatId) {
+              try {
+                selectedFormat = await getFormat(cat.selectedFormatId);
+              } catch (error) {
+                console.warn(`Failed to load format ${cat.selectedFormatId}:`, error);
+              }
+            }
+
+            return {
+              id: cat.id,
+              name: cat.name,
+              matchType: cat.matchType,
+              maxParticipants: cat.maxParticipants,
+              format: cat.format,
+              pointsPerSet: cat.pointsPerSet,
+              enableThirdPlaceMatch: cat.enableThirdPlaceMatch,
+              selectedFormat,
+              ruleConfig: cat.ruleConfig || undefined,
+              groupConfig: cat.groupConfig || undefined,
+            };
+          })
+        );
         setCategories(categoriesForm as any);
       } catch (error) {
         console.error("Failed to load tournament data:", error);
@@ -266,8 +294,7 @@ const EditTournament: React.FC = () => {
       const tournamentData: any = {
         name: name.trim(),
         sportId: selectedSport.id,
-        sportType:
-          selectedSport.nameEn.toLowerCase() as Tournament["sportType"],
+        sportType: selectedSport.id as Tournament["sportType"],
         date: Timestamp.fromDate(new Date(date)),
         registrationDeadline: Timestamp.fromDate(
           new Date(registrationDeadline)
@@ -298,7 +325,7 @@ const EditTournament: React.FC = () => {
       for (const category of categories) {
         if (category.id && existingCategoryIds.includes(category.id)) {
           // Update existing category
-          await updateCategory(id, category.id, {
+          const updateData: any = {
             name: category.name,
             matchType: category.matchType,
             maxParticipants: category.maxParticipants,
@@ -306,11 +333,21 @@ const EditTournament: React.FC = () => {
             pointsPerSet: category.pointsPerSet,
             enableThirdPlaceMatch: category.enableThirdPlaceMatch,
             groupConfig: category.groupConfig,
-          });
+          };
+
+          // 包含賽制模板和規則配置
+          if (category.selectedFormat?.id) {
+            updateData.selectedFormatId = category.selectedFormat.id;
+          }
+          if (category.ruleConfig) {
+            updateData.ruleConfig = category.ruleConfig;
+          }
+
+          await updateCategory(id, category.id, updateData);
           updatedCategoryIds.push(category.id);
         } else {
           // Create new category
-          const newCategoryId = await createCategory(id, {
+          const createData: any = {
             name: category.name,
             matchType: category.matchType,
             maxParticipants: category.maxParticipants,
@@ -320,7 +357,17 @@ const EditTournament: React.FC = () => {
             groupConfig: category.groupConfig,
             status: "REGISTRATION_OPEN",
             currentParticipants: 0,
-          });
+          };
+
+          // 包含賽制模板和規則配置
+          if (category.selectedFormat?.id) {
+            createData.selectedFormatId = category.selectedFormat.id;
+          }
+          if (category.ruleConfig) {
+            createData.ruleConfig = category.ruleConfig;
+          }
+
+          const newCategoryId = await createCategory(id, createData);
           updatedCategoryIds.push(newCategoryId);
         }
       }
@@ -336,7 +383,7 @@ const EditTournament: React.FC = () => {
     }
   };
 
-  if (loadingSports || loadingData) {
+  if (loadingSports || loadingData || loadingSportPref) {
     return <Loading fullScreen />;
   }
 
@@ -400,20 +447,17 @@ const EditTournament: React.FC = () => {
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>球類項目</label>
-                <div className={styles.optionsGrid}>
-                  {sports.map((sport) => (
-                    <SelectableCard
-                      key={sport.id}
-                      title={sport.name}
-                      value={sport.icon}
-                      subtitle={sport.nameEn}
-                      selected={selectedSport?.id === sport.id}
-                      onClick={() => {
-                        setSelectedSport(sport);
-                      }}
-                    />
-                  ))}
-                </div>
+                {selectedSport && (
+                  <div className={styles.sportDisplay}>
+                    <div className={styles.sportIcon}>{selectedSport.icon}</div>
+                    <div className={styles.sportInfo}>
+                      <div className={styles.sportName}>{selectedSport.name}</div>
+                      <div className={styles.sportHint}>
+                        球類項目無法修改
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className={styles.formGroup}>
@@ -473,8 +517,11 @@ const EditTournament: React.FC = () => {
               <CategoryManager
                 categories={categories}
                 onChange={setCategories}
+                sport={selectedSport || undefined}
                 defaultPointsPerSet={
-                  selectedSport?.defaultPointsPerSet || 21
+                  selectedSport?.rulePresets?.find(
+                    (p) => p.id === selectedSport.defaultPresetId
+                  )?.config.pointsPerSet || 21
                 }
               />
               <p className={styles.warningText}>

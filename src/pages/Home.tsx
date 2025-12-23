@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { subscribeTournaments } from "../services/tournamentService";
+import {
+  subscribeTournaments,
+  getTournaments,
+} from "../services/tournamentService";
 import { subscribeMatchesByTournament } from "../services/matchService";
 import { getCourts } from "../services/courtService";
 import { getActiveSports } from "../services/sportService";
 import { useSportPreference } from "../hooks/useSportPreference";
 import TournamentMatchesCard from "../components/features/TournamentMatchesCard";
-import Select from "../components/common/Select";
+import TournamentCard from "../components/features/TournamentCard";
+import Tabs from "../components/common/Tabs";
 import Loading from "../components/common/Loading";
+import IndexBuildingNotice from "../components/common/IndexBuildingNotice";
+import SportSelectionModal from "../components/common/SportSelectionModal";
 import styles from "./Home.module.scss";
 import type { Tournament, Match, Sport } from "../types";
 
@@ -15,8 +21,13 @@ const Home: React.FC = () => {
     preferredSportId,
     updateSportPreference,
     loading: loadingSportPref,
+    needsFirstSelection,
   } = useSportPreference();
+  const [activeTab, setActiveTab] = useState("live");
   const [liveTournaments, setLiveTournaments] = useState<Tournament[]>([]);
+  const [exploreTournaments, setExploreTournaments] = useState<Tournament[]>(
+    []
+  );
   const [tournamentMatches, setTournamentMatches] = useState<
     Record<string, Match[]>
   >({});
@@ -24,8 +35,15 @@ const Home: React.FC = () => {
     Record<string, any[]>
   >({});
   const [loading, setLoading] = useState(true);
+  const [indexBuilding, setIndexBuilding] = useState(false);
   const [sports, setSports] = useState<Sport[]>([]);
   const [loadingSports, setLoadingSports] = useState(true);
+  const [showSportModal, setShowSportModal] = useState(false);
+
+  const tabs = [
+    { id: "live", label: "直播中" },
+    { id: "explore", label: "探索賽事" },
+  ];
 
   // Load sports from database
   useEffect(() => {
@@ -44,8 +62,9 @@ const Home: React.FC = () => {
     loadSports();
   }, []);
 
+  // 載入直播中的賽事
   useEffect(() => {
-    if (loadingSportPref) return; // 等待偏好設定載入完成
+    if (loadingSportPref || activeTab !== "live") return;
 
     setLoading(true);
     setTournamentMatches({});
@@ -62,8 +81,8 @@ const Home: React.FC = () => {
         ],
       };
 
-      // 如果選擇特定球類，加入 sportId 篩選
-      if (preferredSportId !== "all") {
+      // 加入 sportId 篩選
+      if (preferredSportId) {
         filters.sportId = preferredSportId;
       }
 
@@ -93,9 +112,9 @@ const Home: React.FC = () => {
           const matchUnsub = subscribeMatchesByTournament(
             tournament.id,
             (matches) => {
-              // 只顯示正在計分的場次（紀錄員已開始）
+              // 只顯示正在計分的場次（紀錄員已開始），且不是佔位符
               const liveMatchesOnly = matches.filter(
-                (m) => m.status === "IN_PROGRESS"
+                (m) => m.status === "IN_PROGRESS" && !m.isPlaceholder
               );
 
               setTournamentMatches((prev) => ({
@@ -113,9 +132,7 @@ const Home: React.FC = () => {
       setLiveTournaments([]);
 
       if (error?.message?.includes("index")) {
-        console.log(
-          "Firestore 索引正在建立中，請稍候 1-2 分鐘後重新整理頁面"
-        );
+        console.log("Firestore 索引正在建立中，請稍候 1-2 分鐘後重新整理頁面");
       }
     }
 
@@ -127,7 +144,70 @@ const Home: React.FC = () => {
       // Clean up all match subscriptions
       matchUnsubscribers.forEach((unsub) => unsub());
     };
-  }, [preferredSportId, loadingSportPref]);
+  }, [preferredSportId, loadingSportPref, activeTab]);
+
+  // 載入探索賽事
+  useEffect(() => {
+    if (loadingSportPref || activeTab !== "explore") return;
+
+    let isMounted = true;
+
+    const loadExploreTournaments = async () => {
+      setLoading(true);
+      try {
+        const filters: any = {
+          status: [
+            "REGISTRATION_OPEN",
+            "REGISTRATION_CLOSED",
+            "ONGOING",
+            "COMPLETED",
+          ],
+        };
+
+        if (preferredSportId) {
+          filters.sportId = preferredSportId;
+        }
+
+        const data = await getTournaments(filters);
+
+        if (isMounted) {
+          // Remove duplicates by id
+          const tournamentMap = new Map<string, Tournament>();
+          data.forEach((t) => {
+            if (!tournamentMap.has(t.id)) {
+              tournamentMap.set(t.id, t);
+            }
+          });
+          const uniqueTournaments = Array.from(tournamentMap.values());
+
+          setExploreTournaments(uniqueTournaments);
+          setIndexBuilding(false);
+        }
+      } catch (error: any) {
+        console.error("Failed to load tournaments:", error);
+
+        if (isMounted) {
+          if (error?.message?.includes("index")) {
+            console.log(
+              "Firestore 索引正在建立中，請稍候 1-2 分鐘後重新整理頁面"
+            );
+            setIndexBuilding(true);
+          }
+          setExploreTournaments([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadExploreTournaments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [preferredSportId, loadingSportPref, activeTab]);
 
   // 只顯示有進行中場次的賽事
   const tournamentsWithLiveMatches = liveTournaments.filter((tournament) => {
@@ -135,55 +215,106 @@ const Home: React.FC = () => {
     return matches.length > 0;
   });
 
-  const handleSportPreferenceChange = async (sportId: string) => {
+  const handleSportPreferenceChange = async (
+    sportId: string,
+    sportName: string
+  ) => {
     try {
-      await updateSportPreference(sportId);
+      await updateSportPreference(sportId, sportName);
+      setShowSportModal(false);
     } catch (error) {
       console.error("Failed to update sport preference:", error);
     }
   };
 
-  const sportOptions = [
-    { value: "all", label: "全部項目" },
-    ...sports.map((sport) => ({
-      value: sport.id,
-      label: `${sport.icon} ${sport.name}`,
-    })),
-  ];
+  // 獲取當前選擇的運動項目顯示文字
+  const getCurrentSportDisplay = () => {
+    if (!preferredSportId) return "";
+    const sport = sports.find((s) => s.id === preferredSportId);
+    return sport ? `${sport.icon} ${sport.name}` : "";
+  };
 
   return (
     <div className={styles.home}>
+      {/* 首次選擇項目彈窗 */}
+      <SportSelectionModal
+        isOpen={needsFirstSelection && !loadingSportPref}
+        onSelect={updateSportPreference}
+        title="選擇你的運動項目"
+      />
+
+      {/* 切換項目彈窗 */}
+      <SportSelectionModal
+        isOpen={showSportModal}
+        onSelect={handleSportPreferenceChange}
+        currentSportId={preferredSportId}
+        title="切換運動項目"
+      />
+
       <div className={styles.header}>
         <h1 className={styles.headerTitle}>CourtSide</h1>
-        {!loadingSports && !loadingSportPref && sportOptions.length > 0 && (
-          <Select
-            options={sportOptions}
-            value={preferredSportId}
-            onChange={handleSportPreferenceChange}
-            className={styles.sportSelector}
-          />
+        {!loadingSports && !loadingSportPref && preferredSportId && (
+          <button
+            className={styles.sportButton}
+            onClick={() => setShowSportModal(true)}
+          >
+            {getCurrentSportDisplay()}
+            <span
+              className="material-symbols-rounded"
+              style={{
+                fontVariationSettings:
+                  '"FILL" 0, "wght" 300, "GRAD" 0, "opsz" 20',
+              }}
+            >
+              swap_horiz
+            </span>
+          </button>
         )}
       </div>
 
-      {loading || loadingSportPref ? (
-        <Loading />
-      ) : tournamentsWithLiveMatches.length > 0 ? (
-        <div className={styles.tournamentList}>
-          {tournamentsWithLiveMatches.map((tournament) => (
-            <TournamentMatchesCard
-              key={tournament.id}
-              tournament={tournament}
-              matches={tournamentMatches[tournament.id] || []}
-              courts={tournamentCourts[tournament.id] || []}
-              showLiveTag={true}
-            />
-          ))}
+      <Tabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        enableSwipe={true}
+        swipeThreshold={60}
+      >
+        <div className={styles.content}>
+          {loading || loadingSportPref ? (
+            <Loading />
+          ) : activeTab === "live" ? (
+            tournamentsWithLiveMatches.length > 0 ? (
+              <div className={styles.liveTournamentList}>
+                {tournamentsWithLiveMatches.map((tournament) => (
+                  <TournamentMatchesCard
+                    key={tournament.id}
+                    tournament={tournament}
+                    matches={tournamentMatches[tournament.id] || []}
+                    courts={tournamentCourts[tournament.id] || []}
+                    showLiveTag={true}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className={styles.empty}>
+                <p>目前沒有正在計分的比賽</p>
+              </div>
+            )
+          ) : indexBuilding ? (
+            <IndexBuildingNotice />
+          ) : exploreTournaments.length > 0 ? (
+            <div className={styles.exploreTournamentList}>
+              {exploreTournaments.map((tournament) => (
+                <TournamentCard key={tournament.id} tournament={tournament} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.empty}>
+              <p>目前沒有賽事</p>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className={styles.empty}>
-          <p>目前沒有正在計分的比賽</p>
-        </div>
-      )}
+      </Tabs>
     </div>
   );
 };

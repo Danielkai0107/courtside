@@ -35,7 +35,8 @@ const TournamentMatches: React.FC = () => {
         ]);
         setTournament(tournamentData);
         setCategories(categoriesData);
-        setMatches(matchesData);
+        // 過濾掉佔位符 Match
+        setMatches(matchesData.filter((m) => !m.isPlaceholder));
         setCourts(courtsData);
       } catch (error) {
         console.error("Failed to load tournament matches:", error);
@@ -48,7 +49,9 @@ const TournamentMatches: React.FC = () => {
 
     // 即時監聽比賽變化
     const unsubscribe = subscribeMatchesByTournament(id, (updatedMatches) => {
-      setMatches(updatedMatches);
+      // 過濾掉佔位符 Match
+      const realMatches = updatedMatches.filter((m) => !m.isPlaceholder);
+      setMatches(realMatches);
     });
 
     return () => unsubscribe();

@@ -30,8 +30,10 @@ export const syncUserProfile = async (user: User) => {
       photoURL: user.photoURL,
       createdAt: serverTimestamp() as any,
       currentRole: 'user',
+      preferredSportId: '', // 新用戶預設為空，觸發首次選擇彈窗
     };
     await setDoc(userRef, newProfile);
+    console.log('✅ [syncUserProfile] 新用戶資料已創建，需要首次選擇運動項目');
   }
 };
 
@@ -99,35 +101,48 @@ export const linkShadowAccounts = async (user: User) => {
           updatedAt: serverTimestamp(),
         });
 
-        // Create notification for this invitation
-        try {
-          const tournament = await getTournament(tournamentId);
-          
-          if (tournament) {
-            await createNotification({
-              userId: user.uid,
-              type: 'STAFF_INVITATION',
-              title: '收到工作邀請',
-              message: `您收到【${tournament.name}】的紀錄員邀請`,
-              isRead: false,
-              relatedData: { tournamentId, staffId },
-              actions: [
-                {
-                  label: '接受',
-                  type: 'primary',
-                  action: 'accept',
-                },
-                {
-                  label: '拒絕',
-                  type: 'secondary',
-                  action: 'decline',
-                },
-              ],
-            });
-            console.log(`✅ [linkShadowAccounts] 為邀請創建通知: ${tournament.name}`);
+        // 檢查是否已經通知過，避免重複通知
+        const alreadyNotified = staffData.notified === true;
+        
+        if (!alreadyNotified) {
+          // Create notification for this invitation
+          try {
+            const tournament = await getTournament(tournamentId);
+            
+            if (tournament) {
+              await createNotification({
+                userId: user.uid,
+                type: 'STAFF_INVITATION',
+                title: '收到工作邀請',
+                message: `您收到【${tournament.name}】的紀錄員邀請`,
+                isRead: false,
+                relatedData: { tournamentId, staffId },
+                actions: [
+                  {
+                    label: '接受',
+                    type: 'primary',
+                    action: 'accept',
+                  },
+                  {
+                    label: '拒絕',
+                    type: 'secondary',
+                    action: 'decline',
+                  },
+                ],
+              });
+              
+              // 標記為已通知
+              batch.update(docSnap.ref, {
+                notified: true,
+              });
+              
+              console.log(`✅ [linkShadowAccounts] 為邀請創建通知: ${tournament.name}`);
+            }
+          } catch (notifError) {
+            console.error(`❌ [linkShadowAccounts] 創建通知失敗:`, notifError);
           }
-        } catch (notifError) {
-          console.error(`❌ [linkShadowAccounts] 創建通知失敗:`, notifError);
+        } else {
+          console.log(`⏭️ [linkShadowAccounts] 跳過已通知的邀請: ${tournamentId}`);
         }
       }
 

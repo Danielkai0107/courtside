@@ -129,8 +129,10 @@ const Tabs: React.FC<TabsProps> = ({
             onClick={() => onChange(tabId)}
           >
             {tab.label}
-            {tab.badge !== undefined && tab.badge > 0 && (
-              <span className={styles.badge}>{tab.badge}</span>
+            {tab.badge !== undefined && (
+              <span className={clsx(styles.badge, tab.badge === -1 && styles.dot)}>
+                {tab.badge === -1 ? "" : tab.badge > 99 ? "99+" : tab.badge}
+              </span>
             )}
           </button>
         );

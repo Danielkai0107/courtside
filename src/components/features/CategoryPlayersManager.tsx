@@ -403,6 +403,7 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
             await addPlayerManually(tournamentId, {
               email: `test${timestamp}-${i}@example.com`,
               name: `測試選手 ${name1} ${i + 1}`,
+              categoryId: activeCategory, // 添加 categoryId
             });
             successCount++;
           } catch (itemError) {
@@ -622,8 +623,12 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
           </h3>
 
           <div className={styles.actions}>
-            <Button variant="outline" onClick={() => setShowTestModal(true)}>
-              測
+            <Button 
+              variant="outline" 
+              onClick={() => setShowTestModal(true)}
+              size="small"
+            >
+              🧪 測試數據
             </Button>
             <Button onClick={() => setShowAddModal(true)}>
               <Plus size={16} />

@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Users } from "lucide-react";
+import { Calendar, Users, AlertTriangle } from "lucide-react";
 import Button from "../common/Button";
 import Card from "../common/Card";
 import Tabs from "../common/Tabs";
+import Modal from "../common/Modal";
 import CategoryPublisher from "./CategoryPublisher";
+import PlayerSeedingModal from "./PlayerSeedingModal";
 import styles from "./CategoryScheduleManager.module.scss";
-import type { Category } from "../../types";
+import type { Category, FormatTemplate } from "../../types";
 import { getPlayers } from "../../services/registrationService";
 import { getTeamsByCategory } from "../../services/teamService";
 import { getCourts } from "../../services/courtService";
 import { getMatchesByTournament } from "../../services/matchService";
 import { reassignCourtsByCategory } from "../../services/courtService";
+import {
+  regenerateSchedule,
+  getCategoryScheduleStats,
+} from "../../services/scheduleRegenerationService";
+import { getFormatsByParticipantCount } from "../../services/formatService";
 
 interface CategoryScheduleManagerProps {
   tournamentId: string;
@@ -31,6 +38,13 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
   const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [reassigning, setReassigning] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [showSeedingModal, setShowSeedingModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [scheduleStats, setScheduleStats] = useState<any>(null);
+  const [recommendedFormats, setRecommendedFormats] = useState<FormatTemplate[]>([]);
+  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(null);
+  const [adjustedParticipants, setAdjustedParticipants] = useState<any[]>([]);
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {
@@ -50,6 +64,7 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
         if (!category) return;
 
         // Load participants
+        let participantsList: any[] = [];
         if (category.matchType === "singles") {
           const playersData = await getPlayers(tournamentId);
           // 過濾該分類的已確認選手
@@ -58,24 +73,49 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
               p.status === "confirmed" &&
               (p.categoryId === activeCategory || !p.categoryId) // 兼容舊數據
           );
-          setParticipants(
-            confirmed.map((p) => ({
-              id: p.uid || p.id,
-              name: p.name,
-            }))
-          );
+          participantsList = confirmed.map((p) => ({
+            id: p.uid || p.id,
+            name: p.name,
+          }));
         } else {
           const teamsData = await getTeamsByCategory(
             tournamentId,
             activeCategory,
             "confirmed"
           );
-          setParticipants(
-            teamsData.map((t) => ({
-              id: t.id,
-              name: `${t.player1Name} / ${t.player2Name}`,
-            }))
-          );
+          participantsList = teamsData.map((t) => ({
+            id: t.id,
+            name: `${t.player1Name} / ${t.player2Name}`,
+          }));
+        }
+        setParticipants(participantsList);
+        setAdjustedParticipants(participantsList);
+
+        // Load recommended formats
+        if (participantsList.length >= 2) {
+          const formats = await getFormatsByParticipantCount(participantsList.length);
+          setRecommendedFormats(formats);
+          
+          // 優先使用分類已設定的模板，沒有才用推薦的第一個
+          if (category.selectedFormatId) {
+            const { getFormat } = await import("../../services/formatService");
+            try {
+              const existingFormat = await getFormat(category.selectedFormatId);
+              if (existingFormat) {
+                console.log("✅ 載入分類已設定的模板:", existingFormat.name);
+                setSelectedFormat(existingFormat);
+              } else if (formats.length > 0) {
+                setSelectedFormat(formats[0]);
+              }
+            } catch (error) {
+              console.warn("載入已設定模板失敗，使用推薦模板");
+              if (formats.length > 0) {
+                setSelectedFormat(formats[0]);
+              }
+            }
+          } else if (formats.length > 0) {
+            setSelectedFormat(formats[0]);
+          }
         }
 
         // Load courts
@@ -88,6 +128,12 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
           (m: any) => m.categoryId === activeCategory
         );
         setMatches(categoryMatches);
+
+        // Load schedule stats
+        if (categoryMatches.length > 0) {
+          const stats = await getCategoryScheduleStats(tournamentId, activeCategory);
+          setScheduleStats(stats);
+        }
       } catch (error) {
         console.error("Failed to load schedule data:", error);
       } finally {
@@ -154,6 +200,80 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
     }
   };
 
+  const handleOpenSeedingAdjustment = () => {
+    // 檢查是否有已開始的比賽
+    if (scheduleStats && (scheduleStats.inProgress > 0 || scheduleStats.completed > 0)) {
+      setShowWarningModal(true);
+    } else {
+      setShowSeedingModal(true);
+    }
+  };
+
+  const handleSaveSeedingAdjustment = (reorderedParticipants: Array<{ id: string; name: string }>) => {
+    setAdjustedParticipants(reorderedParticipants);
+    setShowSeedingModal(false);
+    console.log("✅ 已儲存種子位調整，準備重新生成賽程");
+  };
+
+  const handleRegenerateSchedule = async () => {
+    if (!currentCategoryData || !selectedFormat) {
+      alert("缺少必要資訊");
+      return;
+    }
+
+    if (courts.length === 0) {
+      alert("請先在「場地管理」Tab 新增至少一個場地");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `⚠️ 確定要重新生成賽程嗎？\n\n` +
+        `這將執行以下操作：\n` +
+        `1. 刪除所有未開始的比賽（${scheduleStats?.scheduled || 0} 場）\n` +
+        `2. 使用調整後的種子位重新生成對戰\n` +
+        `3. 已開始或已完成的比賽不受影響\n\n` +
+        `此操作無法撤銷，請確認！`
+    );
+    
+    if (!confirmed) return;
+
+    setRegenerating(true);
+    try {
+      await regenerateSchedule(
+        tournamentId,
+        currentCategoryData,
+        adjustedParticipants,
+        selectedFormat,
+        courts
+      );
+
+      // 保存選擇的模板ID到分類
+      if (selectedFormat) {
+        const { updateCategory } = await import("../../services/categoryService");
+        await updateCategory(tournamentId, activeCategory, {
+          selectedFormatId: selectedFormat.id,
+        });
+        console.log(`✅ 已保存模板選擇: ${selectedFormat.name}`);
+      }
+
+      alert("✅ 賽程重新生成成功！");
+
+      // Reload data
+      const allMatches = await getMatchesByTournament(tournamentId);
+      const categoryMatches = allMatches.filter(
+        (m: any) => m.categoryId === activeCategory
+      );
+      setMatches(categoryMatches);
+
+      const stats = await getCategoryScheduleStats(tournamentId, activeCategory);
+      setScheduleStats(stats);
+    } catch (err: any) {
+      alert(`❌ 重新生成失敗：\n${err.message}`);
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   if (categories.length === 0) {
     return (
       <Card>
@@ -182,7 +302,8 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
     label: cat.name,
   }));
 
-  const hasPublishedMatches = matches.length > 0;
+  // 只有非佔位符的 Match 才算「已發布」
+  const hasPublishedMatches = matches.some((m: any) => !m.isPlaceholder);
 
   return (
     <div className={styles.categoryScheduleManager}>
@@ -234,6 +355,13 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
                 重新分配場地
               </Button>
               <Button
+                variant="outline"
+                onClick={handleOpenSeedingAdjustment}
+                disabled={!selectedFormat || participants.length < 2}
+              >
+                ⚙️ 調整配對並重新生成
+              </Button>
+              <Button
                 variant="primary"
                 onClick={() => {
                   // Navigate to category detail
@@ -271,6 +399,102 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
           </>
         )}
       </div>
+
+      {/* 選手配對調整彈窗 */}
+      {currentCategoryData && (
+        <PlayerSeedingModal
+          isOpen={showSeedingModal}
+          onClose={() => setShowSeedingModal(false)}
+          participants={participants}
+          selectedFormat={selectedFormat}
+          onSave={handleSaveSeedingAdjustment}
+          matchType={currentCategoryData.matchType}
+        />
+      )}
+
+      {/* 警告彈窗：有比賽已開始 */}
+      <Modal
+        isOpen={showWarningModal}
+        onClose={() => setShowWarningModal(false)}
+        title="⚠️ 無法重新生成賽程"
+        size="md"
+      >
+        <div className={styles.warningModalContent}>
+          <div className={styles.warningIcon}>
+            <AlertTriangle size={48} color="#ff6b00" />
+          </div>
+          <p className={styles.warningMessage}>
+            此分類有比賽已經開始或已完成，無法重新生成賽程。
+          </p>
+          <div className={styles.warningStats}>
+            <div className={styles.statRow}>
+              <span>進行中：</span>
+              <strong>{scheduleStats?.inProgress || 0} 場</strong>
+            </div>
+            <div className={styles.statRow}>
+              <span>已完成：</span>
+              <strong>{scheduleStats?.completed || 0} 場</strong>
+            </div>
+            <div className={styles.statRow}>
+              <span>未開始：</span>
+              <strong>{scheduleStats?.scheduled || 0} 場</strong>
+            </div>
+          </div>
+          <div className={styles.warningHint}>
+            <p>💡 <strong>建議：</strong></p>
+            <ul>
+              <li>使用「重新分配場地」功能調整未開始的比賽場地</li>
+              <li>等待所有比賽完成後再重新生成賽程</li>
+            </ul>
+          </div>
+          <div className={styles.warningActions}>
+            <Button variant="primary" onClick={() => setShowWarningModal(false)} fullWidth>
+              我知道了
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 確認重新生成彈窗 */}
+      {adjustedParticipants.length > 0 && 
+       adjustedParticipants !== participants && 
+       !showSeedingModal && (
+        <Modal
+          isOpen={true}
+          onClose={() => setAdjustedParticipants(participants)}
+          title="確認重新生成賽程"
+          size="md"
+        >
+          <div className={styles.confirmModalContent}>
+            <p>您已調整種子位，是否要立即重新生成賽程？</p>
+            <div className={styles.confirmStats}>
+              <div className={styles.statRow}>
+                <span>將刪除未開始的比賽：</span>
+                <strong>{scheduleStats?.scheduled || 0} 場</strong>
+              </div>
+              <div className={styles.statRow}>
+                <span>將保留已開始/完成的比賽：</span>
+                <strong>{(scheduleStats?.inProgress || 0) + (scheduleStats?.completed || 0)} 場</strong>
+              </div>
+            </div>
+            <div className={styles.confirmActions}>
+              <Button 
+                variant="text" 
+                onClick={() => setAdjustedParticipants(participants)}
+              >
+                取消
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleRegenerateSchedule}
+                loading={regenerating}
+              >
+                確認重新生成
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

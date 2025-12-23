@@ -1,17 +1,17 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { RoleSwitchProvider } from "./contexts/RoleSwitchContext";
 import AppLayout from "./components/layout/AppLayout";
 import AuthGuard from "./components/guards/AuthGuard";
-import RoleGuard from "./components/guards/RoleGuard";
 import ScrollToTop from "./components/common/ScrollToTop";
 import RoleSwitchTransition from "./components/common/RoleSwitchTransition";
+import DesktopNotice from "./components/common/DesktopNotice";
+import { isMobileDevice } from "./utils/deviceDetection";
 
 // User Pages
 import Home from "./pages/Home";
 import MyGames from "./pages/MyGames";
 import MyTournamentMatches from "./pages/MyTournamentMatches";
-import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import CategoryDetail from "./pages/CategoryDetail";
 import MatchDetail from "./pages/MatchDetail";
@@ -20,21 +20,29 @@ import Login from "./pages/Login";
 import Notifications from "./pages/Notifications";
 
 // Organizer Pages
-import OrganizerHome from "./pages/organizer/OrganizerHome";
 import CreateTournament from "./pages/organizer/CreateTournament";
 import EditTournament from "./pages/organizer/EditTournament";
 import TournamentDashboard from "./pages/organizer/TournamentDashboard";
 
 // Scorer Pages
-import ScorerHome from "./pages/scorer/ScorerHome";
 import TournamentMatches from "./pages/scorer/TournamentMatches";
 import ScorerCategoryDetail from "./pages/scorer/ScorerCategoryDetail";
 import ScoringConsole from "./pages/scorer/ScoringConsole";
 
 // Admin Pages
 import InitSports from "./pages/admin/InitSports";
+import AddFormats from "./pages/admin/AddFormats";
+
 
 function App() {
+  // 檢測是否為移動裝置
+  const isMobile = isMobileDevice();
+
+  // 如果不是移動裝置，顯示提示頁面
+  if (!isMobile) {
+    return <DesktopNotice />;
+  }
+
   return (
     <Router>
       <ScrollToTop />
@@ -48,8 +56,14 @@ function App() {
           {/* User Routes with Layout */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/my-games" element={<MyGames />} />
+            <Route 
+              path="/my-games" 
+              element={
+                <AuthGuard>
+                  <MyGames />
+                </AuthGuard>
+              } 
+            />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
@@ -66,28 +80,14 @@ function App() {
             element={<MyTournamentMatches />}
           />
 
-          {/* Organizer Routes with Layout */}
-          <Route element={<AppLayout />}>
-            <Route
-              path="/organizer"
-              element={
-                <AuthGuard>
-                  <RoleGuard requiredRole="organizer">
-                    <OrganizerHome />
-                  </RoleGuard>
-                </AuthGuard>
-              }
-            />
-          </Route>
-
           {/* Organizer Routes without Layout (full screen) */}
+          {/* Redirect /organizer to /my-games */}
+          <Route path="/organizer" element={<Navigate to="/my-games" replace />} />
           <Route
             path="/organizer/create"
             element={
               <AuthGuard>
-                <RoleGuard requiredRole="organizer">
-                  <CreateTournament />
-                </RoleGuard>
+                <CreateTournament />
               </AuthGuard>
             }
           />
@@ -95,9 +95,7 @@ function App() {
             path="/organizer/tournaments/:id/edit"
             element={
               <AuthGuard>
-                <RoleGuard requiredRole="organizer">
-                  <EditTournament />
-                </RoleGuard>
+                <EditTournament />
               </AuthGuard>
             }
           />
@@ -105,35 +103,19 @@ function App() {
             path="/organizer/tournaments/:id"
             element={
               <AuthGuard>
-                <RoleGuard requiredRole="organizer">
-                  <TournamentDashboard />
-                </RoleGuard>
+                <TournamentDashboard />
               </AuthGuard>
             }
           />
 
-          {/* Scorer Routes with Layout */}
-          <Route element={<AppLayout />}>
-            <Route
-              path="/scorer"
-              element={
-                <AuthGuard>
-                  <RoleGuard requiredRole="scorer">
-                    <ScorerHome />
-                  </RoleGuard>
-                </AuthGuard>
-              }
-            />
-          </Route>
-
           {/* Scorer Routes without Layout (full screen) */}
+          {/* Redirect /scorer to /my-games */}
+          <Route path="/scorer" element={<Navigate to="/my-games" replace />} />
           <Route
             path="/scorer/tournaments/:id"
             element={
               <AuthGuard>
-                <RoleGuard requiredRole="scorer">
-                  <TournamentMatches />
-                </RoleGuard>
+                <TournamentMatches />
               </AuthGuard>
             }
           />
@@ -141,9 +123,7 @@ function App() {
             path="/scorer/tournaments/:id/categories/:categoryId"
             element={
               <AuthGuard>
-                <RoleGuard requiredRole="scorer">
-                  <ScorerCategoryDetail />
-                </RoleGuard>
+                <ScorerCategoryDetail />
               </AuthGuard>
             }
           />
@@ -151,9 +131,7 @@ function App() {
             path="/scorer/matches/:id"
             element={
               <AuthGuard>
-                <RoleGuard requiredRole="scorer">
-                  <ScoringConsole />
-                </RoleGuard>
+                <ScoringConsole />
               </AuthGuard>
             }
           />
@@ -167,6 +145,15 @@ function App() {
               </AuthGuard>
             }
           />
+          <Route
+            path="/admin/add-formats"
+            element={
+              <AuthGuard>
+                <AddFormats />
+              </AuthGuard>
+            }
+          />
+          
         </Routes>
         </RoleSwitchProvider>
       </AuthProvider>

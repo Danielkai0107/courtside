@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Button from "../common/Button";
 import Card from "../common/Card";
+import SelectableCard from "../common/SelectableCard";
+import PlayerSeedingModal from "./PlayerSeedingModal";
 import styles from "./CategoryPublisher.module.scss";
-import type { Category } from "../../types";
-import {
-  suggestGroupConfigs,
-  calculateTotalMatches,
-  type GroupConfig,
-} from "../../services/groupingService";
+import type { Category, FormatTemplate } from "../../types";
 import {
   generateKnockoutOnly,
   generateGroupThenKnockout,
+  generateRoundRobin,
 } from "../../services/bracketService";
+import {
+  getFormatsByParticipantCount,
+  calculateFormatTotalMatches,
+} from "../../services/formatService";
 
 interface CategoryPublisherProps {
   tournamentId: string;
@@ -30,20 +32,54 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedConfig, setSelectedConfig] = useState<GroupConfig | null>(
-    null
-  );
-  const [suggestedConfigs, setSuggestedConfigs] = useState<GroupConfig[]>([]);
+  const [recommendedFormats, setRecommendedFormats] = useState<FormatTemplate[]>([]);
+  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(null);
+  const [isSeedingModalOpen, setIsSeedingModalOpen] = useState(false);
+  const [adjustedParticipants, setAdjustedParticipants] = useState(participants);
 
   useEffect(() => {
-    if (category.format === "GROUP_THEN_KNOCKOUT" && participants.length >= 4) {
-      const configs = suggestGroupConfigs(participants.length);
-      setSuggestedConfigs(configs);
-      if (configs.length > 0) {
-        setSelectedConfig(configs[0]);
+    setAdjustedParticipants(participants);
+  }, [participants]);
+
+  useEffect(() => {
+    const loadRecommendations = async () => {
+      try {
+        const formats = await getFormatsByParticipantCount(participants.length);
+        setRecommendedFormats(formats);
+        
+        // 優先使用分類已設定的模板，沒有才用推薦的第一個
+        if (category.selectedFormatId) {
+          const { getFormat } = await import("../../services/formatService");
+          try {
+            const existingFormat = await getFormat(category.selectedFormatId);
+            if (existingFormat) {
+              console.log("✅ 載入分類已設定的模板:", existingFormat.name);
+              setSelectedFormat(existingFormat);
+            } else if (formats.length > 0) {
+              setSelectedFormat(formats[0]);
+            }
+          } catch (error) {
+            console.warn("載入已設定模板失敗，使用推薦模板");
+            if (formats.length > 0) {
+              setSelectedFormat(formats[0]);
+            }
+          }
+        } else if (formats.length > 0) {
+          // 沒有設定模板，使用推薦的第一個
+          setSelectedFormat(formats[0]);
+        }
+      } catch (error) {
+        console.error("Failed to load format recommendations:", error);
       }
-    }
-  }, [category, participants.length]);
+    };
+
+    loadRecommendations();
+  }, [participants.length, category.selectedFormatId]);
+
+  const handleSaveSeedingAdjustment = (reorderedParticipants: Array<{ id: string; name: string }>) => {
+    setAdjustedParticipants(reorderedParticipants);
+    console.log("✅ [CategoryPublisher] 已儲存種子位調整");
+  };
 
   const handlePublish = async () => {
     if (participants.length < 2) {
@@ -56,56 +92,115 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
       return;
     }
 
+    if (!selectedFormat) {
+      setError("請選擇賽制模板");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      if (category.format === "KNOCKOUT_ONLY") {
-        // 純淘汰賽
-        await generateKnockoutOnly(
+      console.log("🎯 [CategoryPublisher] 開始發布賽程:", {
+        formatId: selectedFormat.id,
+        formatName: selectedFormat.name,
+        participantsCount: adjustedParticipants.length,
+        isAdjusted: adjustedParticipants !== participants,
+      });
+
+      // 根據模板類型生成 Match（使用調整後的參賽者順序）
+      const hasGroupStage = selectedFormat.stages.some(
+        (s) => s.type === "group_stage"
+      );
+      const hasRoundRobin = selectedFormat.stages.some(
+        (s) => s.type === "round_robin"
+      );
+
+      if (hasRoundRobin) {
+        // 循環賽
+        console.log("🔄 生成循環賽");
+        await generateRoundRobin(
           tournamentId,
           category.id,
-          participants,
+          adjustedParticipants,
+          category.ruleConfig || {
+            matchType: "point_based",
+            maxSets: 1,
+            pointsPerSet: category.pointsPerSet || 21,
+            setsToWin: 1,
+            winByTwo: false,
+          },
+          courts
+        );
+      } else if (hasGroupStage) {
+        // 小組賽 + 淘汰賽
+        console.log("🏆 生成小組賽+淘汰賽");
+
+        const groupStage = selectedFormat.stages.find(
+          (s) => s.type === "group_stage"
+        );
+        const knockoutStage = selectedFormat.stages.find(
+          (s) => s.type === "knockout"
+        );
+
+        if (!groupStage || !knockoutStage) {
+          throw new Error("模板配置錯誤");
+        }
+
+        // 計算分組
+        const totalGroups = groupStage.count || 4;
+        const advancePerGroup = groupStage.advance || 2;
+        const knockoutSize = knockoutStage.size || 8;
+
+        // 計算每組人數
+        const teamsPerGroup = Math.floor(adjustedParticipants.length / totalGroups);
+        const remainder = adjustedParticipants.length % totalGroups;
+        const teamsPerGroupArray = Array(totalGroups)
+          .fill(teamsPerGroup)
+          .map((count, i) => (i < remainder ? count + 1 : count));
+
+        await generateGroupThenKnockout(
+          tournamentId,
+          category.id,
+          adjustedParticipants,
+          {
+            totalGroups,
+            teamsPerGroup: teamsPerGroupArray,
+            advancePerGroup,
+            bestThirdPlaces: 0,
+          },
+          knockoutSize,
           category.enableThirdPlaceMatch,
           courts
         );
       } else {
-        // 小組賽 + 淘汰賽
-        // 檢查是否有推薦方案
-        if (suggestedConfigs.length === 0) {
-          // 人數不足，降級為純淘汰賽
-          console.log(
-            `參賽者不足 (${participants.length})，自動降級為純淘汰賽`
-          );
-          await generateKnockoutOnly(
-            tournamentId,
-            category.id,
-            participants,
-            category.enableThirdPlaceMatch,
-            courts
-          );
-        } else {
-          // 有推薦方案，檢查是否已選擇
-          if (!selectedConfig) {
-            setError("請選擇分組方案");
-            return;
-          }
-
-          await generateGroupThenKnockout(
-            tournamentId,
-            category.id,
-            participants,
-            {
-              totalGroups: selectedConfig.totalGroups,
-              teamsPerGroup: selectedConfig.teamsPerGroup,
-              advancePerGroup: selectedConfig.advancePerGroup,
-              bestThirdPlaces: selectedConfig.bestThirdPlaces,
-            },
-            selectedConfig.knockoutSize,
-            category.enableThirdPlaceMatch,
-            courts
-          );
+        // 純淘汰賽
+        console.log("⚡ 生成純淘汰賽");
+        
+        // 檢查是否需要自動計算規模（size: 0）
+        const knockoutStage = selectedFormat.stages.find(s => s.type === "knockout");
+        if (knockoutStage && knockoutStage.size === 0) {
+          // 通用模板：自動計算最接近的 2^n
+          const autoSize = Math.pow(2, Math.ceil(Math.log2(adjustedParticipants.length)));
+          console.log(`📐 自動計算淘汰賽規模: ${adjustedParticipants.length}人 → ${autoSize}強`);
         }
+        
+        await generateKnockoutOnly(
+          tournamentId,
+          category.id,
+          adjustedParticipants,
+          category.enableThirdPlaceMatch,
+          courts
+        );
+      }
+
+      // 發布成功後，將選擇的模板ID保存到分類
+      if (selectedFormat) {
+        const { updateCategory } = await import("../../services/categoryService");
+        await updateCategory(tournamentId, category.id, {
+          selectedFormatId: selectedFormat.id,
+        });
+        console.log(`✅ 已保存模板選擇: ${selectedFormat.name}`);
       }
 
       // 發布成功後，自動檢查並轉換賽事狀態為 ONGOING
@@ -114,7 +209,7 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
       );
       await checkAndTransitionToOngoing(tournamentId);
 
-      // 發送通知給所有已確認且有 uid 的選手
+      // 發送通知
       try {
         const { getConfirmedPlayers } = await import(
           "../../services/registrationService"
@@ -125,26 +220,7 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
         const tournament = await getTournament(tournamentId);
         const confirmedPlayers = await getConfirmedPlayers(tournamentId);
 
-        console.log("📢 [CategoryPublisher] 準備發送通知:", {
-          tournamentId,
-          tournamentName: tournament?.name,
-          totalPlayers: confirmedPlayers.length,
-          players: confirmedPlayers.map((p) => ({
-            id: p.id,
-            name: p.name,
-            email: p.email,
-            uid: p.uid,
-            status: p.status,
-            hasUid: !!p.uid,
-          })),
-        });
-
         const playersWithUid = confirmedPlayers.filter((player) => player.uid);
-        console.log("✅ [CategoryPublisher] 有 UID 的選手:", {
-          count: playersWithUid.length,
-          uids: playersWithUid.map((p) => p.uid),
-        });
-
         const notificationPromises = playersWithUid.map((player) =>
           createNotification({
             userId: player.uid!,
@@ -169,7 +245,6 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
         );
       } catch (error) {
         console.error("❌ [CategoryPublisher] 發送通知失敗:", error);
-        // 不影響發布流程
       }
 
       onPublishSuccess();
@@ -192,72 +267,58 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
             <span className={styles.statLabel}>場地</span>
             <span className={styles.statValue}>{courts.length}</span>
           </div>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>賽制</span>
-            <span className={styles.statValue}>
-              {category.format === "KNOCKOUT_ONLY"
-                ? "純淘汰賽"
-                : "小組賽+淘汰賽"}
-            </span>
-          </div>
         </div>
       </Card>
 
-      {category.format === "GROUP_THEN_KNOCKOUT" && (
-        <Card className={styles.configCard}>
-          <h4 className={styles.subtitle}>分組方案</h4>
+      {/* 模板推薦 */}
+      {recommendedFormats.length > 0 ? (
+        <Card className={styles.formatSelectionCard}>
+          <h4 className={styles.subtitle}>📋 選擇賽制模板</h4>
+          <p className={styles.infoText}>
+            根據報名人數（{participants.length} {category.matchType === "singles" ? "人" : "組"}），為您推薦以下賽制：
+          </p>
 
-          {participants.length < 4 ? (
-            <div className={styles.warningBox}>
-              <p className={styles.warningTitle}>參賽者人數不足</p>
-              <p className={styles.warningText}>
-                小組賽至少需要 4 位參賽者，目前僅有 {participants.length} 位。
-              </p>
-              <p className={styles.warningText}>
-                點擊「發布賽程」時，系統將自動改用<strong>純淘汰賽</strong>。
-              </p>
-              <div className={styles.warningStats}>
-                <span>預計賽制：{participants.length} 人純淘汰賽</span>
-                <span>預計場次：{participants.length - 1} 場</span>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* 推薦方案 */}
-              {suggestedConfigs.length > 0 && (
-                <div className={styles.configsList}>
-                  {suggestedConfigs.map((config, index) => (
-                    <div
-                      key={index}
-                      className={`${styles.configOption} ${
-                        selectedConfig === config ? styles.selected : ""
-                      }`}
-                      onClick={() => setSelectedConfig(config)}
-                    >
-                      <div className={styles.configHeader}>
-                        <span className={styles.configLabel}>
-                          方案 {String.fromCharCode(65 + index)}
-                          {config.isRecommended && (
-                            <span className={styles.recommendedBadge}>
-                              推薦
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                      <p className={styles.configDescription}>
-                        {config.description}
-                      </p>
-                      <div className={styles.configStats}>
-                        <span>
-                          總場次: {calculateTotalMatches(config).total}
-                        </span>
-                      </div>
-                    </div>
+          <div className={styles.formatOptions}>
+            {recommendedFormats.map((format) => (
+              <div
+                key={format.id}
+                className={`${styles.formatOption} ${
+                  selectedFormat?.id === format.id ? styles.selected : ""
+                }`}
+                onClick={() => setSelectedFormat(format)}
+              >
+                <div className={styles.formatHeader}>
+                  <strong>{format.name}</strong>
+                  <span className={styles.formatRange}>
+                    {format.minParticipants}-{format.maxParticipants}{" "}
+                    {category.matchType === "singles" ? "人" : "組"}
+                  </span>
+                </div>
+                {format.description && (
+                  <p className={styles.formatDesc}>{format.description}</p>
+                )}
+                <div className={styles.formatStages}>
+                  {format.stages.map((stage, i) => (
+                    <span key={i} className={styles.stageBadge}>
+                      {stage.name}
+                    </span>
                   ))}
                 </div>
-              )}
-            </>
-          )}
+                <div className={styles.formatStats}>
+                  <span>
+                    預估場次：
+                    {calculateFormatTotalMatches(format, participants.length)} 場
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : (
+        <Card>
+          <p className={styles.warningText}>
+            沒有找到適合的賽制模板，系統將使用智能算法生成賽程。
+          </p>
         </Card>
       )}
 
@@ -265,16 +326,36 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 
       <div className={styles.actions}>
         <Button
+          variant="outline"
+          onClick={() => setIsSeedingModalOpen(true)}
+          fullWidth
+          disabled={!selectedFormat || participants.length < 2}
+        >
+          ⚙️ 選手配對調整
+        </Button>
+        <Button
           variant="primary"
           onClick={handlePublish}
           loading={loading}
           fullWidth
+          disabled={!selectedFormat && recommendedFormats.length > 0}
         >
           發布賽程
         </Button>
       </div>
+
+      {/* 選手配對調整彈窗 */}
+      <PlayerSeedingModal
+        isOpen={isSeedingModalOpen}
+        onClose={() => setIsSeedingModalOpen(false)}
+        participants={participants}
+        selectedFormat={selectedFormat}
+        onSave={handleSaveSeedingAdjustment}
+        matchType={category.matchType}
+      />
     </div>
   );
 };
 
 export default CategoryPublisher;
+

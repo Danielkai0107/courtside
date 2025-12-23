@@ -129,6 +129,110 @@
   margin-bottom: $spacing-lg;
 }
 
+// 局數制計分板樣式
+.setsScoreboard {
+  background: $card-bg;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+  margin-bottom: $spacing-lg;
+}
+
+.ruleInfo {
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin-bottom: $spacing-md;
+  padding: $spacing-sm;
+  background: $background-light;
+  border-radius: $radius-sm;
+}
+
+.playersRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+
+  .playerName {
+    font-weight: 600;
+    text-align: center;
+    font-size: $font-size-base;
+    color: $text-primary;
+  }
+}
+
+.setsGrid {
+  display: flex;
+  gap: $spacing-xs;
+  overflow-x: auto;
+  margin-bottom: $spacing-md;
+  padding: $spacing-xs 0;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 3px;
+  }
+}
+
+.setColumn {
+  flex-shrink: 0;
+  min-width: 80px;
+
+  .setHeader {
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    text-align: center;
+    margin-bottom: $spacing-xs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .setScore {
+    background: $background-light;
+    padding: $spacing-md $spacing-sm;
+    text-align: center;
+    font-size: $font-size-xl;
+    font-weight: 700;
+    border-radius: $radius-sm;
+    margin-bottom: 4px;
+    transition: all 0.2s;
+
+    &.winner {
+      background: $primary-color;
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+    }
+  }
+}
+
+.totalSets {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding-top: $spacing-md;
+  border-top: 2px solid $border-color;
+
+  .totalCell {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: $primary-color;
+  }
+
+  .totalLabel {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+}
+
 .playerSection {
   display: flex;
   justify-content: space-between;

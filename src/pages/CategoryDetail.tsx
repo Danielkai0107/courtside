@@ -340,7 +340,7 @@ const CategoryDetail: React.FC = () => {
                                 </div>
                                 <span
                                   className={`${styles.matchStatus} ${
-                                    styles[match.status?.toLowerCase() || ""]
+                                    styles[(match.status || "").toLowerCase()]
                                   }`}
                                 >
                                   {match.status === "COMPLETED"
@@ -387,12 +387,17 @@ const CategoryDetail: React.FC = () => {
                               <span className={styles.courtLabel}>
                                 {getCourtName(match.courtId)}
                               </span>
+                              {match.isPlaceholder && (
+                                <span className={styles.placeholderBadge}>預覽</span>
+                              )}
                               <span
                                 className={`${styles.matchStatus} ${
-                                  styles[match.status?.toLowerCase() || ""]
+                                  styles[(match.status || "").toLowerCase()]
                                 }`}
                               >
-                                {match.status === "COMPLETED"
+                                {match.isPlaceholder
+                                  ? "待分配"
+                                  : match.status === "COMPLETED"
                                   ? "已完成"
                                   : match.status === "IN_PROGRESS"
                                   ? "進行中"

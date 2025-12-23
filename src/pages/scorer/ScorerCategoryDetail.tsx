@@ -78,8 +78,8 @@ const ScorerCategoryDetail: React.FC = () => {
 
         const matchesData = await getMatchesByTournament(id);
         const categoryMatches = categoryId
-          ? matchesData.filter((m: any) => m.categoryId === categoryId)
-          : matchesData;
+          ? matchesData.filter((m: any) => m.categoryId === categoryId && !m.isPlaceholder)
+          : matchesData.filter((m: any) => !m.isPlaceholder);
         setMatches(categoryMatches);
 
         // 載入場地
@@ -336,7 +336,7 @@ const ScorerCategoryDetail: React.FC = () => {
                                   </div>
                                   <span
                                     className={`${styles.matchStatus} ${
-                                      styles[match.status?.toLowerCase() || ""]
+                                      styles[(match.status || "").toLowerCase()]
                                     }`}
                                   >
                                     {match.status === "COMPLETED"
@@ -410,7 +410,7 @@ const ScorerCategoryDetail: React.FC = () => {
                                     <span
                                       className={`${styles.matchStatus} ${
                                         styles[
-                                          match.status?.toLowerCase() || ""
+                                          (match.status || "").toLowerCase()
                                         ]
                                       }`}
                                     >

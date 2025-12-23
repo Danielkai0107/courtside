@@ -247,5 +247,114 @@
 }
 
 .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   padding-top: 0.5rem;
+}
+
+.successBox {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: rgba(0, 230, 118, 0.1);
+  border: 2px solid $success-color;
+  border-radius: $radius-sm;
+}
+
+.successTitle {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $success-color;
+  margin: 0 0 $spacing-xs 0;
+}
+
+.successText {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin: 0;
+}
+
+.formatSelectionCard {
+  margin-top: $spacing-md;
+  padding: $spacing-lg;
+  background: rgba(255, 193, 7, 0.05);
+  border: 2px solid $warning-color;
+}
+
+.infoText {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin-bottom: $spacing-md;
+}
+
+.formatOptions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.formatOption {
+  padding: $spacing-md;
+  border: 2px solid $border-color;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $primary-color;
+    background: $background-light;
+  }
+
+  &.selected {
+    border-color: $primary-color;
+    background: rgba(255, 107, 0, 0.05);
+  }
+}
+
+.formatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+
+  strong {
+    font-size: $font-size-base;
+    color: $text-primary;
+  }
+}
+
+.formatRange {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.formatDesc {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin: $spacing-xs 0;
+}
+
+.formatStages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
+}
+
+.stageBadge {
+  display: inline-block;
+  background: $background-light;
+  padding: 2px 8px;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: $text-secondary;
+}
+
+.formatStats {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $border-color;
+  font-size: $font-size-sm;
+  color: $text-secondary;
 }

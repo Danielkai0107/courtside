@@ -199,6 +199,18 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated();
     }
     
+    // Formats collection (system configuration)
+    match /formats/{formatId} {
+      // Everyone can read format templates (needed for tournament creation)
+      allow read: if true;
+      
+      // Only authenticated users can create formats (for admin initialization)
+      allow create: if isAuthenticated();
+      
+      // Only authenticated users can update/delete formats (for future admin management)
+      allow update, delete: if isAuthenticated();
+    }
+    
     // Notifications collection
     match /notifications/{notificationId} {
       // Allow reading if authenticated (we'll filter by userId in the query)

@@ -2,6 +2,29 @@ import { Timestamp } from "firebase/firestore";
 
 export type UserRole = "user" | "organizer" | "scorer";
 
+// Format 模板類型
+export type StageType = "round_robin" | "knockout" | "group_stage";
+
+export interface FormatStage {
+  name: string;
+  type: StageType;
+  size?: number;        // 淘汰賽專用
+  count?: number;       // 小組賽專用
+  advance?: number;     // 小組賽專用
+}
+
+export interface FormatTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  minParticipants: number;
+  maxParticipants: number;
+  supportSeeding: boolean;
+  stages: FormatStage[];
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+}
+
 export interface UserProfile {
   uid: string;
   email: string | null;
@@ -9,6 +32,7 @@ export interface UserProfile {
   photoURL: string | null;
   createdAt: Timestamp;
   currentRole: UserRole; // UI preference
+  preferredSportId?: string; // 用戶偏好的運動項目
 }
 
 export interface Tournament {
@@ -56,15 +80,26 @@ export interface Category {
 
   // 賽制設定
   format: "KNOCKOUT_ONLY" | "GROUP_THEN_KNOCKOUT";
+  selectedFormatId?: string;  // 引用 formats/{id}
   groupConfig?: {
     totalGroups: number; // 分幾組
     advancePerGroup: number; // 每組取幾名
     bestThirdPlaces?: number; // 最佳第三名晉級數
   };
 
-  // 比賽設定
+  // 比賽設定（保留向下相容）
   pointsPerSet: number; // 每局得分
   enableThirdPlaceMatch: boolean; // 季軍賽（僅淘汰賽）
+
+  // 完整規則配置（從 Sport 快照）
+  ruleConfig?: {
+    matchType: "set_based" | "point_based";
+    maxSets: number;
+    pointsPerSet: number;
+    setsToWin: number;
+    winByTwo: boolean;
+    cap?: number;
+  };
 
   status: "REGISTRATION_OPEN" | "REGISTRATION_CLOSED" | "ONGOING" | "COMPLETED";
   createdAt: Timestamp;
@@ -143,7 +178,27 @@ export interface Match {
     | "IN_PROGRESS"
     | "COMPLETED";
 
-  // 比分與時間
+  // 佔位符標記
+  isPlaceholder?: boolean;  // true = 建立時的空Match，false = 已分配選手
+
+  // 局數制比分
+  sets?: {
+    player1: number[];  // [21, 19, 21]
+    player2: number[];  // [19, 21, 15]
+  };
+  currentSet?: number;  // 當前第幾局（0-based）
+
+  // 規則快照（從 Category 複製）
+  ruleConfig?: {
+    matchType: "set_based" | "point_based";
+    maxSets: number;
+    pointsPerSet: number;
+    setsToWin: number;
+    winByTwo: boolean;
+    cap?: number;
+  };
+
+  // 比分與時間（保留向下相容）
   score: {
     player1: number;
     player2: number;
@@ -189,20 +244,33 @@ export interface Staff {
   invitedAt: Timestamp;
 }
 
+export interface RulePresetConfig {
+  cap: number; // 參賽人數上限
+  matchType: "set_based" | "point_based"; // 比賽類型
+  maxSets: number; // 最多局數
+  pointsPerSet: number; // 每局分數
+  setsToWin: number; // 獲勝所需局數
+  winByTwo: boolean; // 是否需要贏兩分
+}
+
+export interface RulePreset {
+  id: string; // 預設規則 ID（如：bwf_standard）
+  label: string; // 顯示名稱（如：BWF 標準賽制）
+  description: string; // 說明
+  config: RulePresetConfig;
+}
+
 export interface Sport {
   id: string; // Document ID
-  name: string; // 運動名稱（如：匹克球）
-  nameEn: string; // 英文名稱（如：Pickleball）
+  name: string; // 運動名稱（如：羽毛球）
   icon: string; // 圖示 emoji
-  availableFormats: Array<{
-    id: "knockout" | "round-robin" | "group-stage";
-    name: string;
-    description: string;
-  }>;
-  defaultPointsPerSet: number; // 預設每局得分
   isActive: boolean; // 是否啟用
   order: number; // 排序
+  defaultPresetId: string; // 預設規則 ID
+  modes: string[]; // 可用模式（如：["singles", "doubles"]）
+  rulePresets: RulePreset[]; // 規則預設列表
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
 }
 
 export type NotificationType =

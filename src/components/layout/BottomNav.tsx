@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../services/firebase";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { listenToUnreadCount } from "../../services/notificationService";
 import styles from "./BottomNav.module.scss";
 import clsx from "clsx";
-import type { UserRole } from "../../types";
 
 // Material Symbol 組件
 const MaterialSymbol: React.FC<{ icon: string; filled?: boolean }> = ({
@@ -27,26 +24,7 @@ const MaterialSymbol: React.FC<{ icon: string; filled?: boolean }> = ({
 
 const BottomNav: React.FC = () => {
   const { currentUser } = useAuth();
-  const location = useLocation();
-  const [currentRole, setCurrentRole] = useState<UserRole>("user");
   const [unreadCount, setUnreadCount] = useState<number>(0);
-
-  useEffect(() => {
-    const loadUserRole = async () => {
-      if (!currentUser) return;
-
-      try {
-        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-        if (userDoc.exists()) {
-          setCurrentRole(userDoc.data().currentRole || "user");
-        }
-      } catch (error) {
-        console.error("Failed to load user role:", error);
-      }
-    };
-
-    loadUserRole();
-  }, [currentUser, location.pathname]); // Reload when location changes
 
   // 監聽未讀通知數量
   useEffect(() => {
@@ -72,11 +50,10 @@ const BottomNav: React.FC = () => {
     };
   }, [currentUser]);
 
-  // User navigation items
-  const userNavItems = [
+  // 統一的導覽列項目
+  const navItems = [
     { name: "首頁", path: "/", icon: "home" },
-    { name: "我的比賽", path: "/my-games", icon: "editor_choice" },
-    { name: "錦標賽", path: "/events", icon: "emoji_events" },
+    { name: "我的賽事", path: "/my-games", icon: "editor_choice" },
     {
       name: "通知",
       path: "/notifications",
@@ -85,43 +62,6 @@ const BottomNav: React.FC = () => {
     },
     { name: "個人", path: "/profile", icon: "person" },
   ];
-
-  // Organizer navigation items
-  const organizerNavItems = [
-    { name: "我的主辦", path: "/organizer", icon: "handshake" },
-    {
-      name: "通知",
-      path: "/notifications",
-      icon: "notifications",
-      badge: unreadCount,
-    },
-    { name: "個人", path: "/profile", icon: "person" },
-  ];
-
-  // Scorer navigation items
-  const scorerNavItems = [
-    { name: "我的任務", path: "/scorer", icon: "ballot" },
-    {
-      name: "通知",
-      path: "/notifications",
-      icon: "notifications",
-      badge: unreadCount,
-    },
-    { name: "個人", path: "/profile", icon: "person" },
-  ];
-
-  const getNavItems = () => {
-    switch (currentRole) {
-      case "organizer":
-        return organizerNavItems;
-      case "scorer":
-        return scorerNavItems;
-      default:
-        return userNavItems;
-    }
-  };
-
-  const navItems = getNavItems();
 
   return (
     <nav className={styles.bottomNav}>

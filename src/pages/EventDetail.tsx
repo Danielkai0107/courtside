@@ -16,6 +16,7 @@ import RegistrationForm from "../components/features/RegistrationForm";
 import Tabs from "../components/common/Tabs";
 import styles from "./EventDetail.module.scss";
 import type { Tournament } from "../types";
+import demoBanner from "../assets/demo.jpg";
 
 const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -139,27 +140,38 @@ const EventDetail: React.FC = () => {
         <div className={styles.headerSpacer} />
       </div>
 
-      {tournament.bannerURL && (
-        <div className={styles.banner}>
-          <ImageWithSkeleton 
-            src={tournament.bannerURL} 
-            alt={tournament.name}
-            aspectRatio="16/9"
-          />
-        </div>
-      )}
+      <div className={styles.banner}>
+        <ImageWithSkeleton
+          src={tournament.bannerURL || demoBanner}
+          alt={tournament.name}
+          aspectRatio="16/9"
+        />
+      </div>
 
       <div className={styles.content}>
         <div className={styles.basicInfo}>
           <div className={styles.infoContainer}>
             <div className={styles.organizerBadge}>
               <div className={styles.organizerIcon}>
-                <span>B</span>
+                {tournament.organizerPhotoURL ? (
+                  <AvatarWithSkeleton
+                    src={tournament.organizerPhotoURL}
+                    alt={tournament.organizerName || "主辦方"}
+                    size={48}
+                    fallbackIcon={
+                      <span>{tournament.organizerName?.charAt(0) || "主"}</span>
+                    }
+                  />
+                ) : (
+                  <span>{tournament.organizerName?.charAt(0) || "主"}</span>
+                )}
               </div>
             </div>
             <div className={styles.titleContainer}>
               <h1 className={styles.title}>{tournament.name}</h1>
-              <p className={styles.organizer}>Baseline Philippines</p>
+              <p className={styles.organizer}>
+                {tournament.organizerName || "主辦方"}
+              </p>
               <p className={styles.date}>{formatDate(tournament.date)}</p>
             </div>
           </div>
@@ -175,185 +187,189 @@ const EventDetail: React.FC = () => {
           )}
         </div>
 
-        <Tabs 
-          tabs={tabs} 
-          activeTab={activeTab} 
+        <Tabs
+          tabs={tabs}
+          activeTab={activeTab}
           onChange={setActiveTab}
           enableSwipe={true}
           swipeThreshold={60}
         >
           <div className={styles.tabContent}>
-          {activeTab === "categories" && (
-            <div className={styles.categoriesTab}>
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <Card
-                    key={category.id}
-                    className={styles.categoryCard}
-                    onClick={() =>
-                      navigate(
-                        `/events/${tournament.id}/categories/${category.id}`
-                      )
-                    }
-                  >
-                    <div className={styles.categoryHeader}>
-                      <span className={styles.categoryTitle}>
-                        {category.name}
-                      </span>
-                      <div className={styles.categoryInfo}>
-                        <span className={styles.categoryName}>
-                          {category.matchType === "singles" ? "單打" : "雙打"}
+            {activeTab === "categories" && (
+              <div className={styles.categoriesTab}>
+                {categories.length > 0 ? (
+                  categories.map((category) => (
+                    <Card
+                      key={category.id}
+                      className={styles.categoryCard}
+                      onClick={() =>
+                        navigate(
+                          `/events/${tournament.id}/categories/${category.id}`
+                        )
+                      }
+                    >
+                      <div className={styles.categoryHeader}>
+                        <span className={styles.categoryTitle}>
+                          {category.name}
                         </span>
-                        <div className={styles.categoryStats}>
-                          <span>
-                            {category.currentParticipants}/
-                            {category.maxParticipants} 已報名
+                        <div className={styles.categoryInfo}>
+                          <span className={styles.categoryName}>
+                            {category.matchType === "singles" ? "單打" : "雙打"}
                           </span>
+                          <div className={styles.categoryStats}>
+                            <span>
+                              {category.currentParticipants}/
+                              {category.maxParticipants} 已報名
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <ChevronRight size={24} color="#475467" />
+                      <ChevronRight size={24} color="#475467" />
+                    </Card>
+                  ))
+                ) : (
+                  <Card>
+                    <p className={styles.emptyMessage}>尚未設定分類</p>
                   </Card>
-                ))
-              ) : (
+                )}
+              </div>
+            )}
+
+            {activeTab === "gallery" && (
+              <div className={styles.galleryTab}>
                 <Card>
-                  <p className={styles.emptyMessage}>尚未設定分類</p>
+                  <p className={styles.emptyMessage}>暫無圖片</p>
                 </Card>
-              )}
-            </div>
-          )}
+              </div>
+            )}
 
-          {activeTab === "gallery" && (
-            <div className={styles.galleryTab}>
-              <Card>
-                <p className={styles.emptyMessage}>暫無圖片</p>
-              </Card>
-            </div>
-          )}
+            {activeTab === "results" && (
+              <div className={styles.resultsTab}>
+                {isCompleted ? (
+                  <>
+                    <Card className={styles.resultCard}>
+                      <div className={styles.resultHeader}>
+                        <span className={styles.resultTitle}>
+                          {tournament.name}
+                        </span>
+                      </div>
+                      <div className={styles.championSection}>
+                        <div className={styles.medalIcon}>🥇</div>
+                        <div className={styles.championTitle}>冠軍</div>
+                        <div className={styles.winnerInfo}>
+                          <AvatarWithSkeleton
+                            src={undefined}
+                            alt="Winner"
+                            size={60}
+                            className={styles.winnerAvatar}
+                            fallbackIcon={<span>🏆</span>}
+                          />
+                          <div className={styles.winnerDetails}>
+                            <div className={styles.winnerName}>待定</div>
+                            <div className={styles.winnerTeam}>-</div>
+                          </div>
+                        </div>
+                        <div className={styles.actionButtons}>
+                          <button className={styles.replayButton}>
+                            ▶ 觀看回放
+                          </button>
+                          <button className={styles.shareButton}>↗ 分享</button>
+                        </div>
+                      </div>
+                    </Card>
 
-          {activeTab === "results" && (
-            <div className={styles.resultsTab}>
-              {isCompleted ? (
-                <>
-                  <Card className={styles.resultCard}>
-                    <div className={styles.resultHeader}>
-                      <span className={styles.resultTitle}>
-                        {tournament.name}
+                    <Card className={styles.resultCard}>
+                      <div className={styles.championSection}>
+                        <div className={styles.medalIcon}>🥈</div>
+                        <div className={styles.championTitle}>亞軍</div>
+                        <div className={styles.winnerInfo}>
+                          <AvatarWithSkeleton
+                            src={undefined}
+                            alt="Runner-up"
+                            size={60}
+                            className={styles.winnerAvatar}
+                            fallbackIcon={<span>🥈</span>}
+                          />
+                          <div className={styles.winnerDetails}>
+                            <div className={styles.winnerName}>待定</div>
+                            <div className={styles.winnerTeam}>-</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </>
+                ) : (
+                  <Card>
+                    <p className={styles.emptyMessage}>比賽尚未完成</p>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {activeTab === "info" && (
+              <div className={styles.infoTab}>
+                <Card>
+                  <h3 className={styles.sectionTitle}>錦標賽信息</h3>
+                  <div className={styles.infoList}>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>錦標賽日期</span>
+                      <span className={styles.infoValue}>
+                        {formatDate(tournament.date)}
                       </span>
                     </div>
-                    <div className={styles.championSection}>
-                      <div className={styles.medalIcon}>🥇</div>
-                      <div className={styles.championTitle}>冠軍</div>
-                      <div className={styles.winnerInfo}>
-                        <AvatarWithSkeleton
-                          src="/placeholder-avatar.png"
-                          alt="Winner"
-                          size={60}
-                          className={styles.winnerAvatar}
-                          fallbackIcon={<span>?</span>}
-                        />
-                        <div className={styles.winnerDetails}>
-                          <div className={styles.winnerName}>待定</div>
-                          <div className={styles.winnerTeam}>-</div>
-                        </div>
-                      </div>
-                      <div className={styles.actionButtons}>
-                        <button className={styles.replayButton}>
-                          ▶ 觀看回放
-                        </button>
-                        <button className={styles.shareButton}>↗ 分享</button>
-                      </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>位置</span>
+                      <span className={styles.infoValue}>
+                        {tournament.location}
+                      </span>
                     </div>
-                  </Card>
-
-                  <Card className={styles.resultCard}>
-                    <div className={styles.championSection}>
-                      <div className={styles.medalIcon}>🥈</div>
-                      <div className={styles.championTitle}>亞軍</div>
-                      <div className={styles.winnerInfo}>
-                        <AvatarWithSkeleton
-                          src="/placeholder-avatar.png"
-                          alt="Runner-up"
-                          size={60}
-                          className={styles.winnerAvatar}
-                          fallbackIcon={<span>?</span>}
-                        />
-                        <div className={styles.winnerDetails}>
-                          <div className={styles.winnerName}>待定</div>
-                          <div className={styles.winnerTeam}>-</div>
-                        </div>
-                      </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>類別</span>
+                      <span className={styles.infoValue}>
+                        {categories.length || 1}
+                      </span>
                     </div>
+                  </div>
+                </Card>
+
+                {!isRegistrationOpen && staff.length > 0 && (
+                  <Card>
+                    <h3 className={styles.sectionTitle}>紀錄組</h3>
+                    <div className={styles.staffList}>
+                      {staff.map((member) => (
+                        <div key={member.id} className={styles.staffItem}>
+                          <AvatarWithSkeleton
+                            src={member.photoURL || undefined}
+                            alt={member.name || "工作人員"}
+                            size={40}
+                            className={styles.staffAvatar}
+                            fallbackIcon={
+                              <span>{member.name?.charAt(0) || "?"}</span>
+                            }
+                          />
+                          <span className={styles.staffName}>
+                            {member.name}
+                          </span>
+                          <div className={styles.verifiedBadge}>✓</div>
+                        </div>
+                      ))}
+                    </div>
+                    {staff.length > 3 && (
+                      <button className={styles.viewAllButton}>
+                        查看所有裁判 →
+                      </button>
+                    )}
                   </Card>
-                </>
-              ) : (
-                <Card>
-                  <p className={styles.emptyMessage}>比賽尚未完成</p>
-                </Card>
-              )}
-            </div>
-          )}
+                )}
 
-          {activeTab === "info" && (
-            <div className={styles.infoTab}>
-              <Card>
-                <h3 className={styles.sectionTitle}>錦標賽信息</h3>
-                <div className={styles.infoList}>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>錦標賽日期</span>
-                    <span className={styles.infoValue}>
-                      {formatDate(tournament.date)}
-                    </span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>位置</span>
-                    <span className={styles.infoValue}>
-                      {tournament.location}
-                    </span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>類別</span>
-                    <span className={styles.infoValue}>
-                      {categories.length || 1}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-
-              {!isRegistrationOpen && staff.length > 0 && (
-                <Card>
-                  <h3 className={styles.sectionTitle}>紀錄組</h3>
-                  <div className={styles.staffList}>
-                    {staff.map((member) => (
-                      <div key={member.id} className={styles.staffItem}>
-                        <AvatarWithSkeleton
-                          src={member.photoURL}
-                          alt={member.name}
-                          size={40}
-                          className={styles.staffAvatar}
-                          fallbackIcon={<span>{member.name.charAt(0)}</span>}
-                        />
-                        <span className={styles.staffName}>{member.name}</span>
-                        <div className={styles.verifiedBadge}>✓</div>
-                      </div>
-                    ))}
-                  </div>
-                  {staff.length > 3 && (
-                    <button className={styles.viewAllButton}>
-                      查看所有裁判 →
-                    </button>
-                  )}
-                </Card>
-              )}
-
-              {tournament.description && (
-                <Card className={styles.descriptionCard}>
-                  <h3 className={styles.sectionTitle}>組織者通知</h3>
-                  <p>{tournament.description}</p>
-                </Card>
-              )}
-            </div>
-          )}
+                {tournament.description && (
+                  <Card className={styles.descriptionCard}>
+                    <h3 className={styles.sectionTitle}>組織者通知</h3>
+                    <p>{tournament.description}</p>
+                  </Card>
+                )}
+              </div>
+            )}
           </div>
         </Tabs>
       </div>

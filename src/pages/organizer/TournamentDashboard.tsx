@@ -9,7 +9,6 @@ import {
   cancelTournament,
 } from "../../services/tournamentService";
 import { addPlayerManually } from "../../services/registrationService";
-import { inviteStaff } from "../../services/staffService";
 import { searchUserByEmail } from "../../services/userService";
 import { getCategories } from "../../services/categoryService";
 import { uploadImage, validateImageFile } from "../../services/storageService";
@@ -40,7 +39,6 @@ const TournamentDashboard: React.FC = () => {
 
   // Modals
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
-  const [showInviteStaffModal, setShowInviteStaffModal] = useState(false);
 
   // Add Player Form
   const [playerEmail, setPlayerEmail] = useState("");
@@ -53,16 +51,6 @@ const TournamentDashboard: React.FC = () => {
   const [addingPlayer, setAddingPlayer] = useState(false);
   const [searchingUser, setSearchingUser] = useState(false);
   const [foundUser, setFoundUser] = useState<{
-    uid: string;
-    name: string;
-    photoURL?: string;
-  } | null>(null);
-
-  // Invite Staff Form
-  const [staffEmail, setStaffEmail] = useState("");
-  const [invitingStaff, setInvitingStaff] = useState(false);
-  const [searchingStaff, setSearchingStaff] = useState(false);
-  const [foundStaff, setFoundStaff] = useState<{
     uid: string;
     name: string;
     photoURL?: string;
@@ -246,80 +234,6 @@ const TournamentDashboard: React.FC = () => {
     }
   };
 
-  const searchStaff = async (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setFoundStaff(null);
-      return;
-    }
-
-    setSearchingStaff(true);
-    try {
-      const user = await searchUserByEmail(email.trim());
-      if (user) {
-        setFoundStaff({
-          uid: user.uid,
-          name: user.displayName || "",
-          photoURL: user.photoURL || undefined,
-        });
-        console.log(`找到已註冊用戶：${user.displayName}`);
-      } else {
-        setFoundStaff(null);
-        console.log("此 Email 尚未註冊");
-      }
-    } catch (error) {
-      console.error("Error searching user:", error);
-      setFoundStaff(null);
-    } finally {
-      setSearchingStaff(false);
-    }
-  };
-
-  // Debounce search to avoid excessive calls
-  const debouncedStaffSearch = React.useMemo(
-    () => debounce(searchStaff, 500),
-    []
-  );
-
-  const handleStaffEmailChange = (email: string) => {
-    setStaffEmail(email);
-    debouncedStaffSearch(email);
-  };
-
-  const handleInviteStaff = async () => {
-    if (!id || !staffEmail) return;
-
-    setInvitingStaff(true);
-    try {
-      const staffData: any = {
-        email: staffEmail.trim(),
-        role: "scorer", // 固定為 scorer
-      };
-
-      // 嘗試從資料庫查詢使用者
-      const user = await searchUserByEmail(staffEmail.trim());
-      if (user) {
-        staffData.uid = user.uid;
-        staffData.name = user.displayName;
-        staffData.photoURL = user.photoURL;
-      } else {
-        // 找不到就用 email 當作姓名
-        staffData.name = staffEmail.trim();
-      }
-
-      await inviteStaff(id, staffData);
-
-      setShowInviteStaffModal(false);
-      setStaffEmail("");
-      setFoundStaff(null);
-
-      alert("邀請已發送！請至「紀錄員管理」Tab 查看");
-    } catch (err: any) {
-      alert(err.message || "邀請失敗");
-    } finally {
-      setInvitingStaff(false);
-    }
-  };
 
   if (loading) {
     return <Loading fullScreen />;
@@ -334,16 +248,13 @@ const TournamentDashboard: React.FC = () => {
       <div className={styles.header}>
         <button
           className={styles.backButton}
-          onClick={() => navigate("/organizer")}
+          onClick={() => navigate("/my-games")}
           aria-label="返回"
         >
           <ArrowLeft size={24} />
         </button>
         <div className={styles.headerContent}>
           <h1 className={styles.headerTitle}>{tournament.name}</h1>
-          <span className={styles.status}>
-            {getStatusLabel(tournament.status)}
-          </span>
         </div>
       </div>
 
@@ -355,6 +266,14 @@ const TournamentDashboard: React.FC = () => {
           enableSwipe={true}
           swipeThreshold={60}
         >
+          {/* 賽事狀態資訊條 */}
+          <div className={styles.statusInfo}>
+            <span className={styles.statusInfoLabel}>賽事狀態：</span>
+            <span className={styles.statusInfoValue}>
+              {getStatusLabel(tournament.status)}
+            </span>
+          </div>
+
           {activeTab === "info" && (
             <div className={styles.tabContent}>
               <Card className={styles.infoCard}>
@@ -518,9 +437,9 @@ const TournamentDashboard: React.FC = () => {
 
                           try {
                             await cancelTournament(id!);
-                            const updated = await getTournament(id!);
-                            setTournament(updated);
-                            alert("賽事已取消");
+                            alert("賽事已取消，即將返回我的主辦頁面");
+                            // 自動返回到我的主辦頁面
+                            navigate("/my-games?tab=organizer");
                           } catch (err: any) {
                             alert(err.message || "取消賽事失敗");
                           }
@@ -689,70 +608,6 @@ const TournamentDashboard: React.FC = () => {
         </div>
       </Modal>
 
-      <Modal
-        isOpen={showInviteStaffModal}
-        onClose={() => {
-          setShowInviteStaffModal(false);
-          setStaffEmail("");
-          setFoundStaff(null);
-        }}
-        title="邀請紀錄員"
-      >
-        <div className={styles.modalForm}>
-          <Input
-            label="Email"
-            type="email"
-            value={staffEmail}
-            onChange={(e) => handleStaffEmailChange(e.target.value)}
-            placeholder="scorer@example.com"
-          />
-          {searchingStaff && (
-            <div className={styles.searchingHint}>搜尋中...</div>
-          )}
-          {foundStaff && (
-            <div className={styles.userPreview}>
-              <div className={styles.userAvatar}>
-                {foundStaff.photoURL ? (
-                  <img src={foundStaff.photoURL} alt={foundStaff.name} />
-                ) : (
-                  <User size={32} />
-                )}
-              </div>
-              <div className={styles.userInfo}>
-                <span className={styles.userName}>{foundStaff.name}</span>
-                <span className={styles.userBadge}>已註冊用戶</span>
-              </div>
-            </div>
-          )}
-          {staffEmail &&
-            !foundStaff &&
-            !searchingStaff &&
-            staffEmail.includes("@") && (
-              <div className={styles.shadowHint}>
-                此 Email 尚未註冊，將使用 Email 作為姓名發送邀請
-              </div>
-            )}
-          <div className={styles.modalActions}>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setShowInviteStaffModal(false);
-                setStaffEmail("");
-                setFoundStaff(null);
-              }}
-            >
-              取消
-            </Button>
-            <Button
-              onClick={handleInviteStaff}
-              loading={invitingStaff}
-              disabled={!staffEmail || !staffEmail.includes("@")}
-            >
-              發送邀請
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

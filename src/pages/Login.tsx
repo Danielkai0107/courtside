@@ -13,24 +13,42 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (currentUser) {
       // 使用和切換角色一樣的動畫，但顯示登入文字
-      startTransition("user", () => {
-        navigate("/profile");
-      }, "登入成功");
+      startTransition(
+        "user",
+        () => {
+          navigate("/profile");
+        },
+        "登入成功"
+      );
     }
   }, [currentUser, navigate, startTransition]);
+
+  const handleGoHome = () => {
+    navigate("/");
+  };
 
   return (
     <div className={styles.login}>
       <div className={styles.content}>
         <h1 className={styles.logo}>CourtSide</h1>
         {/* <p className={styles.subtitle}>全民賽事管理系統</p> */}
-        <Button
-          variant="primary"
-          onClick={login}
-          className={styles.loginButton}
-        >
-          使用 Google 登入
-        </Button>
+        <p className={styles.hint}>登入以查看您的賽事與通知</p>
+        <div className={styles.buttonGroup}>
+          <Button
+            variant="primary"
+            onClick={login}
+            className={styles.loginButton}
+          >
+            使用 Google 登入
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleGoHome}
+            className={styles.homeButton}
+          >
+            稍後登入
+          </Button>
+        </div>
       </div>
     </div>
   );

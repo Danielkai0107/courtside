@@ -24,7 +24,11 @@ function shuffleArray<T>(array: T[]): T[] {
  * 建立 Match 物件的輔助函數
  * 注意：移除所有 undefined 值，Firestore 不接受 undefined
  */
-function createMatchNode(data: Partial<Match>): Match {
+function createMatchNode(
+  data: Partial<Match>,
+  ruleConfig?: Match["ruleConfig"],
+  isPlaceholder = false
+): Match {
   const match: any = {
     id: data.id || "",
     tournamentId: data.tournamentId || "",
@@ -46,7 +50,22 @@ function createMatchNode(data: Partial<Match>): Match {
       player2: 0,
     },
     timeline: [],
+    isPlaceholder,  // 新增佔位符標記
   };
+
+  // 初始化局數制結構
+  if (ruleConfig?.matchType === "set_based") {
+    match.sets = {
+      player1: [0],
+      player2: [0],
+    };
+    match.currentSet = 0;
+  }
+
+  // 快照規則配置
+  if (ruleConfig) {
+    match.ruleConfig = ruleConfig;
+  }
 
   // 只有在有值時才加入 optional 欄位
   if (data.player1Name) match.player1Name = data.player1Name;
@@ -951,3 +970,415 @@ function getRoundLabel(
 
   return `R${Math.pow(2, remainingRounds)}`;
 }
+
+// ==================== 佔位符 Match 生成功能 ====================
+
+/**
+ * 根據 Format 模板生成佔位符 Matches
+ */
+export const generatePlaceholderMatches = async (
+  tournamentId: string,
+  categoryId: string,
+  formatTemplate: any,  // FormatTemplate type
+  ruleConfig: Match["ruleConfig"],
+  courts: Court[]
+): Promise<void> => {
+  const matches: Match[] = [];
+
+  // 根據模板的 stages 生成
+  for (const stage of formatTemplate.stages) {
+    if (stage.type === "knockout" && stage.size) {
+      // 生成淘汰賽結構（全部 TBC）
+      const knockoutMatches = generateKnockoutStructurePlaceholder(
+        tournamentId,
+        categoryId,
+        stage.size,
+        ruleConfig,
+        formatTemplate.supportSeeding
+      );
+      matches.push(...knockoutMatches);
+    } else if (stage.type === "group_stage" && stage.count) {
+      // 生成小組賽結構（空的）
+      const groupMatches = generateGroupStructurePlaceholder(
+        tournamentId,
+        categoryId,
+        stage.count,
+        stage.advance || 2,
+        ruleConfig
+      );
+      matches.push(...groupMatches);
+    } else if (stage.type === "round_robin") {
+      // 循環賽（暫不支援佔位符，因為需要確定人數）
+      console.log("Round robin 不支援佔位符生成");
+    }
+  }
+
+  // 分配場地
+  if (courts.length > 0) {
+    assignCourtsToMatches(matches, courts);
+  }
+
+  // 批次寫入
+  await batchWriteMatches(matches);
+
+  console.log(`Generated ${matches.length} placeholder matches`);
+};
+
+/**
+ * 生成淘汰賽結構（佔位符版本）
+ */
+function generateKnockoutStructurePlaceholder(
+  tournamentId: string,
+  categoryId: string,
+  knockoutSize: number,
+  ruleConfig: Match["ruleConfig"],
+  enableThirdPlace: boolean
+): Match[] {
+  const matches: Match[] = [];
+  let matchIdCounter = 1;
+  const totalRounds = Math.log2(knockoutSize);
+
+  // Round 1: 初始配對（全部 TBC）
+  for (let i = 0; i < knockoutSize / 2; i++) {
+    const roundLabel = getRoundLabel(totalRounds, 1, knockoutSize);
+
+    const match = createMatchNode(
+      {
+        id: `match-${matchIdCounter++}`,
+        tournamentId,
+        categoryId,
+        stage: "knockout",
+        roundLabel,
+        round: 1,
+        matchOrder: i + 1,
+        player1Id: null,
+        player2Id: null,
+        player1Name: "待定",
+        player2Name: "待定",
+        status: "PENDING_PLAYER",
+      },
+      ruleConfig,
+      true  // isPlaceholder = true
+    );
+    matches.push(match);
+  }
+
+  // Round 2 ~ Final: 建立空白晉級場次
+  let previousRoundMatches = matches.slice();
+
+  for (let round = 2; round <= totalRounds; round++) {
+    const roundMatches: Match[] = [];
+    const roundLabel = getRoundLabel(totalRounds, round, knockoutSize);
+
+    for (let i = 0; i < previousRoundMatches.length; i += 2) {
+      const match = createMatchNode(
+        {
+          id: `match-${matchIdCounter++}`,
+          tournamentId,
+          categoryId,
+          stage: "knockout",
+          roundLabel,
+          round,
+          matchOrder: i / 2 + 1,
+          player1Id: null,
+          player2Id: null,
+          player1Name: "待定",
+          player2Name: "待定",
+          status: "PENDING_PLAYER",
+        },
+        ruleConfig,
+        true  // isPlaceholder = true
+      );
+
+      // 設定前一輪的 nextMatchId
+      if (previousRoundMatches[i]) {
+        previousRoundMatches[i].nextMatchId = match.id;
+        previousRoundMatches[i].nextMatchSlot = "player1";
+      }
+      if (previousRoundMatches[i + 1]) {
+        previousRoundMatches[i + 1].nextMatchId = match.id;
+        previousRoundMatches[i + 1].nextMatchSlot = "player2";
+      }
+
+      roundMatches.push(match);
+    }
+
+    matches.push(...roundMatches);
+    previousRoundMatches = roundMatches;
+  }
+
+  // 季軍賽
+  if (enableThirdPlace && totalRounds >= 2) {
+    const semiFinals = matches.filter((m) => m.round === totalRounds - 1);
+    const thirdPlaceMatch = createMatchNode(
+      {
+        id: `match-${matchIdCounter++}`,
+        tournamentId,
+        categoryId,
+        stage: "knockout",
+        roundLabel: "3RD",
+        round: totalRounds,
+        matchOrder: 999,
+        player1Id: null,
+        player2Id: null,
+        player1Name: "待定",
+        player2Name: "待定",
+        status: "PENDING_PLAYER",
+      },
+      ruleConfig,
+      true
+    );
+
+    if (semiFinals.length >= 2) {
+      if (semiFinals[0]) {
+        semiFinals[0].loserNextMatchId = thirdPlaceMatch.id;
+        semiFinals[0].loserNextMatchSlot = "player1";
+      }
+      if (semiFinals[1]) {
+        semiFinals[1].loserNextMatchId = thirdPlaceMatch.id;
+        semiFinals[1].loserNextMatchSlot = "player2";
+      }
+    }
+
+    matches.push(thirdPlaceMatch);
+  }
+
+  return matches;
+}
+
+/**
+ * 生成小組賽結構（佔位符版本）
+ */
+function generateGroupStructurePlaceholder(
+  tournamentId: string,
+  categoryId: string,
+  groupCount: number,
+  advancePerGroup: number,
+  ruleConfig: Match["ruleConfig"]
+): Match[] {
+  const matches: Match[] = [];
+  let matchIdCounter = 1;
+  const groupLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  // 為每個小組生成佔位符比賽
+  for (let groupIndex = 0; groupIndex < groupCount; groupIndex++) {
+    const groupLabel = groupLabels[groupIndex];
+
+    // 假設每組最多 6 個隊伍的循環賽（佔位符）
+    // 實際會在分配選手時調整
+    const estimatedTeamsPerGroup = 5;
+    for (let i = 0; i < estimatedTeamsPerGroup; i++) {
+      for (let j = i + 1; j < estimatedTeamsPerGroup; j++) {
+        const match = createMatchNode(
+          {
+            id: `match-${matchIdCounter++}`,
+            tournamentId,
+            categoryId,
+            stage: "group",
+            groupLabel,
+            round: 1,
+            matchOrder: matches.length + 1,
+            player1Id: null,
+            player2Id: null,
+            player1Name: "待定",
+            player2Name: "待定",
+            status: "PENDING_PLAYER",
+          },
+          ruleConfig,
+          true  // isPlaceholder = true
+        );
+        matches.push(match);
+      }
+    }
+  }
+
+  return matches;
+}
+
+/**
+ * 分配選手到現有的佔位符 Matches
+ */
+export const assignPlayersToExistingMatches = async (
+  tournamentId: string,
+  categoryId: string,
+  participants: Array<{ id: string; name: string }>
+): Promise<void> => {
+  console.log("🎯 [assignPlayersToExistingMatches] 開始分配選手:", {
+    tournamentId,
+    categoryId,
+    participantsCount: participants.length,
+  });
+
+  const { getMatchesByTournament } = await import("./matchService");
+
+  // 獲取該分類的所有佔位符 Match
+  const allMatches = await getMatchesByTournament(tournamentId);
+  console.log("📊 [assignPlayersToExistingMatches] 載入比賽:", {
+    totalMatches: allMatches.length,
+    categoryMatches: allMatches.filter((m) => m.categoryId === categoryId).length,
+  });
+
+  const placeholderMatches = allMatches.filter(
+    (m) => m.categoryId === categoryId && m.isPlaceholder
+  );
+
+  console.log("🔍 [assignPlayersToExistingMatches] 佔位符 Match:", {
+    found: placeholderMatches.length,
+    matchIds: placeholderMatches.map((m) => m.id),
+  });
+
+  if (placeholderMatches.length === 0) {
+    console.error("❌ [assignPlayersToExistingMatches] 找不到佔位符 Match");
+    throw new Error("找不到佔位符 Match，請確認是否已生成賽程結構");
+  }
+
+  // 洗牌參賽者
+  const shuffled = shuffleArray(participants);
+  console.log("🎲 [assignPlayersToExistingMatches] 洗牌完成:", {
+    participants: shuffled.map((p) => p.name),
+  });
+
+  // 找出第一輪比賽
+  const firstRoundMatches = placeholderMatches
+    .filter((m) => m.round === 1)
+    .sort((a, b) => {
+      // 先按 stage 排序（group 優先），再按 matchOrder
+      if (a.stage !== b.stage) {
+        return a.stage === "group" ? -1 : 1;
+      }
+      return a.matchOrder - b.matchOrder;
+    });
+
+  console.log("📋 [assignPlayersToExistingMatches] 第一輪比賽:", {
+    count: firstRoundMatches.length,
+    rounds: firstRoundMatches.map((m) => ({
+      id: m.id,
+      round: m.round,
+      stage: m.stage,
+    })),
+  });
+
+  const batch = writeBatch(db);
+  const idMap = new Map<string, string>();
+
+  // 處理淘汰賽第一輪
+  const knockoutFirstRound = firstRoundMatches.filter(
+    (m) => m.stage === "knockout"
+  );
+
+  console.log("🏆 [assignPlayersToExistingMatches] 淘汰賽第一輪:", {
+    count: knockoutFirstRound.length,
+  });
+
+  let playerIndex = 0;
+  for (const match of knockoutFirstRound) {
+    const matchRef = doc(db, "matches", match.id);
+    idMap.set(match.id, match.id);
+
+    const player1 = shuffled[playerIndex++];
+    const player2 =
+      playerIndex < shuffled.length ? shuffled[playerIndex++] : null;
+
+    console.log(`  👥 Match ${match.id}: ${player1.name} vs ${player2?.name || "BYE"}`);
+
+    batch.update(matchRef, {
+      player1Id: player1.id,
+      player1Name: player1.name,
+      player2Id: player2?.id || null,
+      player2Name: player2?.name || null,
+      isPlaceholder: false, // 標記為真實 Match
+      status: player2 ? "SCHEDULED" : "PENDING_PLAYER",
+    });
+  }
+
+  console.log("💾 [assignPlayersToExistingMatches] 開始批次寫入...");
+  await batch.commit();
+  console.log("✅ [assignPlayersToExistingMatches] 批次寫入完成");
+
+  // 處理 BYE 自動晉級
+  console.log("🚀 [assignPlayersToExistingMatches] 處理 BYE 自動晉級...");
+  await autoProgressByeMatches(knockoutFirstRound, idMap);
+
+  console.log(`✅ [assignPlayersToExistingMatches] 完成！分配了 ${participants.length} 位選手`);
+};
+
+/**
+ * 刪除分類的所有 Match
+ */
+export const deleteMatchesByCategory = async (
+  tournamentId: string,
+  categoryId: string
+): Promise<void> => {
+  const { getMatchesByTournament } = await import("./matchService");
+  const { deleteDoc } = await import("firebase/firestore");
+
+  const allMatches = await getMatchesByTournament(tournamentId);
+  const categoryMatches = allMatches.filter((m) => m.categoryId === categoryId);
+
+  const batch = writeBatch(db);
+
+  for (const match of categoryMatches) {
+    const matchRef = doc(db, "matches", match.id);
+    batch.delete(matchRef);
+  }
+
+  await batch.commit();
+
+  console.log(`Deleted ${categoryMatches.length} matches for category ${categoryId}`);
+};
+
+/**
+ * 生成循環賽（Round Robin）
+ * 每位選手與其他所有選手各比賽一次
+ */
+export const generateRoundRobin = async (
+  tournamentId: string,
+  categoryId: string,
+  participants: Array<{ id: string; name: string }>,
+  ruleConfig: Match["ruleConfig"],
+  courts: Array<{ id: string; name: string }>
+): Promise<void> => {
+  if (participants.length < 2) {
+    throw new Error("至少需要 2 位參賽者才能產生循環賽");
+  }
+
+  console.log(`生成循環賽：${participants.length} 位選手`);
+
+  const matches: Match[] = [];
+  let matchIdCounter = 1;
+
+  // 洗牌（公平性）
+  const shuffled = shuffleArray(participants);
+
+  // 生成所有配對（i vs j，i < j）
+  for (let i = 0; i < shuffled.length; i++) {
+    for (let j = i + 1; j < shuffled.length; j++) {
+      const match = createMatchNode(
+        {
+          id: `match-${matchIdCounter++}`,
+          tournamentId,
+          categoryId,
+          stage: "group",  // 循環賽也算 group stage
+          round: 1,
+          matchOrder: matches.length + 1,
+          player1Id: shuffled[i].id,
+          player2Id: shuffled[j].id,
+          player1Name: shuffled[i].name,
+          player2Name: shuffled[j].name,
+          status: "PENDING_COURT",
+        },
+        ruleConfig,
+        false  // 不是佔位符，是真實 Match
+      );
+      matches.push(match);
+    }
+  }
+
+  // 分配場地
+  assignCourtsToMatches(matches, courts);
+
+  // 批次寫入
+  await batchWriteMatches(matches);
+
+  console.log(`Generated ${matches.length} round-robin matches`);
+};

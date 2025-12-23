@@ -12,9 +12,9 @@ import {
 } from "../../services/storageService";
 import { getActiveSports } from "../../services/sportService";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSportPreference } from "../../hooks/useSportPreference";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
-import SelectableCard from "../../components/common/SelectableCard";
 import Loading from "../../components/common/Loading";
 import CategoryManager from "../../components/features/CategoryManager";
 import styles from "./CreateTournament.module.scss";
@@ -24,6 +24,7 @@ import { createCategory } from "../../services/categoryService";
 const CreateTournament: React.FC = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const { preferredSportId, loading: loadingSportPref } = useSportPreference();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -53,6 +54,15 @@ const CreateTournament: React.FC = () => {
       format: "KNOCKOUT_ONLY" | "GROUP_THEN_KNOCKOUT";
       pointsPerSet: number;
       enableThirdPlaceMatch: boolean;
+      selectedFormat?: any; // FormatTemplate
+      ruleConfig?: {
+        matchType: "set_based" | "point_based";
+        maxSets: number;
+        pointsPerSet: number;
+        setsToWin: number;
+        winByTwo: boolean;
+        cap?: number;
+      };
       groupConfig?: {
         totalGroups: number;
         advancePerGroup: number;
@@ -66,7 +76,7 @@ const CreateTournament: React.FC = () => {
 
   const steps = ["基本資訊", "時間地點", "分類設定", "文宣說明"];
 
-  // Load sports from database
+  // Load sports from database and auto-select based on user preference
   useEffect(() => {
     const loadSports = async () => {
       try {
@@ -74,9 +84,12 @@ const CreateTournament: React.FC = () => {
         const data = await getActiveSports();
         setSports(data);
 
-        // 自動選擇第一個球類項目
-        if (data.length > 0) {
-          setSelectedSport(data[0]);
+        // 根據全局設定自動選擇球類項目
+        if (preferredSportId) {
+          const sport = data.find((s) => s.id === preferredSportId);
+          if (sport) {
+            setSelectedSport(sport);
+          }
         }
       } catch (error) {
         console.error("Failed to load sports:", error);
@@ -86,8 +99,10 @@ const CreateTournament: React.FC = () => {
       }
     };
 
-    loadSports();
-  }, []);
+    if (!loadingSportPref) {
+      loadSports();
+    }
+  }, [preferredSportId, loadingSportPref]);
 
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,8 +195,7 @@ const CreateTournament: React.FC = () => {
       const tournamentData: any = {
         name: name.trim(),
         sportId: selectedSport.id,
-        sportType:
-          selectedSport.nameEn.toLowerCase() as Tournament["sportType"],
+        sportType: selectedSport.id as Tournament["sportType"],
         date: Timestamp.fromDate(new Date(date)),
         registrationDeadline: Timestamp.fromDate(
           new Date(registrationDeadline)
@@ -215,8 +229,14 @@ const CreateTournament: React.FC = () => {
         await updateTournament(tournamentId, { bannerURL: uploadedURL });
       }
 
-      // 3. Create all categories
+      // 3. Create all categories（不再生成佔位符，等到賽程管理時才根據實際人數決定）
       for (const category of categories) {
+        console.log("📦 [CreateTournament] 準備創建分類:", {
+          name: category.name,
+          hasRuleConfig: !!category.ruleConfig,
+          ruleConfig: category.ruleConfig,
+        });
+
         await createCategory(tournamentId, {
           name: category.name,
           matchType: category.matchType,
@@ -224,11 +244,18 @@ const CreateTournament: React.FC = () => {
           format: category.format,
           pointsPerSet: category.pointsPerSet,
           enableThirdPlaceMatch: category.enableThirdPlaceMatch,
+          ruleConfig: category.ruleConfig,
           groupConfig: category.groupConfig,
           status: "REGISTRATION_OPEN",
           currentParticipants: 0,
         });
+
+        console.log(`✅ [CreateTournament] 分類已創建`);
       }
+
+      console.log(
+        "ℹ️ [CreateTournament] 賽制模板將在報名截止後，根據實際人數推薦"
+      );
 
       navigate(`/organizer/tournaments/${tournamentId}`); // 前往控制台
     } catch (err: any) {
@@ -238,11 +265,11 @@ const CreateTournament: React.FC = () => {
     }
   };
 
-  if (loadingSports) {
+  if (loadingSports || loadingSportPref) {
     return <Loading fullScreen />;
   }
 
-  if (sports.length === 0) {
+  if (!selectedSport) {
     return (
       <div className={styles.createTournament}>
         <div className={styles.header}>
@@ -253,7 +280,7 @@ const CreateTournament: React.FC = () => {
         </div>
         <div className={styles.content}>
           <div className={styles.error}>
-            目前沒有可用的球類項目，請聯繫管理員設定。
+            請先在首頁選擇您的運動項目偏好
           </div>
         </div>
       </div>
@@ -286,19 +313,14 @@ const CreateTournament: React.FC = () => {
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>球類項目</label>
-                <div className={styles.optionsGrid}>
-                  {sports.map((sport) => (
-                    <SelectableCard
-                      key={sport.id}
-                      title={sport.name}
-                      value={sport.icon}
-                      subtitle={sport.nameEn}
-                      selected={selectedSport?.id === sport.id}
-                      onClick={() => {
-                        setSelectedSport(sport);
-                      }}
-                    />
-                  ))}
+                <div className={styles.sportDisplay}>
+                  <div className={styles.sportIcon}>{selectedSport.icon}</div>
+                  <div className={styles.sportInfo}>
+                    <div className={styles.sportName}>{selectedSport.name}</div>
+                    <div className={styles.sportHint}>
+                      已根據您的偏好設定自動選擇
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -359,7 +381,12 @@ const CreateTournament: React.FC = () => {
               <CategoryManager
                 categories={categories}
                 onChange={setCategories}
-                defaultPointsPerSet={selectedSport?.defaultPointsPerSet || 21}
+                sport={selectedSport || undefined}
+                defaultPointsPerSet={
+                  selectedSport?.rulePresets?.find(
+                    (p) => p.id === selectedSport.defaultPresetId
+                  )?.config.pointsPerSet || 21
+                }
               />
             </div>
           )}

@@ -171,3 +171,110 @@
   background: var(--background-primary);
   border-radius: 0 0 $radius-lg $radius-lg; // 匹配 modal 的圓角
 }
+
+// 賽制模板相關樣式
+.formatGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-md;
+}
+
+.formatDetails {
+  margin-top: $spacing-sm;
+  font-size: $font-size-sm;
+  color: var(--text-secondary);
+}
+
+.formatDesc {
+  margin-bottom: $spacing-xs;
+  font-size: $font-size-xs;
+}
+
+.stageBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-top: $spacing-xs;
+}
+
+.stageBadge {
+  display: inline-block;
+  background: var(--background-light);
+  padding: 2px 8px;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: var(--text-secondary);
+}
+
+.formatPreview {
+  margin-top: $spacing-md;
+  background: rgba(255, 107, 0, 0.05);
+  border: 1px solid rgba(255, 107, 0, 0.2);
+}
+
+.previewTitle {
+  font-size: $font-size-base;
+  font-weight: 600;
+  margin-bottom: $spacing-sm;
+  color: var(--text-primary);
+}
+
+.previewContent {
+  font-size: $font-size-sm;
+  color: var(--text-secondary);
+
+  p {
+    margin: $spacing-xs 0;
+  }
+
+  strong {
+    color: var(--primary-color);
+  }
+}
+
+.stagesList {
+  margin-left: $spacing-md;
+  margin-top: $spacing-xs;
+  
+  li {
+    margin: $spacing-xs 0;
+  }
+}
+
+.rulePreview {
+  margin-top: $spacing-md;
+  background: rgba(255, 140, 0, 0.05);
+  border: 1px solid rgba(255, 140, 0, 0.2);
+}
+
+.ruleDetails {
+  font-size: $font-size-sm;
+  color: var(--text-secondary);
+
+  p {
+    margin: $spacing-xs 0;
+  }
+
+  strong {
+    color: var(--primary-color);
+  }
+}
+
+.infoCard {
+  background: rgba(33, 150, 243, 0.05);
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  padding: $spacing-md;
+}
+
+.infoText {
+  font-size: $font-size-sm;
+  color: var(--text-primary);
+  margin: 0 0 $spacing-xs 0;
+}
+
+.infoTextSmall {
+  font-size: $font-size-xs;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}

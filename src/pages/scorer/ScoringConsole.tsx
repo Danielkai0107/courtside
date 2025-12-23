@@ -244,31 +244,109 @@ const ScoringConsole: React.FC = () => {
         {(match.status === "IN_PROGRESS" ||
           match.status === "COMPLETED") && (
           <>
-            <div className={styles.scoreboard}>
-              <div className={styles.playerSection}>
-                <span className={styles.playerName}>
-                  {match.player1Name || match.playerA_Name || "選手 1"}
-                </span>
-                <span className={styles.score}>
-                  {match.score.player1 !== undefined
-                    ? match.score.player1
-                    : match.score.A}
-                </span>
-              </div>
+            {/* 局數制計分板 */}
+            {match.ruleConfig?.matchType === "set_based" && match.sets && match.currentSet !== undefined ? (
+              <div className={styles.setsScoreboard}>
+                {/* 規則說明 */}
+                <div className={styles.ruleInfo}>
+                  {match.ruleConfig.maxSets}戰{match.ruleConfig.setsToWin}勝 • 每局
+                  {match.ruleConfig.pointsPerSet}分
+                  {match.ruleConfig.winByTwo && " • 領先2分"}
+                  {match.ruleConfig.cap && ` • 封頂${match.ruleConfig.cap}分`}
+                </div>
 
-              <div className={styles.vs}>VS</div>
+                {/* 選手名稱 */}
+                <div className={styles.playersRow}>
+                  <div className={styles.playerName}>
+                    {match.player1Name || "選手 1"}
+                  </div>
+                  <div className={styles.playerName}>
+                    {match.player2Name || "選手 2"}
+                  </div>
+                </div>
 
-              <div className={styles.playerSection}>
-                <span className={styles.playerName}>
-                  {match.player2Name || match.playerB_Name || "選手 2"}
-                </span>
-                <span className={styles.score}>
-                  {match.score.player2 !== undefined
-                    ? match.score.player2
-                    : match.score.B}
-                </span>
+                {/* 局數分數表格 */}
+                <div className={styles.setsGrid}>
+                  {match.sets.player1.map((score1, setIndex) => {
+                    const score2 = match.sets!.player2[setIndex];
+                    const isCurrentSet = setIndex === match.currentSet;
+                    const p1Won =
+                      score1 > score2 &&
+                      score1 >= match.ruleConfig!.pointsPerSet;
+                    const p2Won =
+                      score2 > score1 &&
+                      score2 >= match.ruleConfig!.pointsPerSet;
+
+                    return (
+                      <div key={setIndex} className={styles.setColumn}>
+                        <div className={styles.setHeader}>
+                          第 {setIndex + 1} 局
+                          {isCurrentSet && (
+                            <span className={styles.liveDot}>●</span>
+                          )}
+                        </div>
+                        <div
+                          className={`${styles.setScore} ${
+                            p1Won ? styles.winner : ""
+                          }`}
+                        >
+                          {score1}
+                        </div>
+                        <div
+                          className={`${styles.setScore} ${
+                            p2Won ? styles.winner : ""
+                          }`}
+                        >
+                          {score2}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 總局數統計 */}
+                <div className={styles.totalSets}>
+                  <div className={styles.totalCell}>
+                    {match.sets.player1.filter(
+                      (s, i) => s > match.sets!.player2[i]
+                    ).length}
+                  </div>
+                  <div className={styles.totalLabel}>局</div>
+                  <div className={styles.totalCell}>
+                    {match.sets.player2.filter(
+                      (s, i) => s > match.sets!.player1[i]
+                    ).length}
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              /* 原有的單一分數顯示（向下相容）*/
+              <div className={styles.scoreboard}>
+                <div className={styles.playerSection}>
+                  <span className={styles.playerName}>
+                    {match.player1Name || match.playerA_Name || "選手 1"}
+                  </span>
+                  <span className={styles.score}>
+                    {match.score.player1 !== undefined
+                      ? match.score.player1
+                      : match.score.A}
+                  </span>
+                </div>
+
+                <div className={styles.vs}>VS</div>
+
+                <div className={styles.playerSection}>
+                  <span className={styles.playerName}>
+                    {match.player2Name || match.playerB_Name || "選手 2"}
+                  </span>
+                  <span className={styles.score}>
+                    {match.score.player2 !== undefined
+                      ? match.score.player2
+                      : match.score.B}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {match.status === "IN_PROGRESS" && (
               <div className={styles.controls}>

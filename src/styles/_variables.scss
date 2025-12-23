@@ -6,6 +6,8 @@ $primary-gradient: #0a50d3;
 
 // 背景色
 $bg-color: #ffffff;
+$background-secondary: #f2f4f7;
+$background-light: #f8f9fa;
 $card-bg: #ffffff;
 $text-bg: #f2f4f7;
 
@@ -38,6 +40,7 @@ $spacing-xxl: 48px;
 
 // Typography
 $font-family-base: "DM Sans", system-ui, -apple-system, sans-serif;
+$font-size-xs: 0.6875rem;
 $font-size-sm: 0.75rem;
 $font-size-base: 0.875rem;
 $font-size-md: $font-size-base;

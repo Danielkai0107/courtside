@@ -31,7 +31,38 @@
   margin: 0;
 }
 
+.hint {
+  font-size: $font-size-base;
+  color: $text-secondary;
+  margin: 0;
+  margin-top: $spacing-lg;
+}
+
+.buttonGroup {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  @include flex-column;
+  align-items: center;
+  gap: $spacing-md;
+  padding: 24px 24px 60px 24px;
+  width: 100%;
+  button {
+    height: 44px;
+    width: 100%;
+  }
+}
+
 .loginButton {
-  margin-top: $spacing-md;
   padding: $spacing-md $spacing-xl;
+}
+
+.homeButton {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+
+  &:hover {
+    color: $text-primary;
+  }
 }

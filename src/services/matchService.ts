@@ -121,6 +121,75 @@ export const getMatchesByTournament = async (
 };
 
 /**
+ * 獲取非佔位符的比賽（用於首頁、我的比賽等）
+ */
+export const getRealMatches = async (
+  tournamentId: string
+): Promise<Match[]> => {
+  const allMatches = await getMatchesByTournament(tournamentId);
+  return allMatches.filter((m) => !m.isPlaceholder);
+};
+
+/**
+ * 交換兩場比賽的選手（僅限第一輪和未開始的比賽）
+ * 注意：只交換選手 ID 和名稱，不改變 nextMatchId 等晉級鏈結
+ */
+export const swapMatchPlayers = async (
+  match1Id: string,
+  match2Id: string
+): Promise<void> => {
+  const match1 = await getMatch(match1Id);
+  const match2 = await getMatch(match2Id);
+
+  if (!match1 || !match2) {
+    throw new Error("找不到比賽");
+  }
+
+  // 安全檢查：只允許第一輪且未開始的比賽交換
+  if (match1.round !== 1 || match2.round !== 1) {
+    throw new Error("只能交換第一輪的比賽");
+  }
+
+  if (
+    match1.status === "IN_PROGRESS" ||
+    match1.status === "COMPLETED" ||
+    match2.status === "IN_PROGRESS" ||
+    match2.status === "COMPLETED"
+  ) {
+    throw new Error("無法交換已開始或已完成的比賽");
+  }
+
+  console.log("🔄 [swapMatchPlayers] 開始交換選手:", {
+    match1: `${match1.player1Name} vs ${match1.player2Name}`,
+    match2: `${match2.player1Name} vs ${match2.player2Name}`,
+  });
+
+  // 交換選手（只交換 ID 和名稱，保持晉級鏈結不變）
+  const batch = writeBatch(db);
+
+  const match1Ref = doc(db, "matches", match1Id);
+  const match2Ref = doc(db, "matches", match2Id);
+
+  batch.update(match1Ref, {
+    player1Id: match2.player1Id,
+    player1Name: match2.player1Name,
+    player2Id: match2.player2Id,
+    player2Name: match2.player2Name,
+  });
+
+  batch.update(match2Ref, {
+    player1Id: match1.player1Id,
+    player1Name: match1.player1Name,
+    player2Id: match1.player2Id,
+    player2Name: match1.player2Name,
+  });
+
+  await batch.commit();
+
+  console.log("✅ [swapMatchPlayers] 選手交換完成");
+};
+
+/**
  * 獲取選手的所有場次
  */
 export const getMatchesByPlayer = async (
@@ -189,7 +258,7 @@ export const startMatch = async (matchId: string): Promise<void> => {
 };
 
 /**
- * 記錄得分
+ * 記錄得分（支援局數制）
  */
 export const recordScore = async (
   matchId: string,
@@ -199,23 +268,112 @@ export const recordScore = async (
   const matchDoc = await getMatch(matchId);
   if (!matchDoc) throw new Error("Match not found");
 
-  const newScore = {
-    ...matchDoc.score,
-    [player]: matchDoc.score[player] + points,
-  };
+  const isSetBased = matchDoc.ruleConfig?.matchType === "set_based";
 
-  const logEntry: MatchTimelineLog = {
-    time: Timestamp.now(),
-    team: player === "player1" ? "A" : "B", // 保留舊的 timeline 格式
-    action: "score",
-    val: points,
-  };
+  if (isSetBased && matchDoc.sets && matchDoc.ruleConfig && matchDoc.currentSet !== undefined) {
+    // ⭐ 局數制邏輯
+    const { sets, currentSet, ruleConfig } = matchDoc;
+    const newSets = {
+      player1: [...sets.player1],
+      player2: [...sets.player2],
+    };
 
-  const docRef = doc(db, "matches", matchId);
-  await updateDoc(docRef, {
-    score: newScore,
-    timeline: [...matchDoc.timeline, logEntry],
-  });
+    // 更新當前局分數
+    newSets[player][currentSet] += points;
+
+    const player1Score = newSets.player1[currentSet];
+    const player2Score = newSets.player2[currentSet];
+
+    // 檢查是否贏下本局
+    let setWon = false;
+    const leadingScore = player === "player1" ? player1Score : player2Score;
+    const trailingScore = player === "player1" ? player2Score : player1Score;
+
+    if (leadingScore >= ruleConfig.pointsPerSet) {
+      if (ruleConfig.cap && leadingScore >= ruleConfig.cap) {
+        // 到達封頂分數
+        setWon = true;
+      } else if (ruleConfig.winByTwo) {
+        // 需要領先2分
+        if (leadingScore - trailingScore >= 2) {
+          setWon = true;
+        }
+      } else {
+        // 先到即贏
+        setWon = true;
+      }
+    }
+
+    const updates: any = {
+      sets: newSets,
+      timeline: [
+        ...matchDoc.timeline,
+        {
+          time: Timestamp.now(),
+          team: player === "player1" ? "A" : "B",
+          action: "score",
+          val: points,
+        },
+      ],
+    };
+
+    if (setWon) {
+      // 計算已贏局數
+      const player1Wins = newSets.player1.filter(
+        (s, i) => i < newSets.player2.length && s > newSets.player2[i]
+      ).length;
+      const player2Wins = newSets.player2.filter(
+        (s, i) => i < newSets.player1.length && s > newSets.player1[i]
+      ).length;
+
+      // 檢查是否贏得比賽
+      if (
+        player1Wins >= ruleConfig.setsToWin ||
+        player2Wins >= ruleConfig.setsToWin
+      ) {
+        updates.winnerId =
+          player1Wins >= ruleConfig.setsToWin
+            ? matchDoc.player1Id
+            : matchDoc.player2Id;
+        updates.status = "COMPLETED";
+        updates.finishedAt = serverTimestamp();
+
+        // 向下相容：更新舊的 score
+        updates.score = {
+          player1: player1Wins,
+          player2: player2Wins,
+        };
+      } else {
+        // 進入下一局
+        newSets.player1.push(0);
+        newSets.player2.push(0);
+        updates.sets = newSets;
+        updates.currentSet = currentSet + 1;
+      }
+    }
+
+    const docRef = doc(db, "matches", matchId);
+    await updateDoc(docRef, updates);
+  } else {
+    // ⭐ 原有的單一計分制邏輯（向下相容）
+    const newScore = {
+      ...matchDoc.score,
+      [player]: matchDoc.score[player] + points,
+    };
+
+    const logEntry: MatchTimelineLog = {
+      time: Timestamp.now(),
+      team: player === "player1" ? "A" : "B",
+      action: "score",
+      val: points,
+    };
+
+    const docRef = doc(db, "matches", matchId);
+    await updateDoc(docRef, {
+      score: newScore,
+      timeline: [...matchDoc.timeline, logEntry],
+    });
+  }
 };
 
 /**
