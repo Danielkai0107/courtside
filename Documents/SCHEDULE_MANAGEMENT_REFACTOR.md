@@ -5,6 +5,7 @@
 ### 問題：舊的單層邏輯
 
 **舊版結構**：
+
 ```
 TournamentDashboard
 ├── 賽程設定 Tab（舊）
@@ -17,17 +18,19 @@ TournamentDashboard
 ```
 
 **問題**：
-- ❌ 無法區分不同分類的比賽
-- ❌ 無法為不同分類設定不同賽制
-- ❌ 男雙、女單的比賽混在一起
-- ❌ 不支援小組賽配置
+
+- 無法區分不同分類的比賽
+- 無法為不同分類設定不同賽制
+- 男雙、女單的比賽混在一起
+- 不支援小組賽配置
 
 ### 解決方案：按 Category 分層
 
 **新版結構**：
+
 ```
 TournamentDashboard
-└── 賽程管理 Tab（新）✅
+└── 賽程管理 Tab（新）
     └── CategoryScheduleManager
         ├── Category Tabs: [男子雙打] [女子單打]
         │
@@ -48,12 +51,14 @@ TournamentDashboard
 ### CategoryScheduleManager.tsx
 
 **功能**：
+
 - 按 Category 分頁管理賽程
 - 未發布：顯示 CategoryPublisher（智能推薦）
 - 已發布：顯示狀態和統計
 - 支援查看已發布的賽程
 
 **核心邏輯**：
+
 ```typescript
 // 1. 載入各分類的參賽者
 if (category.matchType === "singles") {
@@ -69,7 +74,7 @@ const courts = await getCourts(tournamentId);
 
 // 3. 檢查是否已發布
 const matches = await getMatchesByTournament(tournamentId);
-const categoryMatches = matches.filter(m => m.categoryId === categoryId);
+const categoryMatches = matches.filter((m) => m.categoryId === categoryId);
 
 // 4. 顯示對應 UI
 if (categoryMatches.length > 0) {
@@ -130,6 +135,7 @@ if (categoryMatches.length > 0) {
 ### 主辦方視角
 
 #### Step 1：創建賽事
+
 ```
 創建賽事 → 設定分類：
   - 男子雙打（20 組，小組+淘汰）
@@ -137,21 +143,25 @@ if (categoryMatches.length > 0) {
 ```
 
 #### Step 2：開放報名
+
 ```
 賽事資訊 Tab → 開放報名按鈕
 ```
 
 #### Step 3：審核報名
+
 ```
 選手管理 Tab → 切換分類 → 批准/婉拒
 ```
 
 #### Step 4：截止報名
+
 ```
 賽事資訊 Tab → 截止報名按鈕
 ```
 
 #### Step 5：發布賽程（按分類）⭐ 新流程
+
 ```
 賽程管理 Tab
   ├── 切換到「男子雙打」
@@ -168,24 +178,26 @@ if (categoryMatches.length > 0) {
 ```
 
 #### Step 6：進行比賽
+
 ```
 紀錄員記分 → 自動晉級 → 完成比賽
 ```
 
 ## 📊 對比舊邏輯
 
-| 特性 | 舊版 | 新版 |
-|------|------|------|
-| 賽程設定 | 單一賽制 | 按分類獨立設定 ✅ |
-| 選手選擇 | 混在一起 | 按分類顯示 ✅ |
-| 賽制配置 | 統一賽制 | 每個分類獨立賽制 ✅ |
-| 智能推薦 | 無 | 小組賽智能推薦 ✅ |
-| 發布流程 | 一次全部發布 | 按分類分別發布 ✅ |
-| 賽程查看 | 混在一起 | 按分類查看 ✅ |
+| 特性     | 舊版         | 新版             |
+| -------- | ------------ | ---------------- |
+| 賽程設定 | 單一賽制     | 按分類獨立設定   |
+| 選手選擇 | 混在一起     | 按分類顯示       |
+| 賽制配置 | 統一賽制     | 每個分類獨立賽制 |
+| 智能推薦 | 無           | 小組賽智能推薦   |
+| 發布流程 | 一次全部發布 | 按分類分別發布   |
+| 賽程查看 | 混在一起     | 按分類查看       |
 
 ## 🗂️ Tab 結構對比
 
 ### 舊版
+
 ```
 ├── 賽事資訊
 ├── 選手管理（單層）
@@ -195,35 +207,40 @@ if (categoryMatches.length > 0) {
 ```
 
 ### 新版
+
 ```
 ├── 賽事資訊
-├── 選手管理（多層）✅
-├── 紀錄員管理（多層）✅
-└── 賽程管理（多層）✅
+├── 選手管理（多層）
+├── 紀錄員管理（多層）
+└── 賽程管理（多層）
 ```
 
 **簡化**：
+
 - 移除「賽程設定」Tab（功能整合到賽程管理）
 - 所有管理都按 Category 分層
 
 ## 🔧 技術實現
 
 ### 移除的內容
-- ❌ bracket-setup Tab（~120 行）
-- ❌ 選擇參賽者 UI
-- ❌ 賽制設定 UI
-- ❌ 場地管理 UI（移至獨立管理）
-- ❌ 舊的發布邏輯
+
+- bracket-setup Tab（~120 行）
+- 選擇參賽者 UI
+- 賽制設定 UI
+- 場地管理 UI（移至獨立管理）
+- 舊的發布邏輯
 
 ### 新增的組件
-- ✅ CategoryScheduleManager.tsx
-- ✅ 整合 CategoryPublisher
-- ✅ 按分類顯示狀態
+
+- CategoryScheduleManager.tsx
+- 整合 CategoryPublisher
+- 按分類顯示狀態
 
 ### 保留的功能
-- ✅ CategoryPublisher（智能推薦）
-- ✅ 場地管理（可獨立訪問）
-- ✅ 比賽顯示（BracketView）
+
+- CategoryPublisher（智能推薦）
+- 場地管理（可獨立訪問）
+- 比賽顯示（BracketView）
 
 ## 🎯 使用場景
 
@@ -241,7 +258,7 @@ if (categoryMatches.length > 0) {
    - 方案 B：3 組循環，各取前 2 + 最佳第 3 → 8 強
 5. 選擇方案 A
 6. 點擊「發布賽程」
-7. ✅ 男子雙打賽程已發布
+7.  男子雙打賽程已發布
 8. 顯示：✓ 賽程已發布 | 26 場比賽 | 18 支隊伍
 ```
 
@@ -256,7 +273,7 @@ if (categoryMatches.length > 0) {
    - 賽制：純淘汰賽 ✓
 4. 系統計算：16 強淘汰賽（15 場）
 5. 點擊「發布賽程」
-6. ✅ 女子單打賽程已發布
+6.  女子單打賽程已發布
 ```
 
 ### 場景 3：查看已發布賽程
@@ -273,27 +290,31 @@ if (categoryMatches.length > 0) {
 ## 📋 修改清單
 
 ### 新增文件（2 個）
-- ✅ `CategoryScheduleManager.tsx`
-- ✅ `CategoryScheduleManager.module.scss`
+
+- `CategoryScheduleManager.tsx`
+- `CategoryScheduleManager.module.scss`
 
 ### 修改文件（1 個）
-- ✅ `TournamentDashboard.tsx`
-  - 移除「賽程設定」Tab
-  - 替換「賽程管理」Tab 內容
-  - 導入 CategoryScheduleManager
-  - 簡化 Tabs 結構
+
+- `TournamentDashboard.tsx`
+- 移除「賽程設定」Tab
+- 替換「賽程管理」Tab 內容
+- 導入 CategoryScheduleManager
+- 簡化 Tabs 結構
 
 ### 移除代碼
-- ❌ bracket-setup Tab 邏輯（~120 行）
-- ❌ 選擇參賽者 UI
-- ❌ 舊的賽制設定 UI
-- ❌ 舊的發布流程
+
+- bracket-setup Tab 邏輯（~120 行）
+- 選擇參賽者 UI
+- 舊的賽制設定 UI
+- 舊的發布流程
 
 **淨效果**：程式碼更簡潔，功能更強大
 
-## ✅ 功能完整度
+## 功能完整度
 
 ### 賽程設定（按分類）
+
 - [x] 按分類切換
 - [x] 顯示參賽者數量
 - [x] 顯示場地數量
@@ -302,6 +323,7 @@ if (categoryMatches.length > 0) {
 - [x] 一鍵發布
 
 ### 賽程管理（按分類）
+
 - [x] 按分類查看
 - [x] 已發布狀態顯示
 - [x] 比賽數量統計
@@ -309,6 +331,7 @@ if (categoryMatches.length > 0) {
 - [x] 查看賽程連結
 
 ### 狀態管理
+
 - [x] DRAFT：不可設定
 - [x] REGISTRATION_OPEN：不可設定
 - [x] REGISTRATION_CLOSED：可以發布
@@ -322,20 +345,20 @@ graph TD
     A[賽程管理 Tab] --> B{賽事狀態}
     B -->|DRAFT/OPEN| C[提示：請先截止報名]
     B -->|CLOSED/ONGOING| D[Category Tabs]
-    
+
     D --> E[男子雙打]
     D --> F[女子單打]
-    
+
     E --> G{是否已發布?}
     G -->|否| H[CategoryPublisher]
     G -->|是| I[已發布狀態]
-    
+
     H --> J[智能分組推薦]
     H --> K[發布按鈕]
-    
+
     I --> L[比賽統計]
     I --> M[查看賽程]
-    
+
     F --> N{是否已發布?}
     N -->|否| O[CategoryPublisher]
     N -->|是| P[已發布狀態]
@@ -343,22 +366,26 @@ graph TD
 
 ## 🚀 優勢
 
-### 1. 靈活配置 ✅
+### 1. 靈活配置
+
 - 男子雙打：小組賽 + 淘汰賽
 - 女子單打：純淘汰賽
 - 混合雙打：純淘汰賽 + 季軍賽
 
-### 2. 智能推薦 ✅
+### 2. 智能推薦
+
 - 根據報名人數自動推薦最佳分組
 - 提供 2-3 個方案選擇
 - 支援自訂分組參數
 
-### 3. 清晰管理 ✅
+### 3. 清晰管理
+
 - 每個分類獨立發布
 - 發布狀態一目了然
 - 按分類查看比賽
 
-### 4. 向下兼容 ✅
+### 4. 向下兼容
+
 - 舊賽事邏輯保留（隱藏）
 - 新賽事使用新邏輯
 - 無縫過渡
@@ -368,6 +395,7 @@ graph TD
 ### 發布賽程完整流程
 
 1. **創建賽事並設定分類**
+
    ```
    Step 3: 分類設定
      - 男子雙打（20 組，小組+淘汰）
@@ -375,28 +403,32 @@ graph TD
    ```
 
 2. **開放報名**
+
    ```
    賽事資訊 → 開放報名
    ```
 
 3. **審核報名**
+
    ```
    選手管理 → [男子雙打] → 批准參賽者
    選手管理 → [女子單打] → 批准參賽者
    ```
 
 4. **截止報名**
+
    ```
    賽事資訊 → 截止報名
    ```
 
 5. **發布賽程**（按分類）⭐
+
    ```
    賽程管理 → [男子雙打]
      → 查看智能推薦
      → 選擇方案
      → 發布賽程 ✓
-   
+
    賽程管理 → [女子單打]
      → 確認純淘汰配置
      → 發布賽程 ✓
@@ -411,6 +443,7 @@ graph TD
 ## 🎯 測試檢查清單
 
 ### UI 顯示
+
 - [x] Category Tabs 正確顯示
 - [x] 參賽者數量正確
 - [x] 場地數量正確
@@ -419,6 +452,7 @@ graph TD
 - [x] 未發布顯示 Publisher
 
 ### 功能測試
+
 - [x] 切換分類正常
 - [x] 智能推薦顯示
 - [x] 發布賽程成功
@@ -427,6 +461,7 @@ graph TD
 - [x] 統計數據準確
 
 ### 邊界情況
+
 - [x] 無分類：顯示提示
 - [x] 參賽者不足：顯示警告
 - [x] 無場地：提示新增場地
@@ -435,6 +470,7 @@ graph TD
 ## 📊 改進成果
 
 ### 代碼精簡
+
 ```
 移除代碼：~250 行（舊的賽程設定）
 新增代碼：~180 行（CategoryScheduleManager）
@@ -443,41 +479,42 @@ graph TD
 ```
 
 ### 用戶體驗
+
 ```
 舊版：混亂（所有比賽混在一起）
-新版：清晰（按分類組織）✅
+新版：清晰（按分類組織）
 
 舊版：單一賽制（不夠靈活）
-新版：每個分類獨立配置 ✅
+新版：每個分類獨立配置
 
 舊版：無智能推薦
-新版：智能分組推薦 ✅
+新版：智能分組推薦
 ```
 
 ## 🔗 相關組件
 
-| 組件 | 功能 | 狀態 |
-|------|------|------|
-| CategoryScheduleManager | 按分類管理賽程 | ✅ 新增 |
-| CategoryPublisher | 智能推薦+發布 | ✅ 整合 |
-| CategoryPlayersManager | 選手管理 | ✅ 已重構 |
-| CategoryStaffManager | 紀錄員管理 | ✅ 已重構 |
+| 組件                    | 功能           | 狀態   |
+| ----------------------- | -------------- | ------ |
+| CategoryScheduleManager | 按分類管理賽程 | 新增   |
+| CategoryPublisher       | 智能推薦+發布  | 整合   |
+| CategoryPlayersManager  | 選手管理       | 已重構 |
+| CategoryStaffManager    | 紀錄員管理     | 已重構 |
 
 ## 🎊 完成狀態
 
 **賽程管理已完全重構為多層架構！**
 
 現在主辦方控制台的所有 Tab 都按 Category 分層：
-- ✅ 賽事資訊（Tournament 層級）
-- ✅ 選手管理（按 Category）
-- ✅ 紀錄員管理（按 Category）
-- ✅ 賽程管理（按 Category）⭐ 新增
+
+- 賽事資訊（Tournament 層級）
+- 選手管理（按 Category）
+- 紀錄員管理（按 Category）
+- 賽程管理（按 Category）⭐ 新增
 
 **架構統一、邏輯清晰、功能強大！** 🚀
 
 ---
 
-**實施日期**: 2024年12月21日  
-**狀態**: ✅ 已完成  
+**實施日期**: 2024 年 12 月 21 日  
+**狀態**: 已完成  
 **影響**: 賽程管理體驗大幅提升
-

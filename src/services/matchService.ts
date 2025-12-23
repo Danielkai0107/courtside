@@ -186,7 +186,7 @@ export const swapMatchPlayers = async (
 
   await batch.commit();
 
-  console.log("✅ [swapMatchPlayers] 選手交換完成");
+  console.log(" [swapMatchPlayers] 選手交換完成");
 };
 
 /**
@@ -270,7 +270,12 @@ export const recordScore = async (
 
   const isSetBased = matchDoc.ruleConfig?.matchType === "set_based";
 
-  if (isSetBased && matchDoc.sets && matchDoc.ruleConfig && matchDoc.currentSet !== undefined) {
+  if (
+    isSetBased &&
+    matchDoc.sets &&
+    matchDoc.ruleConfig &&
+    matchDoc.currentSet !== undefined
+  ) {
     // ⭐ 局數制邏輯
     const { sets, currentSet, ruleConfig } = matchDoc;
     const newSets = {

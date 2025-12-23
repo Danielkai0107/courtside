@@ -64,7 +64,7 @@
 let hasLoaded = false;
 
 const loadTournaments = async () => {
-  if (hasLoaded) return; // ✅ 防止重複
+  if (hasLoaded) return; //  防止重複
   hasLoaded = true;
   // ...
 };
@@ -174,18 +174,18 @@ After dedup: 2 tournaments
 如果有重複會顯示：
 
 ```
-⚠️ Duplicate tournament detected and removed: xxx - 賽事名稱
+Duplicate tournament detected and removed: xxx - 賽事名稱
 ```
 
 ## 📈 程式碼改進
 
-| 項目               | 之前 | 現在    |
-| ------------------ | ---- | ------- |
-| 主辦方導覽項目     | 3 個 | 2 個 ✅ |
-| 紀錄員導覽項目     | 3 個 | 2 個 ✅ |
-| OrganizerHome Tabs | 無   | 2 個 ✅ |
-| 重複防護層級       | 1 層 | 3 層 ✅ |
-| React Strict Mode  | 開啟 | 關閉 ✅ |
+| 項目               | 之前 | 現在 |
+| ------------------ | ---- | ---- |
+| 主辦方導覽項目     | 3 個 | 2 個 |
+| 紀錄員導覽項目     | 3 個 | 2 個 |
+| OrganizerHome Tabs | 無   | 2 個 |
+| 重複防護層級       | 1 層 | 3 層 |
+| React Strict Mode  | 開啟 | 關閉 |
 
 ---
 

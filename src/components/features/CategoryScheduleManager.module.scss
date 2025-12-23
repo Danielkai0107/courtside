@@ -28,40 +28,40 @@
 }
 
 .publishedCard {
-  padding: 1rem;
+  padding: 1.5rem;
+  border: 1px solid $border-color;
+  border-radius: 8px;
 }
 
 .publishedHeader {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.publishedIcon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: rgba(0, 230, 118, 0.1);
-  color: $success-color;
+.publishedTitle {
   display: flex;
+  justify-self: unset;
   align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  font-weight: bold;
+  gap: 0.8rem;
 }
 
 .publishedText {
   flex: 1;
-
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
   h3 {
-    margin: 0 0 0.5rem 0;
     font-size: 1.25rem;
     color: $text-primary;
   }
 
   p {
-    margin: 0;
     font-size: 0.875rem;
     color: $text-secondary;
   }
@@ -92,10 +92,20 @@
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
-  
+  gap: 24px;
   button {
     flex: 1;
     min-width: 150px;
+  }
+}
+
+.publishedActionsLeft {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  button {
+    width: 100%;
   }
 }
 
@@ -108,21 +118,18 @@
   padding: 1rem;
 }
 
-.warningIcon {
+.warningMessage {
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: rgba(255, 107, 0, 0.1);
-}
-
-.warningMessage {
+  gap: 12px;
   text-align: center;
-  font-size: 1rem;
-  color: $text-primary;
+  font-size: 14px;
+  color: $text-secondary;
   line-height: 1.6;
+  border-radius: 8px;
 }
 
 .warningStats {
@@ -140,11 +147,11 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
-  
+
   span {
     color: $text-secondary;
   }
-  
+
   strong {
     color: $text-primary;
     font-weight: 600;
@@ -154,20 +161,18 @@
 .warningHint {
   width: 100%;
   padding: 1rem;
-  background: rgba(33, 150, 243, 0.1);
-  border-left: 3px solid #2196f3;
-  border-radius: 4px;
-  
+  background: $background-secondary;
+  border-radius: 8px;
+
   p {
     margin: 0 0 0.5rem 0;
     font-size: 0.875rem;
     color: $text-primary;
   }
-  
+
   ul {
     margin: 0;
-    padding-left: 1.5rem;
-    
+
     li {
       margin: 0.25rem 0;
       font-size: 0.875rem;
@@ -188,7 +193,7 @@
   flex-direction: column;
   gap: 1.5rem;
   padding: 1rem;
-  
+
   p {
     margin: 0;
     font-size: 1rem;
@@ -207,31 +212,12 @@
 }
 
 .confirmActions {
+  width: 100%;
   display: flex;
   gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-// 響應式設計
-@media (max-width: 768px) {
-  .publishedActions {
-    flex-direction: column;
-    
-    button {
-      width: 100%;
-    }
-  }
-  
-  .publishedStats {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .confirmActions {
-    flex-direction: column;
-    
-    button {
-      width: 100%;
-    }
+  align-items: center;
+  justify-content: center;
+  button {
+    width: 100%;
   }
 }

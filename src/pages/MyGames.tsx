@@ -75,9 +75,9 @@ const MyGames: React.FC = () => {
 
   // 取得當前運動項目名稱
   const currentSportName = () => {
-    if (preferredSportId === "all") return "全部項目";
+    if (preferredSportId === "all") return " ";
     const sport = sports.find((s) => s.id === preferredSportId);
-    return sport ? `${sport.icon} ${sport.name}` : "全部項目";
+    return sport ? `${sport.icon} ${sport.name}` : " ";
   };
 
   // 載入我的比賽
@@ -128,10 +128,10 @@ const MyGames: React.FC = () => {
           );
         }
 
-        console.log("✅ [MyGames] 我的比賽:", tournaments.length);
+        console.log(" [MyGames] 我的比賽:", tournaments.length);
         setMyGamesTournaments(tournaments);
       } catch (error) {
-        console.error("❌ [MyGames] 載入失敗:", error);
+        console.error("[MyGames] 載入失敗:", error);
       } finally {
         setLoading(false);
       }

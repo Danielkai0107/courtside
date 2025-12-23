@@ -12,5 +12,6 @@
 .content {
   flex: 1;
   overflow-y: hidden;
-  padding-bottom: 64px; // Space for bottom nav
+  /* 為底部導覽列預留空間（包含 iOS 安全區域） */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
 }

@@ -1,11 +1,12 @@
 # 賽制模板與規則系統實作完成
 
 ## 實作日期
-2024年12月23日
+
+2024 年 12 月 23 日
 
 ## 概述
 
-成功實作完整的「賽制模板選擇 + 規則系統整合 + 佔位符Match生成」功能，實現了「穩定的容器 + 流動的選手」的核心理念。
+成功實作完整的「賽制模板選擇 + 規則系統整合 + 佔位符 Match 生成」功能，實現了「穩定的容器 + 流動的選手」的核心理念。
 
 ---
 
@@ -14,7 +15,7 @@
 ### 「鐵打的軌道，流水的車」
 
 ```
-Sport (規則書) 
+Sport (規則書)
   ↓ 快照到 Category
 Category (容器+規則)
   ↓ 快照到 Match
@@ -33,24 +34,27 @@ Match (帶規則的節點)
 
 ## 實作內容
 
-### Phase 1: 類型定義擴展 ✅
+### Phase 1: 類型定義擴展
 
 **檔案：** `src/types/index.ts`
 
 **新增類型：**
+
 - `FormatTemplate`：賽制模板（從 Firestore formats 集合讀取）
 - `FormatStage`：賽程階段（knockout, group_stage, round_robin）
 - `StageType`：階段類型枚舉
 
 **擴展類型：**
+
 - `Category`：新增 `selectedFormatId` 和 `ruleConfig`
 - `Match`：新增 `isPlaceholder`、`sets`、`currentSet`、`ruleConfig`
 
-### Phase 2: 服務層建立 ✅
+### Phase 2: 服務層建立
 
 #### 2.1 新建 formatService.ts
 
 **功能：**
+
 - `getAllFormats()`：獲取所有賽制模板
 - `getFormatsByParticipantCount()`：根據人數推薦適合的模板
 - `getFormat()`：獲取單一模板
@@ -59,6 +63,7 @@ Match (帶規則的節點)
 #### 2.2 擴展 bracketService.ts
 
 **新增函數：**
+
 - `generatePlaceholderMatches()`：根據模板生成佔位符 Match
 - `generateKnockoutStructurePlaceholder()`：生成淘汰賽結構（全部 TBC）
 - `generateGroupStructurePlaceholder()`：生成小組賽結構（空的）
@@ -66,11 +71,13 @@ Match (帶規則的節點)
 - `deleteMatchesByCategory()`：刪除分類的所有 Match
 
 **修改函數：**
+
 - `createMatchNode()`：支援 ruleConfig 和 isPlaceholder 參數
 
 #### 2.3 擴展 matchService.ts
 
 **修改函數：**
+
 - `recordScore()`：支援局數制記分邏輯
   - 檢測 `ruleConfig.matchType`
   - 處理 `winByTwo` 和 `cap` 規則
@@ -78,19 +85,22 @@ Match (帶規則的節點)
   - 向下相容舊的單一計分制
 
 **新增函數：**
+
 - `getRealMatches()`：獲取非佔位符的比賽
 
-### Phase 3: 前端改造 ✅
+### Phase 3: 前端改造
 
 #### 3.1 CreateTournament.tsx
 
 **改動：**
+
 - 擴展 categories state 類型（加入 selectedFormat 和 ruleConfig）
 - 在 handleSubmit 中，創建 Category 後立即生成佔位符 Match
 
 #### 3.2 CategoryManager.tsx
 
 **新增功能：**
+
 - 載入 formats 集合
 - 模板選擇 UI（顯示模板名稱、人數範圍、階段）
 - 模板預覽卡片（顯示報名上限、預估場次、賽程階段）
@@ -98,24 +108,28 @@ Match (帶規則的節點)
 - 規則預覽卡片（顯示完整規則說明）
 
 **處理函數：**
+
 - `handleFormatSelect()`：選擇模板時自動設定相關參數
 - `handleRulePresetChange()`：選擇規則時快照完整配置
 
 #### 3.3 CategoryPublisher.tsx
 
 **新增功能：**
+
 - 檢查是否可以沿用現有佔位符 Match
 - 人數符合 → 直接分配選手
 - 人數不符 → 推薦其他模板或使用智能算法
 - 模板推薦 UI（顯示適合的模板供選擇）
 
 **處理函數：**
+
 - `handlePublish()`：智能判斷沿用或重新生成
 - `handleRegenerateWithFormat()`：使用新模板重新生成
 
 #### 3.4 ScoringConsole.tsx
 
 **新增功能：**
+
 - 局數制計分板 UI
 - 顯示規則說明（幾戰幾勝、每局幾分）
 - 顯示每局分數的表格
@@ -126,14 +140,16 @@ Match (帶規則的節點)
 #### 3.5 CategoryDetail.tsx
 
 **改動：**
+
 - 顯示佔位符 Match（加入「預覽」標籤）
 - 佔位符顯示為「待分配」狀態
 
-### Phase 4: 樣式調整 ✅
+### Phase 4: 樣式調整
 
 **新增/修改的樣式檔案：**
 
 1. **CategoryManager.module.scss**
+
    - `.formatGrid`：模板選擇網格
    - `.formatDetails`：模板詳情
    - `.stageBadge`：階段標籤
@@ -141,6 +157,7 @@ Match (帶規則的節點)
    - `.rulePreview`：規則預覽卡片
 
 2. **ScoringConsole.module.scss**
+
    - `.setsScoreboard`：局數制計分板容器
    - `.ruleInfo`：規則說明
    - `.playersRow`：選手名稱行
@@ -150,6 +167,7 @@ Match (帶規則的節點)
    - `.totalSets`：總局數統計
 
 3. **CategoryPublisher.module.scss**
+
    - `.successBox`：人數符合提示
    - `.formatSelectionCard`：模板選擇卡片
    - `.formatOptions`：模板選項列表
@@ -158,20 +176,23 @@ Match (帶規則的節點)
 4. **CategoryDetail.module.scss**
    - `.placeholderBadge`：佔位符標籤
 
-### Phase 5: 查詢過濾 ✅
+### Phase 5: 查詢過濾
 
 **修改的檔案：**
 
 1. **Home.tsx**
+
    - 過濾 `isPlaceholder` 的 Match（進行中比賽）
 
 2. **scorer/ScorerCategoryDetail.tsx**
+
    - 過濾 `isPlaceholder` 的 Match
 
 3. **scorer/TournamentMatches.tsx**
    - 過濾 `isPlaceholder` 的 Match（兩處）
 
 **原則：**
+
 - 一般用戶視角（Home, MyGames）：不顯示佔位符
 - 紀錄員視角（Scorer pages）：不顯示佔位符
 - 分類詳情（CategoryDetail）：顯示佔位符（預覽用）
@@ -186,7 +207,7 @@ Match (帶規則的節點)
 1. 主辦方建立賽事
    └→ Step 1: 選擇 Sport (羽球)
        └→ 載入 Sport.rulePresets
-   
+
    └→ Step 3: 新增分類
        ├→ 選擇 Format 模板 (ko_16)
        │   └→ 自動設定 maxParticipants: 16
@@ -200,7 +221,7 @@ Match (帶規則的節點)
                 winByTwo: true,
                 cap: 30
               }
-   
+
    └→ 點擊「建立賽事」
        ├→ createCategory() → 儲存到 Firestore
        └→ generatePlaceholderMatches()
@@ -223,7 +244,7 @@ Match (帶規則的節點)
           ├─ Match #1: [待定] vs [待定]
           ├─ Match #2: [待定] vs [待定]
           └─ ...
-      
+
       └→ 點擊「立即報名」
           └→ 報名成功
               └→ Category.currentParticipants++
@@ -236,18 +257,18 @@ Match (帶規則的節點)
   └→ 主辦方進入「賽程管理」Tab
       └→ CategoryScheduleManager
           └→ CategoryPublisher
-              
+
               情境 A：人數符合（12-16人）
-              ├→ 顯示：✅ 人數符合原定模板
+              ├→ 顯示： 人數符合原定模板
               └→ 點擊「發布賽程」
                   └→ assignPlayersToExistingMatches()
                       ├─ 洗牌參賽者
                       ├─ 分配到第一輪 Match
                       ├─ isPlaceholder: false
                       └─ 處理 BYE 自動晉級
-              
+
               情境 B：人數不符（9人）
-              ├→ 顯示：⚠️ 人數不符合原定模板
+              ├→ 顯示：人數不符合原定模板
               ├→ 推薦其他模板：
               │   ├─ ko_8 (8強淘汰賽)
               │   └─ group_to_semi_6_11 (2組循環→準決賽)
@@ -264,7 +285,7 @@ Match (帶規則的節點)
 紀錄員記分：
   └→ ScoringConsole
       └→ 讀取 match.ruleConfig
-          
+
           局數制 (set_based)：
           ├→ 顯示：3戰2勝 • 每局21分 • 領先2分
           ├→ 顯示局數表格
@@ -330,7 +351,7 @@ Match (帶規則的節點)
 
 4. 報名截止（14組報名）
    - 進入賽程管理
-   - 顯示「✅ 人數符合原定模板」
+   - 顯示「 人數符合原定模板」
    - 點擊「發布賽程」
    - 選手正確分配到 Match
    - isPlaceholder 變為 false
@@ -355,7 +376,7 @@ Match (帶規則的節點)
 
 2. 報名截止（只有 9 組）
    - 進入賽程管理
-   - 顯示「⚠️ 人數不符合原定模板」
+   - 顯示「人數不符合原定模板」
    - 推薦其他模板：
      ├─ ko_8 (6-8人)
      └─ group_to_semi_6_11 (6-11人)
@@ -568,12 +589,11 @@ if (match.ruleConfig.matchType === "set_based") {
 
 ## 總結
 
-✅ 成功實作完整的賽制模板與規則系統
-✅ 實現「穩定的容器 + 流動的選手」核心理念
-✅ 支援局數制記分（3戰2勝、5戰3勝等）
-✅ 支援佔位符預覽（報名者提前看到結構）
-✅ 支援智能判斷（沿用或重新生成）
-✅ 完全向下相容舊系統
+成功實作完整的賽制模板與規則系統
+實現「穩定的容器 + 流動的選手」核心理念
+支援局數制記分（3 戰 2 勝、5 戰 3 勝等）
+支援佔位符預覽（報名者提前看到結構）
+支援智能判斷（沿用或重新生成）
+完全向下相容舊系統
 
 **系統現在具備「專業賽事的骨架，傻瓜模式的操作」！** 🚀
-

@@ -5,21 +5,24 @@
 ## 🌟 主要功能
 
 ### 三種角色系統
+
 - **一般用戶**：瀏覽賽事、報名比賽、查看即時比分
 - **主辦方**：建立賽事、管理報名、自動抽籤排程
 - **紀錄員**：操作計分板、即時文字直播
 
 ### 核心特色
-- ✅ 自動抽籤演算法（循環賽/淘汰賽）
-- ✅ 即時比分同步（Firestore Real-time）
-- ✅ 影子帳號綁定機制
-- ✅ Email 通知系統
-- ✅ 響應式設計（Mobile First）
-- ✅ 橘色主題 UI（參考設計規範）
+
+- 自動抽籤演算法（循環賽/淘汰賽）
+- 即時比分同步（Firestore Real-time）
+- 影子帳號綁定機制
+- Email 通知系統
+- 響應式設計（Mobile First）
+- 橘色主題 UI（參考設計規範）
 
 ## 🚀 快速開始
 
 ### 環境需求
+
 - Node.js 18+
 - npm 或 yarn
 - Firebase 專案
@@ -27,12 +30,14 @@
 ### 安裝步驟
 
 1. **Clone 專案**
+
 ```bash
 git clone <repository-url>
 cd sportflow
 ```
 
 2. **安裝依賴**
+
 ```bash
 # 安裝前端依賴
 npm install
@@ -74,6 +79,7 @@ firebase functions:config:set app.url="https://yourdomain.com"
 ```
 
 5. **啟動開發伺服器**
+
 ```bash
 npm run dev
 ```
@@ -143,12 +149,14 @@ sportflow/
 ## 📱 功能說明
 
 ### 一般用戶
+
 1. 瀏覽首頁 Live Feed（即時比賽）
 2. 探索並報名賽事
 3. 查看我的比賽（即將到來/歷史紀錄）
 4. 觀看即時比分與 Timeline
 
 ### 主辦方
+
 1. 建立賽事（4 步驟表單）
 2. 管理選手報名與審核
 3. 手動新增選手（影子帳號）
@@ -157,6 +165,7 @@ sportflow/
 6. 發布賽程
 
 ### 紀錄員
+
 1. 查看被指派的場次
 2. 操作計分板（大型得分按鈕）
 3. 復原功能
@@ -191,16 +200,21 @@ sportflow/
 ## 🐛 疑難排解
 
 ### Firebase 初始化錯誤
+
 確保 `.env` 檔案已正確設定所有 Firebase 配置。
 
 ### Email 通知無法發送
+
 檢查 Firebase Functions 環境變數是否已設定：
+
 ```bash
 firebase functions:config:get
 ```
 
 ### 圖片上傳失敗
+
 確認 Storage Rules 已部署：
+
 ```bash
 firebase deploy --only storage
 ```

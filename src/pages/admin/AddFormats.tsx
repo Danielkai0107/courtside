@@ -52,7 +52,7 @@ const AddFormats: React.FC = () => {
         updatedAt: Timestamp.now(),
       });
 
-      setMessage("✅ 通用淘汰賽模板新增完成！\n\n現在支援 2-999 人的比賽！");
+      setMessage(" 通用淘汰賽模板新增完成！\n\n現在支援 2-999 人的比賽！");
     } catch (err: any) {
       setError(`新增失敗: ${err.message}`);
       console.error("Failed to add formats:", err);
@@ -88,4 +88,3 @@ const AddFormats: React.FC = () => {
 };
 
 export default AddFormats;
-

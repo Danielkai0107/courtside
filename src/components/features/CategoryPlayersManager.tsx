@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { User, Plus } from "lucide-react";
+import { TextField } from "@mui/material";
 import Button from "../common/Button";
 import Card from "../common/Card";
 import Modal from "../common/Modal";
-import Input from "../common/Input";
 import Tabs from "../common/Tabs";
 import styles from "./CategoryPlayersManager.module.scss";
 import type { Category } from "../../types";
@@ -84,7 +84,10 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
         if (categoryData) {
           if (categoryData.matchType === "singles") {
             // 使用按分類查詢
-            const playersData = await getPlayersByCategory(tournamentId, activeCategory);
+            const playersData = await getPlayersByCategory(
+              tournamentId,
+              activeCategory
+            );
             setPlayers(playersData);
           } else {
             const teamsData = await getTeamsByCategory(
@@ -182,7 +185,10 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
       setCurrentCategoryData(categoryData);
 
       if (currentCategoryData.matchType === "singles") {
-        const playersData = await getPlayersByCategory(tournamentId, activeCategory);
+        const playersData = await getPlayersByCategory(
+          tournamentId,
+          activeCategory
+        );
         setPlayers(playersData);
       } else {
         const teamsData = await getTeamsByCategory(
@@ -216,7 +222,10 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
     try {
       if (isSingles) {
         await approvePlayer(tournamentId, id);
-        const playersData = await getPlayersByCategory(tournamentId, activeCategory);
+        const playersData = await getPlayersByCategory(
+          tournamentId,
+          activeCategory
+        );
         setPlayers(playersData);
       } else {
         await approveTeam(tournamentId, activeCategory, id);
@@ -238,7 +247,10 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
     try {
       if (isSingles) {
         await rejectPlayer(tournamentId, id);
-        const playersData = await getPlayersByCategory(tournamentId, activeCategory);
+        const playersData = await getPlayersByCategory(
+          tournamentId,
+          activeCategory
+        );
         setPlayers(playersData);
       } else {
         await rejectTeam(tournamentId, activeCategory, id);
@@ -255,11 +267,7 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
     }
   };
 
-  const handleDelete = async (
-    id: string,
-    name: string,
-    isSingles: boolean
-  ) => {
+  const handleDelete = async (id: string, name: string, isSingles: boolean) => {
     const confirmed = window.confirm(
       `確定要刪除 ${name} 嗎？\n\n此操作無法復原，選手/隊伍將從名單中永久移除。`
     );
@@ -269,7 +277,7 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
     try {
       if (isSingles) {
         await deletePlayer(tournamentId, id);
-        
+
         // 更新計數
         const { decrementParticipants } = await import(
           "../../services/categoryService"
@@ -277,11 +285,14 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
         await decrementParticipants(tournamentId, activeCategory, 1);
 
         // Reload players
-        const playersData = await getPlayersByCategory(tournamentId, activeCategory);
+        const playersData = await getPlayersByCategory(
+          tournamentId,
+          activeCategory
+        );
         setPlayers(playersData);
       } else {
         await deleteTeam(tournamentId, activeCategory, id);
-        
+
         // 更新計數
         const { decrementParticipants } = await import(
           "../../services/categoryService"
@@ -494,7 +505,10 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
 
       // Reload data
       if (currentCategoryData.matchType === "singles") {
-        const playersData = await getPlayersByCategory(tournamentId, activeCategory);
+        const playersData = await getPlayersByCategory(
+          tournamentId,
+          activeCategory
+        );
         setPlayers(playersData);
       } else {
         const teamsData = await getTeamsByCategory(
@@ -623,12 +637,12 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
           </h3>
 
           <div className={styles.actions}>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowTestModal(true)}
               size="small"
             >
-              🧪 測試數據
+              測試數據
             </Button>
             <Button onClick={() => setShowAddModal(true)}>
               <Plus size={16} />
@@ -683,7 +697,9 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
                             onClick={() => handleApprove(player.id, true)}
                             loading={approvingId === player.id}
                             disabled={
-                              approvingId !== null || rejectingId !== null || deletingId !== null
+                              approvingId !== null ||
+                              rejectingId !== null ||
+                              deletingId !== null
                             }
                             size="small"
                           >
@@ -694,27 +710,31 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
                             onClick={() => handleReject(player.id, true)}
                             loading={rejectingId === player.id}
                             disabled={
-                              approvingId !== null || rejectingId !== null || deletingId !== null
+                              approvingId !== null ||
+                              rejectingId !== null ||
+                              deletingId !== null
                             }
                             size="small"
                           >
                             婉拒
                           </Button>
                         </div>
-                      ) : player.status === "confirmed" && (
-                        <div className={styles.participantActions}>
-                          <Button
-                            variant="outline"
-                            onClick={() =>
-                              handleDelete(player.id, player.name, true)
-                            }
-                            loading={deletingId === player.id}
-                            disabled={deletingId !== null}
-                            size="small"
-                          >
-                            刪除
-                          </Button>
-                        </div>
+                      ) : (
+                        player.status === "confirmed" && (
+                          <div className={styles.participantActions}>
+                            <Button
+                              variant="outline"
+                              onClick={() =>
+                                handleDelete(player.id, player.name, true)
+                              }
+                              loading={deletingId === player.id}
+                              disabled={deletingId !== null}
+                              size="small"
+                            >
+                              刪除
+                            </Button>
+                          </div>
+                        )
                       )}
                     </div>
                   ))}
@@ -783,7 +803,9 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
                           onClick={() => handleApprove(team.id, false)}
                           loading={approvingId === team.id}
                           disabled={
-                            approvingId !== null || rejectingId !== null || deletingId !== null
+                            approvingId !== null ||
+                            rejectingId !== null ||
+                            deletingId !== null
                           }
                           size="small"
                         >
@@ -794,31 +816,35 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
                           onClick={() => handleReject(team.id, false)}
                           loading={rejectingId === team.id}
                           disabled={
-                            approvingId !== null || rejectingId !== null || deletingId !== null
+                            approvingId !== null ||
+                            rejectingId !== null ||
+                            deletingId !== null
                           }
                           size="small"
                         >
                           婉拒
                         </Button>
                       </div>
-                    ) : team.status === "confirmed" && (
-                      <div className={styles.participantActions}>
-                        <Button
-                          variant="outline"
-                          onClick={() =>
-                            handleDelete(
-                              team.id,
-                              `${team.player1Name} / ${team.player2Name}`,
-                              false
-                            )
-                          }
-                          loading={deletingId === team.id}
-                          disabled={deletingId !== null}
-                          size="small"
-                        >
-                          刪除
-                        </Button>
-                      </div>
+                    ) : (
+                      team.status === "confirmed" && (
+                        <div className={styles.participantActions}>
+                          <Button
+                            variant="outline"
+                            onClick={() =>
+                              handleDelete(
+                                team.id,
+                                `${team.player1Name} / ${team.player2Name}`,
+                                false
+                              )
+                            }
+                            loading={deletingId === team.id}
+                            disabled={deletingId !== null}
+                            size="small"
+                          >
+                            刪除
+                          </Button>
+                        </div>
+                      )
                     )}
                   </div>
                 ))}
@@ -846,7 +872,7 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
             </p>
           </div>
 
-          <Input
+          <TextField
             label={`生成數量（${
               currentCategoryData?.matchType === "singles" ? "選手" : "隊伍"
             }）`}
@@ -854,9 +880,11 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
             value={testCount}
             onChange={(e) => setTestCount(e.target.value)}
             placeholder="1-50"
-            min="1"
-            max="50"
+            inputProps={{ min: 1, max: 50 }}
             required
+            fullWidth
+            variant="outlined"
+            size="medium"
           />
 
           <div className={styles.modalActions}>
@@ -897,7 +925,7 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
       >
         <div className={styles.modalContent}>
           <div className={styles.searchSection}>
-            <Input
+            <TextField
               label={
                 currentCategoryData?.matchType === "singles"
                   ? "選手 Email"
@@ -907,6 +935,9 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
               value={playerEmail}
               onChange={(e) => setPlayerEmail(e.target.value)}
               placeholder="輸入 Email 搜尋已註冊用戶"
+              fullWidth
+              variant="outlined"
+              size="medium"
             />
             <Button
               variant="secondary"
@@ -925,7 +956,7 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
             </div>
           )}
 
-          <Input
+          <TextField
             label={
               currentCategoryData?.matchType === "singles"
                 ? "選手姓名"
@@ -935,26 +966,35 @@ const CategoryPlayersManager: React.FC<CategoryPlayersManagerProps> = ({
             onChange={(e) => setPlayerName(e.target.value)}
             placeholder="請輸入姓名"
             required
+            fullWidth
+            variant="outlined"
+            size="medium"
           />
 
           {currentCategoryData?.matchType === "doubles" && (
             <>
               <div className={styles.divider}>雙打隊友</div>
 
-              <Input
+              <TextField
                 label="選手2 Email（選填）"
                 type="email"
                 value={partnerEmail}
                 onChange={(e) => setPartnerEmail(e.target.value)}
                 placeholder="隊友 Email"
+                fullWidth
+                variant="outlined"
+                size="medium"
               />
 
-              <Input
+              <TextField
                 label="選手2 姓名"
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
                 placeholder="請輸入隊友姓名"
                 required
+                fullWidth
+                variant="outlined"
+                size="medium"
               />
             </>
           )}

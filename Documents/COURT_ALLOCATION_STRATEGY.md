@@ -13,6 +13,7 @@ matchesNeedingCourts.forEach((match, index) => {
 ```
 
 **問題**：
+
 - 沒有考慮賽制
 - 沒有考慮小組
 - 沒有考慮重要性
@@ -20,6 +21,7 @@ matchesNeedingCourts.forEach((match, index) => {
 ### 應該的邏輯（按賽制）
 
 **方案 A：按小組分配（推薦）** ⭐
+
 ```
 小組賽：
   - Group A 的所有比賽 → Court 01
@@ -34,6 +36,7 @@ matchesNeedingCourts.forEach((match, index) => {
 ```
 
 **方案 B：按輪次分配**
+
 ```
 淘汰賽：
   - 第一輪（R16）：輪流分配
@@ -47,6 +50,7 @@ matchesNeedingCourts.forEach((match, index) => {
 ```
 
 **方案 C：混合策略**（最理想）
+
 ```
 1. 小組賽：按小組固定場地
 2. 淘汰賽初輪：輪流分配
@@ -106,7 +110,7 @@ function assignKnockoutCourts(knockoutMatches, courts) {
 
   // 後期比賽優先分配到前面的場地（通常是主場地）
   const priorityOrder = ["FI", "3RD", "SF", "QF", "R16", "R32"];
-  
+
   priorityOrder.forEach(roundLabel => {
     byRound[roundLabel]?.forEach((match, index) => {
       if (roundLabel === "FI" || roundLabel === "SF") {
@@ -127,47 +131,56 @@ function assignKnockoutCourts(knockoutMatches, courts) {
   八強（4 場）→ Court 01, 02, 03, 01
 ```
 
-## 💡 我的問題
+## 我的問題
 
 **請確認您想要的邏輯**：
 
 ### 選項 1：按小組固定場地（推薦）⭐
+
 ```
 Group A → Court 01
 Group B → Court 02
 ...
 ```
+
 適合：有多個小組的賽事
 
 ### 選項 2：按輪次分配
+
 ```
 R16 → 輪流分配
 QF → Court 01, 02
 SF → Court 01
 FI → Court 01
 ```
+
 適合：純淘汰賽
 
 ### 選項 3：混合策略
+
 ```
 小組賽 → 按小組
 淘汰賽 → 按輪次 + 主場地
 ```
+
 適合：小組賽 + 淘汰賽
 
 ### 選項 4：簡單輪流（當前）
+
 ```
 所有比賽 → 輪流分配
 ```
+
 最簡單，但不夠專業
 
 ---
 
-## ✅ 已實施：混合策略（最專業）
+## 已實施：混合策略（最專業）
 
 ### 實施的邏輯
 
 **小組賽**：按小組固定場地
+
 ```
 Group A 所有比賽 → Court 01
 Group B 所有比賽 → Court 02
@@ -176,6 +189,7 @@ Group D 所有比賽 → Court 01（循環）
 ```
 
 **淘汰賽**：按輪次 + 主場地
+
 ```
 決賽（FI）→ Court 01（主場地）
 季軍賽（3RD）→ Court 01
@@ -186,23 +200,26 @@ Group D 所有比賽 → Court 01（循環）
 
 ### 優點
 
-1. **小組賽固定場地** ✅
+1. **小組賽固定場地**
+
    - 觀眾容易跟隨
    - 選手知道自己的場地
    - 轉播方便
 
-2. **決賽在主場地** ✅
+2. **決賽在主場地**
+
    - 儀式感
    - 集中觀眾
    - 符合國際標準
 
-3. **充分利用場地** ✅
+3. **充分利用場地**
    - 初輪多場同時進行
    - 後期集中精彩比賽
 
 ### 效果範例
 
 **4 組小組賽 + 8 強淘汰（3 個場地）**：
+
 ```
 小組賽分配：
   Group A（10 場）→ Court 01
@@ -217,14 +234,13 @@ Group D 所有比賽 → Court 01（循環）
 ```
 
 **優勢**：
+
 - Group A 和 D 的觀眾都在 Court 01
 - 決賽在 Court 01（主場地）
 - 八強可以 3 場同時進行
 
 ---
 
-**實施狀態**: ✅ 已完成  
+**實施狀態**: 已完成  
 **策略**: 混合策略（小組固定 + 淘汰主場地）  
 **適用**: 所有賽制
-
-

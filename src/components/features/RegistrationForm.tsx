@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { TextField, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { registerForTournament } from "../../services/registrationService";
 import {
@@ -8,7 +9,6 @@ import {
 import { createTeam } from "../../services/teamService";
 import { searchUserByEmail } from "../../services/userService";
 import Button from "../common/Button";
-import Input from "../common/Input";
 import Card from "../common/Card";
 import styles from "./RegistrationForm.module.scss";
 import type { Category } from "../../types";
@@ -281,23 +281,22 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
       <div className={styles.formContent}>
         <h3 className={styles.title}>報名賽事</h3>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>選擇分類</label>
-          <select
-            className={styles.select}
+        <FormControl fullWidth variant="outlined" size="medium" required>
+          <InputLabel>選擇分類</InputLabel>
+          <Select
             value={selectedCategoryId}
             onChange={(e) => setSelectedCategoryId(e.target.value)}
-            required
+            label="選擇分類"
           >
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>
+              <MenuItem key={category.id} value={category.id}>
                 {category.name} (
                 {category.matchType === "singles" ? "單打" : "雙打"}) -
                 {category.currentParticipants}/{category.maxParticipants} 已報名
-              </option>
+              </MenuItem>
             ))}
-          </select>
-        </div>
+          </Select>
+        </FormControl>
 
         {/* 顯示報名狀態 */}
         {registrationStatus === "pending" && (
@@ -327,13 +326,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </div>
         )}
 
-        <Input
+        <TextField
           label="您的姓名"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="請輸入您的姓名"
           required
+          fullWidth
+          variant="outlined"
+          size="medium"
         />
 
         {selectedCategory?.matchType === "doubles" && (
@@ -343,12 +345,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
             </div>
 
             <div className={styles.partnerSearch}>
-              <Input
+              <TextField
                 label="隊友 Email（選填）"
                 type="email"
                 value={partnerEmail}
                 onChange={(e) => setPartnerEmail(e.target.value)}
                 placeholder="搜尋已註冊的用戶"
+                fullWidth
+                variant="outlined"
+                size="medium"
               />
               <Button
                 type="button"
@@ -381,13 +386,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
               </Card>
             )}
 
-            <Input
+            <TextField
               label="隊友姓名"
               type="text"
               value={partnerName}
               onChange={(e) => setPartnerName(e.target.value)}
               placeholder="請輸入隊友姓名"
               required
+              fullWidth
+              variant="outlined"
+              size="medium"
             />
 
             <p className={styles.hint}>

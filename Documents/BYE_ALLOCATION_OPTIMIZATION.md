@@ -5,6 +5,7 @@
 ### 您的理解完全正確！
 
 **當前邏輯（有問題）**：
+
 ```
 10 組報名 → 16 強樹狀圖
 10 個真實選手 + 6 個 BYE = 16 個位置
@@ -20,7 +21,7 @@
   Henry vs Ivy     ← 真實比賽
   Jack vs BYE      ← 輪空（浪費）
   Kate vs BYE      ← 輪空（浪費）
-  
+
 第一輪：只有 3 場真實比賽，7 場輪空！❌
 → 10 個人明明可以互打 5 場，卻只打 3 場
 ```
@@ -28,6 +29,7 @@
 ### 合理的邏輯（應該改成）
 
 **方案 A：優先配對真實選手** ⭐ 推薦
+
 ```
 10 組報名 → 16 強樹狀圖
 
@@ -41,12 +43,13 @@
   Ivy vs Jack      ← 真實比賽
   Kate vs BYE      ← 輪空（1 個）
   BYE vs BYE       ← 空位（5 個，直接跳過）
-  
-第一輪：5 場真實比賽，1 場輪空 ✅
+
+第一輪：5 場真實比賽，1 場輪空
 → 最大化真實比賽數量
 ```
 
 **方案 B：標準種子位邏輯**
+
 ```
 使用標準的種子位排列
 高種子 vs 低種子/BYE
@@ -60,7 +63,7 @@
 優點：
   - 保護高種子選手（如果有排名）
   - 符合國際標準
-  
+
 缺點：
   - 需要種子排序系統
   - 對平等賽事不適用
@@ -76,34 +79,34 @@ export const generateKnockoutOnly = async (...) => {
   const n = teams.length;
   const bracketSize = Math.pow(2, Math.ceil(Math.log2(n)));
   const byeCount = bracketSize - n;
-  
+
   // 洗牌真實選手
   const shuffledTeams = shuffleArray(teams);
-  
+
   // 策略：優先配對真實選手
   const slots: PlayerSlot[] = [];
-  
+
   // 1. 先配對真實選手（兩兩一組）
   const pairCount = Math.floor(n / 2);
   for (let i = 0; i < pairCount * 2; i++) {
     slots.push(shuffledTeams[i]);
   }
-  
+
   // 2. 如果有奇數個真實選手，給他一個 BYE
   if (n % 2 === 1) {
     slots.push(shuffledTeams[n - 1]);  // 最後一個真實選手
     slots.push("BYE");                  // 配一個 BYE
   }
-  
+
   // 3. 剩下的都是 BYE vs BYE（會被跳過）
   const remainingByes = byeCount - (n % 2 === 1 ? 1 : 0);
   for (let i = 0; i < remainingByes; i++) {
     slots.push("BYE");
   }
-  
+
   // 不再完全洗牌，保持配對邏輯
   // const shuffledSlots = shuffleArray(slots); ← 移除
-  
+
   // 建立對戰樹...
 };
 ```
@@ -113,28 +116,31 @@ export const generateKnockoutOnly = async (...) => {
 #### 10 組參賽
 
 **舊邏輯（隨機）**：
+
 ```
 可能第一輪：
   真實 vs 真實：2-4 場
   真實 vs BYE：4-6 場
   BYE vs BYE：0-2 場
-  
+
 → 運氣不好可能只有 2 場真實比賽！
 ```
 
 **新邏輯（優先配對）**：
+
 ```
 第一輪固定：
-  真實 vs 真實：5 場 ✅
+  真實 vs 真實：5 場
   真實 vs BYE：0 場
   BYE vs BYE：3 場（跳過）
-  
+
 → 保證最多真實比賽！
 ```
 
 #### 13 組參賽
 
 **舊邏輯（隨機）**：
+
 ```
 13 組 + 3 BYE = 16 位置
 可能第一輪：
@@ -143,46 +149,53 @@ export const generateKnockoutOnly = async (...) => {
 ```
 
 **新邏輯（優先配對）**：
+
 ```
 第一輪固定：
-  真實 vs 真實：6 場 ✅
+  真實 vs 真實：6 場
   真實 vs BYE：1 場
   BYE vs BYE：1 場（跳過）
 ```
 
-## 💡 實務考量
+## 實務考量
 
 ### 為什麼優先配對更好？
 
-1. **公平性** ✅
+1. **公平性**
+
    - 所有選手（或大部分）都打第一輪
    - 不會有人「運氣好」直接輪空
 
-2. **觀賽性** ✅
+2. **觀賽性**
+
    - 第一輪比賽數量最多
    - 更精彩
 
-3. **選手體驗** ✅
+3. **選手體驗**
+
    - 報名比賽就是想打球
    - 直接輪空會覺得「白來一趟」
 
-4. **場地利用** ✅
+4. **場地利用**
    - 第一輪可以多場同時進行
    - 充分利用場地資源
 
 ### 什麼時候需要種子位邏輯？
 
 **適用場景**：
+
 - 有選手排名/積分系統
 - 想保護高種子選手
 - 大型正式賽事
 
 **不適用場景**：
+
 - 平等的友誼賽
 - 沒有排名系統
 - 小型社區賽事
 
 **您的系統定位**：
+
 - MVP 階段建議用「優先配對」（簡單公平）
 - 未來可以添加「種子位」功能
 
@@ -196,7 +209,7 @@ n 人參賽，補到 bracketSize = 2^k
 最佳策略（優先配對）：
   第一輪真實比賽 = floor(n / 2)
   第一輪 BYE = n % 2
-  
+
 範例：
   10 人 → 5 場真實 + 0 場 BYE
   13 人 → 6 場真實 + 1 場 BYE
@@ -211,12 +224,12 @@ n 人參賽，補到 bracketSize = 2^k
 期望值計算：
   10 人 + 6 BYE = 16 位置
   配對後真實 vs 真實的機率 = ?
-  
+
 模擬 100 次隨機洗牌：
   平均真實比賽數：~3.1 場
   最少：2 場
   最多：5 場
-  
+
 → 不穩定，運氣成分太大
 ```
 
@@ -227,38 +240,38 @@ export const generateKnockoutOnly = async (...) => {
   const n = teams.length;
   const bracketSize = Math.pow(2, Math.ceil(Math.log2(n)));
   const byeCount = bracketSize - n;
-  
+
   console.log(`📊 Players: ${n}, Bracket: ${bracketSize}, Byes: ${byeCount}`);
-  
+
   // 洗牌真實選手（公平性）
   const shuffledTeams = shuffleArray(teams);
-  
+
   // 優化的 BYE 分配策略
   const slots: PlayerSlot[] = [];
-  
+
   // 策略：先配對真實選手，最大化第一輪比賽數
   const realMatchCount = Math.floor(n / 2);
-  
+
   // 1. 配對真實選手（兩兩一組）
   for (let i = 0; i < realMatchCount * 2; i++) {
     slots.push(shuffledTeams[i]);
   }
-  
+
   // 2. 如果有奇數個選手，最後一個配 BYE
   if (n % 2 === 1) {
     slots.push(shuffledTeams[n - 1]);
     slots.push("BYE");
   }
-  
+
   // 3. 剩下的位置全是 BYE（這些會被 autoProgressByeMatches 跳過）
   const remainingSlots = bracketSize - slots.length;
   for (let i = 0; i < remainingSlots; i++) {
     slots.push("BYE");
   }
-  
+
   // 不要再洗牌！保持配對邏輯
   // const shuffledSlots = shuffleArray(slots); ← 刪除
-  
+
   // 建立對戰樹（使用 slots 而非 shuffledSlots）
   // ...
 };
@@ -267,6 +280,7 @@ export const generateKnockoutOnly = async (...) => {
 ## 🎯 修復後的效果
 
 ### 10 組參賽
+
 ```
 第一輪（R16）：
   Match 1: 測試選手 A vs 測試選手 B  ← 真實比賽
@@ -278,48 +292,53 @@ export const generateKnockoutOnly = async (...) => {
   Match 7: BYE vs BYE                 ← 跳過
   Match 8: BYE vs BYE                 ← 跳過
 
-實際要打：5 場 ✅
+實際要打：5 場
 自動晉級：0 人
 ```
 
 ### 13 組參賽
+
 ```
 第一輪（R16）：
   Match 1-6: 真實 vs 真實（12 人，6 場）
   Match 7: 測試選手 M vs BYE（1 場輪空）
   Match 8: BYE vs BYE（跳過）
 
-實際要打：6 場 ✅
+實際要打：6 場
 自動晉級：1 人
 ```
 
-## ⚠️ 但是！需要處理 BYE vs BYE
+## 但是！需要處理 BYE vs BYE
 
 當前代碼的 `autoProgressByeMatches` 判斷：
+
 ```typescript
 if (!winnerId) {
-  console.warn(`⚠️ Match has no players (both BYE)`);
-  continue;  // 跳過
+  console.warn(`Match has no players (both BYE)`);
+  continue; // 跳過
 }
 ```
 
 **問題**：BYE vs BYE 的比賽會被跳過，但它們在樹狀圖中佔了位置。
 
 **解決**：
+
 - 不創建 BYE vs BYE 的比賽
 - 或者創建但標記為特殊狀態
 
-## ✅ 已修復！
+## 已修復！
 
 ### 修改內容
 
 1. **優化 BYE 分配策略**
+
    - 先洗牌真實選手（保證公平）
    - 優先兩兩配對真實選手
    - 奇數時最後一個配 BYE
    - 剩餘位置全是 BYE
 
 2. **跳過 BYE vs BYE**
+
    - 不創建無意義的比賽
    - 減少數據庫寫入
    - 避免顯示混亂
@@ -333,12 +352,13 @@ if (!winnerId) {
 ### 修復效果
 
 **10 組參賽**：
+
 - 修復前：隨機 2-5 場真實比賽（平均 3.1 場）
-- 修復後：固定 5 場真實比賽 ✅
+- 修復後：固定 5 場真實比賽
 
 **13 組參賽**：
+
 - 修復前：隨機 3-6 場真實比賽
-- 修復後：固定 6 場真實比賽 + 1 場輪空 ✅
+- 修復後：固定 6 場真實比賽 + 1 場輪空
 
 **現在邏輯完全正確，最大化真實比賽數量！** 🎉
-

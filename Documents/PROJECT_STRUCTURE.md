@@ -150,46 +150,46 @@ sportflow/
 
 ### 完整對應表
 
-| 組件/頁面           | TypeScript                                | SCSS 模組                                            |
-| ------------------- | ----------------------------------------- | ---------------------------------------------------- |
-| **通用組件**        |                                           |                                                      |
-| Button              | `common/Button.tsx`                       | `common/Button.module.scss` ✅                       |
-| Card                | `common/Card.tsx`                         | `common/Card.module.scss` ✅                         |
-| SelectableCard      | `common/SelectableCard.tsx`               | `common/SelectableCard.module.scss` ✅               |
-| Input               | `common/Input.tsx`                        | `common/Input.module.scss` ✅                        |
-| Select              | `common/Select.tsx`                       | `common/Select.module.scss` ✅                       |
-| Stepper             | `common/Stepper.tsx`                      | `common/Stepper.module.scss` ✅                      |
-| Tabs                | `common/Tabs.tsx`                         | `common/Tabs.module.scss` ✅                         |
-| Modal               | `common/Modal.tsx`                        | `common/Modal.module.scss` ✅                        |
-| Loading             | `common/Loading.tsx`                      | `common/Loading.module.scss` ✅                      |
-| IndexBuildingNotice | `common/IndexBuildingNotice.tsx`          | `common/IndexBuildingNotice.module.scss` ✅          |
-| **功能組件**        |                                           |                                                      |
-| TournamentCard      | `features/TournamentCard.tsx`             | `features/TournamentCard.module.scss` ✅             |
-| MatchCard           | `features/MatchCard.tsx`                  | `features/MatchCard.module.scss` ✅                  |
-| LiveScoreboard      | `features/LiveScoreboard.tsx`             | `features/LiveScoreboard.module.scss` ✅             |
-| RegistrationForm    | `features/RegistrationForm.tsx`           | `features/RegistrationForm.module.scss` ✅           |
-| PlayerList          | `features/PlayerList.tsx`                 | `features/PlayerList.module.scss` ✅                 |
-| BracketView         | `features/BracketView.tsx`                | `features/BracketView.module.scss` ✅                |
-| **佈局組件**        |                                           |                                                      |
-| AppLayout           | `layout/AppLayout.tsx`                    | `layout/AppLayout.module.scss` ✅                    |
-| BottomNav           | `layout/BottomNav.tsx`                    | `layout/BottomNav.module.scss` ✅                    |
-| **用戶頁面**        |                                           |                                                      |
-| Home                | `pages/Home.tsx`                          | `pages/Home.module.scss` ✅                          |
-| Events              | `pages/Events.tsx`                        | `pages/Events.module.scss` ✅                        |
-| EventDetail         | `pages/EventDetail.tsx`                   | `pages/EventDetail.module.scss` ✅                   |
-| MyGames             | `pages/MyGames.tsx`                       | `pages/MyGames.module.scss` ✅                       |
-| MatchDetail         | `pages/MatchDetail.tsx`                   | `pages/MatchDetail.module.scss` ✅                   |
-| Profile             | `pages/Profile.tsx`                       | `pages/Profile.module.scss` ✅                       |
-| Login               | `pages/Login.tsx`                         | `pages/Login.module.scss` ✅                         |
-| **主辦方頁面**      |                                           |                                                      |
-| OrganizerHome       | `pages/organizer/OrganizerHome.tsx`       | `pages/organizer/OrganizerHome.module.scss` ✅       |
-| CreateTournament    | `pages/organizer/CreateTournament.tsx`    | `pages/organizer/CreateTournament.module.scss` ✅    |
-| TournamentDashboard | `pages/organizer/TournamentDashboard.tsx` | `pages/organizer/TournamentDashboard.module.scss` ✅ |
-| **紀錄員頁面**      |                                           |                                                      |
-| ScorerHome          | `pages/scorer/ScorerHome.tsx`             | `pages/scorer/ScorerHome.module.scss` ✅             |
-| ScoringConsole      | `pages/scorer/ScoringConsole.tsx`         | `pages/scorer/ScoringConsole.module.scss` ✅         |
+| 組件/頁面           | TypeScript                                | SCSS 模組                                         |
+| ------------------- | ----------------------------------------- | ------------------------------------------------- |
+| **通用組件**        |                                           |                                                   |
+| Button              | `common/Button.tsx`                       | `common/Button.module.scss`                       |
+| Card                | `common/Card.tsx`                         | `common/Card.module.scss`                         |
+| SelectableCard      | `common/SelectableCard.tsx`               | `common/SelectableCard.module.scss`               |
+| Input               | `common/Input.tsx`                        | `common/Input.module.scss`                        |
+| Select              | `common/Select.tsx`                       | `common/Select.module.scss`                       |
+| Stepper             | `common/Stepper.tsx`                      | `common/Stepper.module.scss`                      |
+| Tabs                | `common/Tabs.tsx`                         | `common/Tabs.module.scss`                         |
+| Modal               | `common/Modal.tsx`                        | `common/Modal.module.scss`                        |
+| Loading             | `common/Loading.tsx`                      | `common/Loading.module.scss`                      |
+| IndexBuildingNotice | `common/IndexBuildingNotice.tsx`          | `common/IndexBuildingNotice.module.scss`          |
+| **功能組件**        |                                           |                                                   |
+| TournamentCard      | `features/TournamentCard.tsx`             | `features/TournamentCard.module.scss`             |
+| MatchCard           | `features/MatchCard.tsx`                  | `features/MatchCard.module.scss`                  |
+| LiveScoreboard      | `features/LiveScoreboard.tsx`             | `features/LiveScoreboard.module.scss`             |
+| RegistrationForm    | `features/RegistrationForm.tsx`           | `features/RegistrationForm.module.scss`           |
+| PlayerList          | `features/PlayerList.tsx`                 | `features/PlayerList.module.scss`                 |
+| BracketView         | `features/BracketView.tsx`                | `features/BracketView.module.scss`                |
+| **佈局組件**        |                                           |                                                   |
+| AppLayout           | `layout/AppLayout.tsx`                    | `layout/AppLayout.module.scss`                    |
+| BottomNav           | `layout/BottomNav.tsx`                    | `layout/BottomNav.module.scss`                    |
+| **用戶頁面**        |                                           |                                                   |
+| Home                | `pages/Home.tsx`                          | `pages/Home.module.scss`                          |
+| Events              | `pages/Events.tsx`                        | `pages/Events.module.scss`                        |
+| EventDetail         | `pages/EventDetail.tsx`                   | `pages/EventDetail.module.scss`                   |
+| MyGames             | `pages/MyGames.tsx`                       | `pages/MyGames.module.scss`                       |
+| MatchDetail         | `pages/MatchDetail.tsx`                   | `pages/MatchDetail.module.scss`                   |
+| Profile             | `pages/Profile.tsx`                       | `pages/Profile.module.scss`                       |
+| Login               | `pages/Login.tsx`                         | `pages/Login.module.scss`                         |
+| **主辦方頁面**      |                                           |                                                   |
+| OrganizerHome       | `pages/organizer/OrganizerHome.tsx`       | `pages/organizer/OrganizerHome.module.scss`       |
+| CreateTournament    | `pages/organizer/CreateTournament.tsx`    | `pages/organizer/CreateTournament.module.scss`    |
+| TournamentDashboard | `pages/organizer/TournamentDashboard.tsx` | `pages/organizer/TournamentDashboard.module.scss` |
+| **紀錄員頁面**      |                                           |                                                   |
+| ScorerHome          | `pages/scorer/ScorerHome.tsx`             | `pages/scorer/ScorerHome.module.scss`             |
+| ScoringConsole      | `pages/scorer/ScoringConsole.tsx`         | `pages/scorer/ScoringConsole.module.scss`         |
 
-**總計**：29 個 SCSS 模組檔案 + 4 個全域樣式檔案 = **33 個 SCSS 檔案** ✅
+**總計**：29 個 SCSS 模組檔案 + 4 個全域樣式檔案 = **33 個 SCSS 檔案**
 
 ## 🎨 客製化優先級
 
@@ -284,20 +284,20 @@ $primary-gradient: linear-gradient(135deg, #2979ff 0%, #448aff 100%);
 
 每個模組的 class 名稱都是唯一的，所以：
 
-- ✅ 可以在不同檔案使用相同的 class 名稱
-- ✅ 不會意外覆蓋其他組件的樣式
-- ✅ 易於維護和除錯
+- 可以在不同檔案使用相同的 class 名稱
+- 不會意外覆蓋其他組件的樣式
+- 易於維護和除錯
 
 ## 🎯 最佳實踐
 
-### ✅ DO（推薦做法）
+### DO（推薦做法）
 
 1. **使用設計 tokens**
 
 ```scss
 .button {
-  color: $primary-color; // ✅ 使用變數
-  padding: $spacing-md; // ✅
+  color: $primary-color; //  使用變數
+  padding: $spacing-md; //
 }
 ```
 
@@ -312,18 +312,18 @@ $primary-gradient: linear-gradient(135deg, #2979ff 0%, #448aff 100%);
 
 ```scss
 .container {
-  @include flex-center; // ✅ 重用 mixin
+  @include flex-center; //  重用 mixin
 }
 ```
 
-### ❌ DON'T（避免做法）
+### DON'T（避免做法）
 
 1. **硬編碼值**
 
 ```scss
 .button {
-  color: #ff6b00; // ❌ 應使用 $primary-color
-  padding: 16px; // ❌ 應使用 $spacing-md
+  color: #ff6b00; // 應使用 $primary-color
+  padding: 16px; // 應使用 $spacing-md
 }
 ```
 
@@ -331,7 +331,7 @@ $primary-gradient: linear-gradient(135deg, #2979ff 0%, #448aff 100%);
 
 ```scss
 .container {
-  display: flex; // ❌ 應使用 @include flex-center
+  display: flex; // 應使用 @include flex-center
   justify-content: center;
   align-items: center;
 }
@@ -346,14 +346,14 @@ $primary-gradient: linear-gradient(135deg, #2979ff 0%, #448aff 100%);
 | `Home.module.scss`   | 📄 僅首頁                  | 即時（HMR） |
 | `_mixins.scss`       | 🌍 所有使用該 mixin 的地方 | 即時（HMR） |
 
-## 💡 客製化建議
+## 客製化建議
 
 ### 開始客製化前
 
-1. ✅ 先閱讀 `SCSS_DESIGN_SYSTEM.md` 了解變數命名
-2. ✅ 查看 `_variables.scss` 了解可用的 tokens
-3. ✅ 在瀏覽器開發者工具查看元素的 class 名稱
-4. ✅ 找到對應的 `.module.scss` 檔案進行修改
+1.  先閱讀 `SCSS_DESIGN_SYSTEM.md` 了解變數命名
+2.  查看 `_variables.scss` 了解可用的 tokens
+3.  在瀏覽器開發者工具查看元素的 class 名稱
+4.  找到對應的 `.module.scss` 檔案進行修改
 
 ### 客製化順序建議
 
@@ -393,4 +393,4 @@ $primary-gradient: linear-gradient(135deg, #2979ff 0%, #448aff 100%);
 
 ---
 
-**總結**：✅ 所有 29 個組件/頁面都有獨立的 SCSS 模組，完全客製化！🎨
+**總結**： 所有 29 個組件/頁面都有獨立的 SCSS 模組，完全客製化！🎨

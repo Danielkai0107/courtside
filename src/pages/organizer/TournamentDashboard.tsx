@@ -11,6 +11,7 @@ import {
 import { addPlayerManually } from "../../services/registrationService";
 import { searchUserByEmail } from "../../services/userService";
 import { getCategories } from "../../services/categoryService";
+import { getSport } from "../../services/sportService";
 import { uploadImage, validateImageFile } from "../../services/storageService";
 import { useAuth } from "../../contexts/AuthContext";
 import { debounce } from "../../utils/debounce";
@@ -25,7 +26,7 @@ import CategoryStaffManager from "../../components/features/CategoryStaffManager
 import CategoryScheduleManager from "../../components/features/CategoryScheduleManager";
 import CourtManager from "../../components/features/CourtManager";
 import styles from "./TournamentDashboard.module.scss";
-import type { Tournament, Category } from "../../types";
+import type { Tournament, Category, Sport } from "../../types";
 
 const TournamentDashboard: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +34,7 @@ const TournamentDashboard: React.FC = () => {
   const { currentUser } = useAuth();
 
   const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [sport, setSport] = useState<Sport | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("info");
@@ -72,7 +74,7 @@ const TournamentDashboard: React.FC = () => {
       case "REGISTRATION_OPEN":
         return "開放報名中";
       case "REGISTRATION_CLOSED":
-        return "截止報名/籌備中";
+        return "籌備中/截止報名";
       case "ONGOING":
         return "進行中";
       case "COMPLETED":
@@ -108,6 +110,16 @@ const TournamentDashboard: React.FC = () => {
             return;
           }
           setTournament(data);
+
+          // Load sport data
+          if (data.sportId) {
+            try {
+              const sportData = await getSport(data.sportId);
+              setSport(sportData);
+            } catch (sportError) {
+              console.error("Failed to load sport:", sportError);
+            }
+          }
 
           // Load categories
           await loadCategoriesData();
@@ -234,7 +246,6 @@ const TournamentDashboard: React.FC = () => {
     }
   };
 
-
   if (loading) {
     return <Loading fullScreen />;
   }
@@ -267,9 +278,53 @@ const TournamentDashboard: React.FC = () => {
           swipeThreshold={60}
         >
           {/* 賽事狀態資訊條 */}
-          <div className={styles.statusInfo}>
-            <span className={styles.statusInfoLabel}>賽事狀態：</span>
-            <span className={styles.statusInfoValue}>
+          <div
+            className={styles.statusInfo}
+            style={{
+              background:
+                tournament.status === "ONGOING"
+                  ? "#6cb532"
+                  : tournament.status === "COMPLETED"
+                  ? "#f2f4f7"
+                  : tournament.status === "DRAFT"
+                  ? "#f2f4f7"
+                  : tournament.status === "REGISTRATION_OPEN"
+                  ? "#e0e000"
+                  : "#e0e000",
+            }}
+          >
+            <span
+              className={styles.statusInfoLabel}
+              style={{
+                color:
+                  tournament.status === "ONGOING"
+                    ? "#fff"
+                    : tournament.status === "COMPLETED"
+                    ? "#333333"
+                    : tournament.status === "DRAFT"
+                    ? "#333333"
+                    : tournament.status === "REGISTRATION_OPEN"
+                    ? "#333333"
+                    : "#333333",
+              }}
+            >
+              賽事狀態：
+            </span>
+            <span
+              className={styles.statusInfoValue}
+              style={{
+                color:
+                  tournament.status === "ONGOING"
+                    ? "#fff"
+                    : tournament.status === "COMPLETED"
+                    ? "#333333"
+                    : tournament.status === "DRAFT"
+                    ? "#333333"
+                    : tournament.status === "REGISTRATION_OPEN"
+                    ? "#333333"
+                    : "#333333",
+              }}
+            >
               {getStatusLabel(tournament.status)}
             </span>
           </div>
@@ -302,11 +357,18 @@ const TournamentDashboard: React.FC = () => {
                     <div className={styles.infoItem}>
                       <span className={styles.infoLabel}>運動類型</span>
                       <span className={styles.infoValue}>
-                        {tournament.sportType === "basketball"
-                          ? "籃球"
-                          : tournament.sportType === "badminton"
-                          ? "羽球"
-                          : "排球"}
+                        {sport ? (
+                          <span
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <span>{sport.name}</span>
+                          </span>
+                        ) : (
+                          "載入中..."
+                        )}
                       </span>
                     </div>
                     {tournament.stats?.totalCategories && (
@@ -607,7 +669,6 @@ const TournamentDashboard: React.FC = () => {
           </div>
         </div>
       </Modal>
-
     </div>
   );
 };

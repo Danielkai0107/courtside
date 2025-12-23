@@ -58,7 +58,7 @@ export const inviteStaff = async (
     if (staffData.photoURL) {
       staffDoc.photoURL = staffData.photoURL;
     }
-    console.log("✅ [inviteStaff] 已註冊用戶，將立即創建通知");
+    console.log(" [inviteStaff] 已註冊用戶，將立即創建通知");
   } else {
     staffDoc.uid = null;
     console.log(
@@ -67,7 +67,7 @@ export const inviteStaff = async (
   }
 
   const docRef = await addDoc(staffRef, staffDoc);
-  console.log("✅ [inviteStaff] 邀請記錄已創建:", docRef.id);
+  console.log(" [inviteStaff] 邀請記錄已創建:", docRef.id);
 
   // 如果是已註冊用戶，立即發送通知
   if (staffData.uid) {
@@ -96,16 +96,19 @@ export const inviteStaff = async (
             },
           ],
         });
-        
+
         // 標記為已通知，防止重複創建
-        await updateDoc(doc(db, "tournaments", tournamentId, "staff", docRef.id), {
-          notified: true,
-        });
-        
-        console.log("✅ [inviteStaff] 通知已創建並標記為已通知");
+        await updateDoc(
+          doc(db, "tournaments", tournamentId, "staff", docRef.id),
+          {
+            notified: true,
+          }
+        );
+
+        console.log(" [inviteStaff] 通知已創建並標記為已通知");
       }
     } catch (error) {
-      console.error("❌ [inviteStaff] 創建通知失敗:", error);
+      console.error("[inviteStaff] 創建通知失敗:", error);
       // 不影響邀請流程
     }
   }

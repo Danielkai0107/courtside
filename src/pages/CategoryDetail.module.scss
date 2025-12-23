@@ -3,7 +3,7 @@
 
 .categoryDetail {
   @include page-container;
-  padding-top: 62px;
+  padding-top: 50px;
 }
 
 .header {
@@ -11,7 +11,7 @@
 }
 
 .headerTitle {
-  font-size: $font-size-lg;
+  font-size: $font-size-xl;
   font-weight: 600;
   color: $text-primary;
   margin: 0;
@@ -37,8 +37,7 @@
   flex-direction: column;
   gap: 24px;
   background-color: #f2f4f7;
-  padding-top: 24px;
-  height: calc(100dvh - 112px);
+  height: calc(100dvh - 100px);
   overflow-y: auto;
   scrollbar-width: none;
   -webkit-scrollbar {
@@ -265,7 +264,7 @@
   padding: $spacing-sm;
   background: #f8f9fa;
   border-radius: 6px;
-  
+
   > span:first-child {
     flex: 1;
     font-weight: 500;
@@ -282,13 +281,13 @@
   text-align: right;
 }
 
-
 .bracketTab {
-  height: calc(100dvh - 112px);
+  height: calc(100dvh - 100px);
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
   overflow: hidden;
+  background-color: #f2f4f7;
 }
 
 .bracketTabsWrapper {
@@ -422,6 +421,7 @@
 .playersTab {
   display: flex;
   flex-direction: column;
+  background-color: #f2f4f7;
 }
 
 .playersHeader {
@@ -433,10 +433,11 @@
   color: $text-secondary;
   padding: $spacing-sm $spacing-lg;
   background-color: #f2f4f7;
+  border-bottom: 1px solid $border-color;
 }
 
 .playersList {
-  height: calc(100dvh - 112px);
+  height: calc(100dvh - 100px);
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;

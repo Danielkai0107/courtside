@@ -3,6 +3,7 @@
 ## 🐛 問題現象
 
 從截圖看到：
+
 1. **第一輪比賽**：所有顯示「待開始」，沒有自動完成的 BYE
 2. **第二輪比賽**：顯示「待定」「待定」，沒有晉級選手
 
@@ -15,15 +16,16 @@
 ```typescript
 export const generateKnockoutOnly = async (...) => {
   // ... 創建比賽
-  
+
   // 最後一步
   await autoProgressByeMatches(matches, idMap);  // ← 是否執行？
 };
 ```
 
 **檢查點**：
+
 - 查看瀏覽器 Console 是否有錯誤
-- 查看是否有 `✅ Player xxx auto-advanced from BYE` 日誌
+- 查看是否有 ` Player xxx auto-advanced from BYE` 日誌
 
 ### 原因 2：沒有 BYE（人數剛好）
 
@@ -37,6 +39,7 @@ export const generateKnockoutOnly = async (...) => {
 ```
 
 **檢查點**：
+
 - 查看 Console 日誌：`📊 Players: 10, Bracket: 16, Byes: 6`
 
 ### 原因 3：權限問題導致更新失敗
@@ -48,6 +51,7 @@ autoProgressByeMatches 嘗試更新 match 狀態
 ```
 
 **檢查點**：
+
 - 查看 Console 是否有 `Missing or insufficient permissions` 錯誤
 - 查看 Firestore 規則是否允許系統更新 match
 
@@ -63,22 +67,24 @@ autoProgressByeMatches 使用 idMap 來找真實的 Firestore ID
 ### Step 1：查看瀏覽器 Console
 
 打開開發者工具，查找：
-```
-✅ 成功日誌：
-  - "📊 Players: X, Bracket: Y, Byes: Z"
-  - "✅ Batch wrote X matches to Firestore"
-  - "✅ Player xxx auto-advanced from BYE to match xxx"
-  - "✅ Knockout bracket generated successfully"
 
-❌ 錯誤日誌：
+```
+ 成功日誌：
+  - "📊 Players: X, Bracket: Y, Byes: Z"
+  - " Batch wrote X matches to Firestore"
+  - " Player xxx auto-advanced from BYE to match xxx"
+  - " Knockout bracket generated successfully"
+
+錯誤日誌：
   - "FirebaseError: Missing or insufficient permissions"
-  - "⚠️ Real ID not found for xxx"
-  - "⚠️ Match xxx has no players (both BYE)"
+  - "Real ID not found for xxx"
+  - "Match xxx has no players (both BYE)"
 ```
 
 ### Step 2：檢查 Firestore 數據
 
 進入 Firebase Console → Firestore：
+
 ```
 查看 matches 集合：
   - 是否有 status: "COMPLETED" 的 BYE 場次？
@@ -91,15 +97,16 @@ autoProgressByeMatches 使用 idMap 來找真實的 Firestore ID
 ```javascript
 // matches 集合的規則
 match /matches/{matchId} {
-  allow update: if isAuthenticated() && 
+  allow update: if isAuthenticated() &&
     (resource.data.scorerId == request.auth.uid ||
      get(/databases/$(database)/documents/tournaments/$(resource.data.tournamentId)).data.organizerId == request.auth.uid);
 }
 ```
 
 **問題**：`autoProgressByeMatches` 在 **發布賽程時** 執行，此時：
-- 是主辦方操作 ✅
-- 主辦方有權限更新 match ✅
+
+- 是主辦方操作
+- 主辦方有權限更新 match
 - 應該沒有權限問題
 
 ### Step 4：檢查 categoryId
@@ -144,18 +151,18 @@ async function autoProgressByeMatches(...) {
   const byeMatches = matches.filter(
     (m) => m.player1Id === null || m.player2Id === null
   );
-  
+
   console.log(`🔍 Found ${byeMatches.length} BYE matches to process`);
-  
+
   for (const match of byeMatches) {
     console.log(`Processing BYE match: ${match.id}`);
-    
+
     const winnerId = match.player1Id || match.player2Id;
     console.log(`Winner: ${winnerId}`);
-    
+
     // ... 更新邏輯
-    
-    console.log(`✅ BYE match ${match.id} completed`);
+
+    console.log(` BYE match ${match.id} completed`);
   }
 }
 ```
@@ -167,7 +174,7 @@ async function autoProgressByeMatches(...) {
 ```javascript
 match /matches/{matchId} {
   // 主辦方可以創建和更新
-  allow create, update: if isAuthenticated() && 
+  allow create, update: if isAuthenticated() &&
     get(/databases/$(database)/documents/tournaments/$(resource.data.tournamentId)).data.organizerId == request.auth.uid;
 }
 ```
@@ -185,12 +192,13 @@ match /matches/{matchId} {
 ```
 
 預期結果：
+
 ```
 Console:
   📊 Players: 3, Bracket: 4, Byes: 1
   🔍 Found 1 BYE matches to process
-  ✅ Player xxx auto-advanced from BYE
-  
+   Player xxx auto-advanced from BYE
+
 Firestore:
   - 3 個 matches
   - 1 個 status: "COMPLETED" (BYE)
@@ -213,13 +221,16 @@ Firestore:
 ## 📋 需要檢查的代碼位置
 
 1. **CategoryPublisher.tsx** (line 63, 76)
+
    - 調用 `generateKnockoutOnly` 時是否傳入正確參數
 
 2. **bracketService.ts** (line 607-736)
+
    - `generateKnockoutOnly` 函數
    - 是否正確調用 `autoProgressByeMatches`
 
 3. **bracketService.ts** (line 230-295)
+
    - `autoProgressByeMatches` 函數
    - 是否有錯誤處理遺漏
 
@@ -235,34 +246,36 @@ export const generateKnockoutOnly = async (...) => {
   console.log("🚀 Starting generateKnockoutOnly");
   console.log(`📊 Teams: ${teams.length}`);
   console.log(`📊 CategoryId: ${categoryId}`);
-  
+
   const bracketSize = Math.pow(2, Math.ceil(Math.log2(n)));
   const byeCount = bracketSize - n;
   console.log(`📊 Bracket: ${bracketSize}, Byes: ${byeCount}`);
-  
+
   // ... 創建比賽
-  
+
   console.log(`📝 Created ${matches.length} matches`);
-  
+
   const idMap = await batchWriteMatches(matches);
-  console.log(`✅ Batch write complete, idMap size: ${idMap.size}`);
-  
+  console.log(` Batch write complete, idMap size: ${idMap.size}`);
+
   console.log(`🔄 Starting autoProgressByeMatches`);
   await autoProgressByeMatches(matches, idMap);
-  console.log(`✅ autoProgressByeMatches complete`);
+  console.log(` autoProgressByeMatches complete`);
 };
 ```
 
-## 💡 臨時解決方案
+## 臨時解決方案
 
 如果 BYE 自動處理有問題，可以：
 
 1. **手動完成 BYE 場次**
+
    - 主辦方進入比賽詳情
    - 手動標記為完成
    - 手動選擇勝者
 
 2. **使用純淘汰賽配置**
+
    - 編輯賽事
    - 將分類改為「純淘汰賽」
    - 重新發布
@@ -278,10 +291,12 @@ export const generateKnockoutOnly = async (...) => {
 **請提供以下資訊以進一步診斷**：
 
 1. **瀏覽器 Console 日誌**
+
    - 發布賽程時的所有日誌
    - 特別是包含 "BYE", "auto-advanced" 的訊息
 
 2. **Firestore 數據截圖**
+
    - matches 集合中的幾筆資料
    - 查看 status, player1Id, player2Id, winnerId
 
@@ -296,4 +311,3 @@ export const generateKnockoutOnly = async (...) => {
 
 **狀態**: 🔍 待診斷  
 **優先級**: 高（影響核心功能）
-

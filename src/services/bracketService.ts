@@ -50,7 +50,7 @@ function createMatchNode(
       player2: 0,
     },
     timeline: [],
-    isPlaceholder,  // 新增佔位符標記
+    isPlaceholder, // 新增佔位符標記
   };
 
   // 初始化局數制結構
@@ -184,8 +184,10 @@ function assignCourtsToMatches(
   matches: Match[],
   courts: { id: string; name: string }[]
 ): void {
-  console.log(`開始場地分配：${matches.length} 場比賽，${courts.length} 個場地`);
-  
+  console.log(
+    `開始場地分配：${matches.length} 場比賽，${courts.length} 個場地`
+  );
+
   if (courts.length === 0) {
     console.warn(`沒有可用的場地，跳過場地分配`);
     return;
@@ -205,7 +207,9 @@ function assignCourtsToMatches(
 
   // 判斷是小組賽還是淘汰賽
   const hasGroupStage = matchesNeedingCourts.some((m) => m.stage === "group");
-  const hasKnockoutStage = matchesNeedingCourts.some((m) => m.stage === "knockout");
+  const hasKnockoutStage = matchesNeedingCourts.some(
+    (m) => m.stage === "knockout"
+  );
 
   console.log(`賽制分析：小組賽=${hasGroupStage}, 淘汰賽=${hasKnockoutStage}`);
 
@@ -220,8 +224,10 @@ function assignCourtsToMatches(
   }
 
   // 驗證分配結果
-  const assignedCount = matchesNeedingCourts.filter(m => m.courtId).length;
-  console.log(`場地分配完成：${assignedCount}/${matchesNeedingCourts.length} 場比賽已分配`);
+  const assignedCount = matchesNeedingCourts.filter((m) => m.courtId).length;
+  console.log(
+    `場地分配完成：${assignedCount}/${matchesNeedingCourts.length} 場比賽已分配`
+  );
 }
 
 /**
@@ -249,7 +255,9 @@ function assignGroupStageCourts(
       match.courtId = court.id;
       match.status = "SCHEDULED";
     });
-    console.log(`Group ${label} → ${court.name} (${groups[label].length} 場比賽)`);
+    console.log(
+      `Group ${label} → ${court.name} (${groups[label].length} 場比賽)`
+    );
   });
 }
 
@@ -380,7 +388,9 @@ async function autoProgressByeMatches(
         continue;
       }
 
-      console.log(`Processing BYE match ${match.id}, winner: ${winnerId} (${winnerName})`);
+      console.log(
+        `Processing BYE match ${match.id}, winner: ${winnerId} (${winnerName})`
+      );
 
       // 使用真實 Firestore ID
       const realMatchId = idMap.get(match.id);
@@ -433,7 +443,7 @@ async function autoProgressByeMatches(
       console.error(`Failed to process BYE match ${match.id}:`, error);
     }
   }
-  
+
   console.log(`Completed processing ${byeMatches.length} BYE matches`);
 }
 
@@ -811,13 +821,13 @@ export const generateKnockoutOnly = async (
     const player2 = slots[i + 1];
     const hasBye = player1 === "BYE" || player2 === "BYE";
     const bothBye = player1 === "BYE" && player2 === "BYE";
-    
+
     // 跳過 BYE vs BYE 的比賽（不需要創建）
     if (bothBye) {
       console.log(`Skipping BYE vs BYE match at position ${i / 2 + 1}`);
       continue;
     }
-    
+
     const roundLabel = getRoundLabel(totalRounds, 1, bracketSize);
 
     const match = createMatchNode({
@@ -925,7 +935,9 @@ function generateSeedingRules(
   totalGroups: number,
   advancePerGroup: number
 ): Array<{ slot1: string; slot2: string }> {
-  const groupLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").slice(0, totalGroups);
+  const groupLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    .split("")
+    .slice(0, totalGroups);
   const rules: Array<{ slot1: string; slot2: string }> = [];
 
   // 簡化版交叉賽制：A1 vs B2, C1 vs D2...
@@ -979,7 +991,7 @@ function getRoundLabel(
 export const generatePlaceholderMatches = async (
   tournamentId: string,
   categoryId: string,
-  formatTemplate: any,  // FormatTemplate type
+  formatTemplate: any, // FormatTemplate type
   ruleConfig: Match["ruleConfig"],
   courts: Court[]
 ): Promise<void> => {
@@ -1058,7 +1070,7 @@ function generateKnockoutStructurePlaceholder(
         status: "PENDING_PLAYER",
       },
       ruleConfig,
-      true  // isPlaceholder = true
+      true // isPlaceholder = true
     );
     matches.push(match);
   }
@@ -1087,7 +1099,7 @@ function generateKnockoutStructurePlaceholder(
           status: "PENDING_PLAYER",
         },
         ruleConfig,
-        true  // isPlaceholder = true
+        true // isPlaceholder = true
       );
 
       // 設定前一輪的 nextMatchId
@@ -1185,7 +1197,7 @@ function generateGroupStructurePlaceholder(
             status: "PENDING_PLAYER",
           },
           ruleConfig,
-          true  // isPlaceholder = true
+          true // isPlaceholder = true
         );
         matches.push(match);
       }
@@ -1215,7 +1227,8 @@ export const assignPlayersToExistingMatches = async (
   const allMatches = await getMatchesByTournament(tournamentId);
   console.log("📊 [assignPlayersToExistingMatches] 載入比賽:", {
     totalMatches: allMatches.length,
-    categoryMatches: allMatches.filter((m) => m.categoryId === categoryId).length,
+    categoryMatches: allMatches.filter((m) => m.categoryId === categoryId)
+      .length,
   });
 
   const placeholderMatches = allMatches.filter(
@@ -1228,7 +1241,7 @@ export const assignPlayersToExistingMatches = async (
   });
 
   if (placeholderMatches.length === 0) {
-    console.error("❌ [assignPlayersToExistingMatches] 找不到佔位符 Match");
+    console.error("[assignPlayersToExistingMatches] 找不到佔位符 Match");
     throw new Error("找不到佔位符 Match，請確認是否已生成賽程結構");
   }
 
@@ -1279,7 +1292,9 @@ export const assignPlayersToExistingMatches = async (
     const player2 =
       playerIndex < shuffled.length ? shuffled[playerIndex++] : null;
 
-    console.log(`  👥 Match ${match.id}: ${player1.name} vs ${player2?.name || "BYE"}`);
+    console.log(
+      `  👥 Match ${match.id}: ${player1.name} vs ${player2?.name || "BYE"}`
+    );
 
     batch.update(matchRef, {
       player1Id: player1.id,
@@ -1293,13 +1308,15 @@ export const assignPlayersToExistingMatches = async (
 
   console.log("💾 [assignPlayersToExistingMatches] 開始批次寫入...");
   await batch.commit();
-  console.log("✅ [assignPlayersToExistingMatches] 批次寫入完成");
+  console.log(" [assignPlayersToExistingMatches] 批次寫入完成");
 
   // 處理 BYE 自動晉級
   console.log("🚀 [assignPlayersToExistingMatches] 處理 BYE 自動晉級...");
   await autoProgressByeMatches(knockoutFirstRound, idMap);
 
-  console.log(`✅ [assignPlayersToExistingMatches] 完成！分配了 ${participants.length} 位選手`);
+  console.log(
+    ` [assignPlayersToExistingMatches] 完成！分配了 ${participants.length} 位選手`
+  );
 };
 
 /**
@@ -1324,7 +1341,9 @@ export const deleteMatchesByCategory = async (
 
   await batch.commit();
 
-  console.log(`Deleted ${categoryMatches.length} matches for category ${categoryId}`);
+  console.log(
+    `Deleted ${categoryMatches.length} matches for category ${categoryId}`
+  );
 };
 
 /**
@@ -1358,7 +1377,7 @@ export const generateRoundRobin = async (
           id: `match-${matchIdCounter++}`,
           tournamentId,
           categoryId,
-          stage: "group",  // 循環賽也算 group stage
+          stage: "group", // 循環賽也算 group stage
           round: 1,
           matchOrder: matches.length + 1,
           player1Id: shuffled[i].id,
@@ -1368,7 +1387,7 @@ export const generateRoundRobin = async (
           status: "PENDING_COURT",
         },
         ruleConfig,
-        false  // 不是佔位符，是真實 Match
+        false // 不是佔位符，是真實 Match
       );
       matches.push(match);
     }

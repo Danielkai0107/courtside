@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
+import { TextField } from "@mui/material";
 import Button from "../common/Button";
 import Card from "../common/Card";
 import Modal from "../common/Modal";
-import Input from "../common/Input";
 import SelectableCard from "../common/SelectableCard";
 import styles from "./CategoryManager.module.scss";
 import type { Sport, FormatTemplate } from "../../types";
@@ -16,8 +16,9 @@ interface CategoryFormData {
   pointsPerSet: number;
   enableThirdPlaceMatch: boolean;
   rulePresetId?: string; // 選擇的規則預設 ID
-  selectedFormat?: FormatTemplate;  // 新增：選擇的模板
-  ruleConfig?: {  // 新增：完整規則配置
+  selectedFormat?: FormatTemplate; // 新增：選擇的模板
+  ruleConfig?: {
+    // 新增：完整規則配置
     matchType: "set_based" | "point_based";
     maxSets: number;
     pointsPerSet: number;
@@ -67,23 +68,25 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     const defaultPreset = sport?.rulePresets?.find(
       (p) => p.id === sport.defaultPresetId
     );
-    
+
     setFormData({
       name: "",
       matchType: "singles",
-      maxParticipants: 16,  // 預設值
-      format: "KNOCKOUT_ONLY",  // 預設值，實際賽制在發布時決定
+      maxParticipants: 16, // 預設值
+      format: "KNOCKOUT_ONLY", // 預設值，實際賽制在發布時決定
       pointsPerSet: defaultPreset?.config.pointsPerSet || defaultPointsPerSet,
       enableThirdPlaceMatch: false,
       rulePresetId: sport?.defaultPresetId,
-      ruleConfig: defaultPreset ? {
-        matchType: defaultPreset.config.matchType,
-        maxSets: defaultPreset.config.maxSets,
-        pointsPerSet: defaultPreset.config.pointsPerSet,
-        setsToWin: defaultPreset.config.setsToWin,
-        winByTwo: defaultPreset.config.winByTwo,
-        cap: defaultPreset.config.cap,
-      } : undefined,
+      ruleConfig: defaultPreset
+        ? {
+            matchType: defaultPreset.config.matchType,
+            maxSets: defaultPreset.config.maxSets,
+            pointsPerSet: defaultPreset.config.pointsPerSet,
+            setsToWin: defaultPreset.config.setsToWin,
+            winByTwo: defaultPreset.config.winByTwo,
+            cap: defaultPreset.config.cap,
+          }
+        : undefined,
     });
     setShowModal(true);
   };
@@ -126,17 +129,6 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     }
 
     setShowModal(false);
-  };
-
-  const getFormatLabel = (format: string) => {
-    switch (format) {
-      case "KNOCKOUT_ONLY":
-        return "純淘汰賽";
-      case "GROUP_THEN_KNOCKOUT":
-        return "小組賽 + 淘汰賽";
-      default:
-        return format;
-    }
   };
 
   const getMatchTypeLabel = (matchType: string) => {
@@ -231,7 +223,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       >
         <>
           <div className={styles.modalContent}>
-            <Input
+            <TextField
               label="分類名稱"
               value={formData.name}
               onChange={(e) =>
@@ -239,6 +231,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
               }
               placeholder="例如：男子雙打、女子單打"
               required
+              fullWidth
+              variant="outlined"
+              size="medium"
             />
 
             <div className={styles.formGroup}>
@@ -265,7 +260,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
               </div>
             </div>
 
-            <Input
+            <TextField
               label={`參賽名額上限（${
                 formData.matchType === "singles" ? "人" : "組"
               }）`}
@@ -277,14 +272,17 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                   maxParticipants: parseInt(e.target.value) || 0,
                 })
               }
-              min="2"
+              inputProps={{ min: 2 }}
               required
+              fullWidth
+              variant="outlined"
+              size="medium"
             />
 
             {/* 提示文字 */}
             <Card className={styles.infoCard}>
               <p className={styles.infoText}>
-                💡 <strong>賽制將在報名截止後推薦</strong>
+                <strong>賽制將在報名截止後推薦</strong>
               </p>
               <p className={styles.infoTextSmall}>
                 系統會根據實際報名人數，智能推薦最適合的賽制模板（淘汰賽、小組賽、循環賽等）
@@ -314,7 +312,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                 {/* 規則預覽卡片 */}
                 {formData.ruleConfig && (
                   <Card className={styles.rulePreview}>
-                    <h4 className={styles.previewTitle}>🏸 規則說明</h4>
+                    <h4 className={styles.previewTitle}>規則說明</h4>
                     <div className={styles.ruleDetails}>
                       {formData.ruleConfig.matchType === "set_based" ? (
                         <>
@@ -328,17 +326,21 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                           </p>
                           <p>
                             • 每局先得{" "}
-                            <strong>{formData.ruleConfig.pointsPerSet} 分</strong>{" "}
+                            <strong>
+                              {formData.ruleConfig.pointsPerSet} 分
+                            </strong>{" "}
                             者獲勝
                           </p>
                           {formData.ruleConfig.winByTwo && (
                             <p>
-                              • 平分時需 <strong>領先 2 分</strong> 才能獲勝（Deuce）
+                              • 平分時需 <strong>領先 2 分</strong>{" "}
+                              才能獲勝（Deuce）
                             </p>
                           )}
                           {formData.ruleConfig.cap && (
                             <p>
-                              • 封頂分數：<strong>{formData.ruleConfig.cap} 分</strong>
+                              • 封頂分數：
+                              <strong>{formData.ruleConfig.cap} 分</strong>
                             </p>
                           )}
                         </>

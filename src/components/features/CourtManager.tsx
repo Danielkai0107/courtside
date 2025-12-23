@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { TextField } from "@mui/material";
 import Button from "../common/Button";
 import Card from "../common/Card";
 import Modal from "../common/Modal";
-import Input from "../common/Input";
 import styles from "./CourtManager.module.scss";
 import {
   getCourts,
@@ -134,12 +134,15 @@ const CourtManager: React.FC<CourtManagerProps> = ({ tournamentId }) => {
         title="新增場地"
       >
         <div className={styles.modalContent}>
-          <Input
+          <TextField
             label="場地名稱"
             value={courtName}
             onChange={(e) => setCourtName(e.target.value)}
             placeholder="例如：Court 01, 中央球場"
             required
+            fullWidth
+            variant="outlined"
+            size="medium"
           />
 
           <div className={styles.modalActions}>

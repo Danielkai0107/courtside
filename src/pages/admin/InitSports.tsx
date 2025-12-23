@@ -45,7 +45,7 @@ const InitSports: React.FC = () => {
         pickleball: true,
         tableTennis: true,
       });
-      setMessage("✅ 所有球類項目已成功建立！");
+      setMessage(" 所有球類項目已成功建立！");
     } catch (err: any) {
       setError(`建立失敗: ${err.message}`);
     } finally {
@@ -64,7 +64,7 @@ const InitSports: React.FC = () => {
     try {
       const id = await initFunc();
       setInitStatus((prev) => ({ ...prev, [sportType]: true }));
-      setMessage(`✅ ${getSportName(sportType)} 資料已成功建立！ID: ${id}`);
+      setMessage(` ${getSportName(sportType)} 資料已成功建立！ID: ${id}`);
     } catch (err: any) {
       setError(`建立失敗: ${err.message}`);
     } finally {
@@ -133,7 +133,7 @@ const InitSports: React.FC = () => {
           {/* 羽毛球 */}
           <Card>
             <div className={styles.sportHeader}>
-              <h3>🏸 羽毛球</h3>
+              <h3>羽毛球</h3>
               {initStatus.badminton && (
                 <CheckCircle size={20} className={styles.successIcon} />
               )}
@@ -181,16 +181,16 @@ const InitSports: React.FC = () => {
           <div className={styles.dataPreview}>
             <h4>每個運動項目包含：</h4>
             <ul className={styles.featureList}>
-              <li>✅ 多種比賽規則預設（Rule Presets）</li>
-              <li>✅ 單打/雙打模式支援</li>
-              <li>✅ 彈性的分數配置（每局分數、局數等）</li>
-              <li>✅ 預設規則選擇</li>
+              <li> 多種比賽規則預設（Rule Presets）</li>
+              <li> 單打/雙打模式支援</li>
+              <li> 彈性的分數配置（每局分數、局數等）</li>
+              <li> 預設規則選擇</li>
             </ul>
             <pre>{`範例：羽毛球
 {
   id: "badminton",
   name: "羽毛球",
-  icon: "🏸",
+  icon: "",
   modes: ["singles", "doubles"],
   defaultPresetId: "bwf_standard",
   rulePresets: [

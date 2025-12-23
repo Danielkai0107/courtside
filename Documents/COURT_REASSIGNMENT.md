@@ -12,14 +12,14 @@
 1. 發布賽程（2 個場地）
    - 10 場第一輪比賽
    - 輪流分配到 2 個場地
-   
+
 2. 發現比賽太多，場地不夠用
-   
+
 3. 新增 Court 03, Court 04
-   
+
 4. 點擊「🔄 重新分配」
-   
-5. ✅ 10 場比賽重新分配到 4 個場地
+
+5.  10 場比賽重新分配到 4 個場地
    - 場地利用更均勻
    - 可以更多場次同時進行
 ```
@@ -28,14 +28,14 @@
 
 ```
 1. 有 5 個場地
-   
+
 2. 發現 Court 05 有問題，需要停用
-   
+
 3. 刪除 Court 05
-   
+
 4. 點擊「🔄 重新分配」
-   
-5. ✅ 所有比賽重新分配到剩餘 4 個場地
+
+5.  所有比賽重新分配到剩餘 4 個場地
 ```
 
 ## 🎨 UI 設計
@@ -46,7 +46,7 @@
 ┌────────────────────────────────────┐
 │ 場地管理    [🔄 重新分配] [+ 新增場地] │
 ├────────────────────────────────────┤
-│ 💡 場地用於分配比賽。建議在發布   │
+│ 場地用於分配比賽。建議在發布   │
 │    賽程前先設定場地。新增場地後可 │
 │    點擊「重新分配」優化場地使用。 │
 ├────────────────────────────────────┤
@@ -80,7 +80,7 @@
 ```
 結果對話框：
 ┌────────────────────────────────────┐
-│ ✅ 場地重新分配完成！              │
+│  場地重新分配完成！              │
 │                                    │
 │ 成功分配：8 場比賽                 │
 │ 跳過：2 場比賽（已開始或已完成）   │
@@ -94,13 +94,10 @@
 ### reassignCourts 函數
 
 ```typescript
-export const reassignCourts = async (
-  tournamentId: string,
-  courts: Court[]
-) => {
+export const reassignCourts = async (tournamentId: string, courts: Court[]) => {
   // 1. 獲取所有比賽
   const allMatches = await getMatchesByTournament(tournamentId);
-  
+
   // 2. 過濾可重新分配的比賽
   const matchesNeedingCourts = allMatches.filter(
     (m) =>
@@ -108,20 +105,20 @@ export const reassignCourts = async (
       m.player1Id !== null &&
       m.player2Id !== null
   );
-  
+
   // 3. 使用 batch 更新（高效）
   const batch = writeBatch(db);
-  
+
   matchesNeedingCourts.forEach((match, index) => {
-    const court = courts[index % courts.length];  // 輪流分配
+    const court = courts[index % courts.length]; // 輪流分配
     batch.update(matchRef, {
       courtId: court.id,
       status: "SCHEDULED",
     });
   });
-  
+
   await batch.commit();
-  
+
   // 4. 返回結果
   return {
     success: matchesNeedingCourts.length,
@@ -133,17 +130,20 @@ export const reassignCourts = async (
 ### 重新分配邏輯
 
 **會重新分配**：
-- ✅ 狀態：PENDING_COURT 或 SCHEDULED
-- ✅ 雙方選手已確定（player1Id && player2Id）
+
+- 狀態：PENDING_COURT 或 SCHEDULED
+- 雙方選手已確定（player1Id && player2Id）
 
 **不會重新分配**：
-- ❌ 狀態：IN_PROGRESS（進行中）
-- ❌ 狀態：COMPLETED（已完成）
-- ❌ player1Id 或 player2Id 為 null（等待晉級）
+
+- 狀態：IN_PROGRESS（進行中）
+- 狀態：COMPLETED（已完成）
+- player1Id 或 player2Id 為 null（等待晉級）
 
 ### 分配策略
 
 **輪流分配（Round Robin）**：
+
 ```
 10 場比賽 + 4 個場地
 
@@ -157,6 +157,7 @@ Match 6 → Court 02
 ```
 
 **優點**：
+
 - 每個場地分配的比賽數量均勻
 - 可以多場同時進行
 - 充分利用場地資源
@@ -172,7 +173,7 @@ Match 6 → Court 02
   ↓ 覺得不夠用
 新增 Court 03, 04
   ↓ 重新分配
-10 場比賽重新分配到 4 個場地 ✅
+10 場比賽重新分配到 4 個場地
 ```
 
 ### 時機 2：刪除故障場地
@@ -182,7 +183,7 @@ Match 6 → Court 02
   ↓ Court 05 故障
 刪除 Court 05
   ↓ 重新分配
-所有未開始的比賽重新分配到 4 個場地 ✅
+所有未開始的比賽重新分配到 4 個場地
 ```
 
 ### 時機 3：優化場地使用
@@ -191,7 +192,7 @@ Match 6 → Court 02
 發現某些場地使用率不均
   ↓ 調整場地順序或新增場地
   ↓ 重新分配
-均勻分配到所有場地 ✅
+均勻分配到所有場地
 ```
 
 ## 🔒 安全機制
@@ -199,10 +200,10 @@ Match 6 → Court 02
 ### 不影響進行中的比賽
 
 ```
-Match 1: SCHEDULED    → 重新分配 ✅
+Match 1: SCHEDULED    → 重新分配
 Match 2: IN_PROGRESS  → 跳過 ❌（比賽進行中）
 Match 3: COMPLETED    → 跳過 ❌（已結束）
-Match 4: PENDING_COURT → 重新分配 ✅
+Match 4: PENDING_COURT → 重新分配
 ```
 
 ### 確認對話框
@@ -238,9 +239,9 @@ Match 4: PENDING_COURT → 重新分配 ✅
   - 每個場地約 11-12 場
 
 效果：
-  ✅ 可以 4 場同時進行
-  ✅ 賽程進行更快
-  ✅ 場地利用率提升
+   可以 4 場同時進行
+   賽程進行更快
+   場地利用率提升
 ```
 
 ## 🎯 最佳實踐
@@ -267,40 +268,47 @@ Match 4: PENDING_COURT → 重新分配 ✅
 ### 建議 3：重新分配時機
 
 **適合重新分配**：
-- ✅ 新增/刪除場地後
-- ✅ 比賽還沒開始
-- ✅ 想優化分配
+
+- 新增/刪除場地後
+- 比賽還沒開始
+- 想優化分配
 
 **不適合重新分配**：
-- ❌ 比賽已經進行一半
-- ❌ 只剩少數比賽未開始
-- ❌ 場地數量沒變
+
+- 比賽已經進行一半
+- 只剩少數比賽未開始
+- 場地數量沒變
 
 ## 📋 修改清單
 
 ### 修改文件（2 個）
-- ✅ `src/services/courtService.ts`
-  - 新增 `reassignCourts` 函數
-  - 批量更新比賽的 courtId
-  - 返回成功/跳過數量
 
-- ✅ `src/components/features/CourtManager.tsx`
-  - 添加「重新分配」按鈕
-  - 添加 `handleReassign` 函數
-  - 添加確認對話框
-  - 更新提示文字
+- `src/services/courtService.ts`
 
-- ✅ `src/components/features/CourtManager.module.scss`
-  - 添加 headerActions 樣式
+- 新增 `reassignCourts` 函數
+- 批量更新比賽的 courtId
+- 返回成功/跳過數量
 
-## ✅ 功能檢查清單
+- `src/components/features/CourtManager.tsx`
+
+- 添加「重新分配」按鈕
+- 添加 `handleReassign` 函數
+- 添加確認對話框
+- 更新提示文字
+
+- `src/components/features/CourtManager.module.scss`
+- 添加 headerActions 樣式
+
+## 功能檢查清單
 
 ### UI 顯示
+
 - [x] 「重新分配」按鈕顯示
 - [x] 沒有場地時按鈕禁用
 - [x] Loading 狀態正確
 
 ### 功能測試
+
 - [x] 點擊顯示確認對話框
 - [x] 確認後執行重新分配
 - [x] 只更新未開始的比賽
@@ -308,6 +316,7 @@ Match 4: PENDING_COURT → 重新分配 ✅
 - [x] 顯示結果訊息
 
 ### 邊界情況
+
 - [x] 沒有場地：按鈕禁用
 - [x] 沒有比賽：顯示 0 場分配
 - [x] 所有比賽已開始：顯示全部跳過
@@ -317,18 +326,17 @@ Match 4: PENDING_COURT → 重新分配 ✅
 
 **場地一鍵重新分配功能已添加！**
 
-- ✅ 場地管理獨立 Tab
-- ✅ 發布前檢查場地
-- ✅ 事後重新分配 ⭐
-- ✅ 只影響未開始的比賽
-- ✅ 批量更新（高效）
-- ✅ 詳細的結果回報
+- 場地管理獨立 Tab
+- 發布前檢查場地
+- 事後重新分配 ⭐
+- 只影響未開始的比賽
+- 批量更新（高效）
+- 詳細的結果回報
 
-**場地管理功能完整！** 🏟️✅
+**場地管理功能完整！** 🏟️
 
 ---
 
-**實施日期**: 2024年12月21日  
-**狀態**: ✅ 已完成  
+**實施日期**: 2024 年 12 月 21 日  
+**狀態**: 已完成  
 **功能**: 場地重新分配
-

@@ -19,10 +19,11 @@
 ```
 
 **問題**：
-- ❌ 遺漏了 `PENDING_PLAYER` 狀態（等待選手晉級）
-- ❌ 遺漏了 `PENDING_COURT` 狀態（等待場地分配）
-- ❌ 這兩個狀態沒有對應的 UI
-- ❌ 導致頁面空白
+
+- 遺漏了 `PENDING_PLAYER` 狀態（等待選手晉級）
+- 遺漏了 `PENDING_COURT` 狀態（等待場地分配）
+- 這兩個狀態沒有對應的 UI
+- 導致頁面空白
 
 ### 比賽狀態流程
 
@@ -39,47 +40,45 @@ COMPLETED       ← 比賽結束
 ```
 
 **您遇到的情況**：
+
 - 比賽可能在 `PENDING_PLAYER` 或 `PENDING_COURT` 狀態
 - 這兩個狀態沒有 UI → 頁面空白
 
-## ✅ 修復方案
+## 修復方案
 
 ### 添加所有狀態的顯示
 
 #### 1. 比賽信息卡片（總是顯示）
+
 ```typescript
 <Card>
-  比賽狀態：等待選手 / 等待場地 / 已排程 / 進行中 / 已結束
-  場地：Court 01（如果有）
+  比賽狀態：等待選手 / 等待場地 / 已排程 / 進行中 / 已結束 場地：Court
+  01（如果有）
 </Card>
 ```
 
 #### 2. PENDING_PLAYER 狀態
+
 ```typescript
-<Card>
-  ⏳ 等待選手從上一輪晉級
-  等待選手 1 晉級 • 等待選手 2 晉級
-</Card>
+<Card>⏳ 等待選手從上一輪晉級 等待選手 1 晉級 • 等待選手 2 晉級</Card>
 ```
 
 #### 3. PENDING_COURT 狀態
+
 ```typescript
-<Card>
-  ⏳ 等待主辦方分配場地
-  Alice/Bob vs Carol/Dave
-</Card>
+<Card>⏳ 等待主辦方分配場地 Alice/Bob vs Carol/Dave</Card>
 ```
 
 #### 4. SCHEDULED 狀態
+
 ```typescript
 <Card>
-  確認雙方選手到場後，點擊下方按鈕開始比賽
-  Alice/Bob vs Carol/Dave
-  [開始比賽]
+  確認雙方選手到場後，點擊下方按鈕開始比賽 Alice/Bob vs Carol/Dave [開始比賽]
 </Card>
 ```
 
 #### 5. IN_PROGRESS 狀態
+
 ```typescript
 計分板
 [+1 選手 A] [+1 選手 B]
@@ -87,6 +86,7 @@ COMPLETED       ← 比賽結束
 ```
 
 #### 6. COMPLETED 狀態
+
 ```typescript
 比賽已結束
 Alice/Bob 獲勝
@@ -95,6 +95,7 @@ Alice/Bob 獲勝
 ## 🎨 修復後的完整 UI
 
 ### PENDING_PLAYER（等待晉級）
+
 ```
 ┌────────────────────────────────┐
 │ 計分板                         │
@@ -108,6 +109,7 @@ Alice/Bob 獲勝
 ```
 
 ### PENDING_COURT（等待場地）
+
 ```
 ┌────────────────────────────────┐
 │ 計分板                         │
@@ -123,6 +125,7 @@ Alice/Bob 獲勝
 ```
 
 ### SCHEDULED（可以開始）
+
 ```
 ┌────────────────────────────────┐
 │ 計分板                         │
@@ -141,7 +144,8 @@ Alice/Bob 獲勝
 └────────────────────────────────┘
 ```
 
-### IN_PROGRESS（進行中）✅ 原有
+### IN_PROGRESS（進行中） 原有
+
 ```
 ┌────────────────────────────────┐
 │ 計分板              🔴 LIVE    │
@@ -155,7 +159,8 @@ Alice/Bob 獲勝
 └────────────────────────────────┘
 ```
 
-### COMPLETED（已結束）✅ 原有
+### COMPLETED（已結束） 原有
+
 ```
 ┌────────────────────────────────┐
 │ 計分板                         │
@@ -171,17 +176,18 @@ Alice/Bob 獲勝
 
 ## 📊 狀態完整度
 
-| 狀態 | 修復前 | 修復後 |
-|------|--------|--------|
-| PENDING_PLAYER | ❌ 空白 | ✅ 顯示等待訊息 |
-| PENDING_COURT | ❌ 空白 | ✅ 顯示等待訊息 |
-| SCHEDULED | ✅ | ✅ |
-| IN_PROGRESS | ✅ | ✅ |
-| COMPLETED | ✅ | ✅ |
+| 狀態           | 修復前 | 修復後       |
+| -------------- | ------ | ------------ |
+| PENDING_PLAYER | 空白   | 顯示等待訊息 |
+| PENDING_COURT  | 空白   | 顯示等待訊息 |
+| SCHEDULED      |        |              |
+| IN_PROGRESS    |        |              |
+| COMPLETED      |        |              |
 
 ## 🎯 使用場景
 
 ### 場景 1：第二輪比賽（PENDING_PLAYER）
+
 ```
 1. 紀錄員點擊第二輪的比賽
 2. 看到：
@@ -193,6 +199,7 @@ Alice/Bob 獲勝
 ```
 
 ### 場景 2：第一輪比賽（PENDING_COURT）
+
 ```
 1. 紀錄員點擊第一輪的比賽
 2. 看到：
@@ -204,6 +211,7 @@ Alice/Bob 獲勝
 ```
 
 ### 場景 3：已排程比賽（SCHEDULED）
+
 ```
 1. 紀錄員點擊已分配場地的比賽
 2. 看到：
@@ -212,25 +220,26 @@ Alice/Bob 獲勝
    選手對陣
    [開始比賽] 按鈕
 3. 點擊「開始比賽」
-4. 進入計分界面 ✅
+4. 進入計分界面
 ```
 
 ## 📋 修改清單
 
 ### 修改文件
-- ✅ `src/pages/scorer/ScoringConsole.tsx`
-  - 添加比賽信息卡片（總是顯示）
-  - 添加 PENDING_PLAYER 狀態 UI
-  - 添加 PENDING_COURT 狀態 UI
-  - 優化 SCHEDULED 狀態 UI
-  - 添加選手預覽
 
-- ✅ `src/pages/scorer/ScoringConsole.module.scss`
-  - 添加比賽信息樣式
-  - 添加等待狀態樣式
-  - 添加選手預覽樣式
+- `src/pages/scorer/ScoringConsole.tsx`
+- 添加比賽信息卡片（總是顯示）
+- 添加 PENDING_PLAYER 狀態 UI
+- 添加 PENDING_COURT 狀態 UI
+- 優化 SCHEDULED 狀態 UI
+- 添加選手預覽
 
-## ✅ 測試檢查清單
+- `src/pages/scorer/ScoringConsole.module.scss`
+- 添加比賽信息樣式
+- 添加等待狀態樣式
+- 添加選手預覽樣式
+
+## 測試檢查清單
 
 - [x] PENDING_PLAYER 狀態顯示
 - [x] PENDING_COURT 狀態顯示
@@ -245,18 +254,17 @@ Alice/Bob 獲勝
 
 **計分頁面現在所有狀態都有對應的 UI！**
 
-- ✅ 不再出現空白頁面
-- ✅ 所有比賽狀態都有清晰提示
-- ✅ 紀錄員知道如何操作
-- ✅ 即時監聽自動更新
+- 不再出現空白頁面
+- 所有比賽狀態都有清晰提示
+- 紀錄員知道如何操作
+- 即時監聽自動更新
 
 **無論什麼狀態都有內容顯示！** 🎉
 
 ---
 
-**修復日期**: 2024年12月21日  
+**修復日期**: 2024 年 12 月 21 日  
 **問題**: 計分頁面空白  
 **原因**: 遺漏部分狀態的 UI  
 **解決**: 添加所有狀態的顯示  
-**狀態**: ✅ 已修復
-
+**狀態**: 已修復

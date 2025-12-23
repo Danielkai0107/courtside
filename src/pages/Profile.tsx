@@ -9,6 +9,7 @@ import {
   validateImageFile,
 } from "../services/storageService";
 import { getActiveSports } from "../services/sportService";
+import { listenToUnreadCount } from "../services/notificationService";
 import { useAuth } from "../contexts/AuthContext";
 import { useSportPreference } from "../hooks/useSportPreference";
 import Card from "../components/common/Card";
@@ -17,6 +18,23 @@ import AvatarWithSkeleton from "../components/common/AvatarWithSkeleton";
 import SportSelectionModal from "../components/common/SportSelectionModal";
 import styles from "./Profile.module.scss";
 import type { Sport } from "../types";
+
+// Material Symbol 組件
+const MaterialSymbol: React.FC<{ icon: string; filled?: boolean }> = ({
+  icon,
+  filled = false,
+}) => (
+  <span
+    className="material-symbols-rounded"
+    style={{
+      fontVariationSettings: filled
+        ? "'FILL' 1, 'wght' 500"
+        : "'FILL' 0, 'wght' 300",
+    }}
+  >
+    {icon}
+  </span>
+);
 
 const Profile: React.FC = () => {
   const { currentUser, logout, loading } = useAuth();
@@ -31,6 +49,7 @@ const Profile: React.FC = () => {
   const [loadingSports, setLoadingSports] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showSportModal, setShowSportModal] = useState(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
 
   // 只在 Auth 完全加載後才檢查登入狀態
   useEffect(() => {
@@ -55,6 +74,30 @@ const Profile: React.FC = () => {
 
     loadSports();
   }, []);
+
+  // 監聽未讀通知數量
+  useEffect(() => {
+    if (!currentUser?.uid) {
+      setUnreadCount(0);
+      return;
+    }
+
+    let unsubscribe: (() => void) | null = null;
+
+    // 延遲監聽以確保權限已生效
+    const timer = setTimeout(() => {
+      unsubscribe = listenToUnreadCount(currentUser.uid, (count) => {
+        setUnreadCount(count);
+      });
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [currentUser]);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!currentUser) return;
@@ -139,23 +182,19 @@ const Profile: React.FC = () => {
 
       <div className={styles.header}>
         <h1 className={styles.headerTitle}>CourtSide</h1>
-        {!loadingSports && !loadingSportPref && preferredSportId && (
-          <button
-            className={styles.sportButton}
-            onClick={() => setShowSportModal(true)}
-          >
-            {getCurrentSportDisplay()}
-            <span
-              className="material-symbols-rounded"
-              style={{
-                fontVariationSettings:
-                  '"FILL" 0, "wght" 300, "GRAD" 0, "opsz" 20',
-              }}
-            >
-              swap_horiz
-            </span>
-          </button>
-        )}
+        <button
+          className={styles.notificationButton}
+          onClick={() => navigate("/notifications")}
+        >
+          <div className={styles.iconWrapper}>
+            <MaterialSymbol icon="notifications" filled={false} />
+            {unreadCount > 0 && (
+              <span className={styles.badge}>
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </div>
+        </button>
       </div>
 
       <div className={styles.content}>

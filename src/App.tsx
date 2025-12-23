@@ -10,7 +10,9 @@ import { isMobileDevice } from "./utils/deviceDetection";
 
 // User Pages
 import Home from "./pages/Home";
-import MyGames from "./pages/MyGames";
+import MyGamesPlayer from "./pages/MyGamesPlayer";
+import MyGamesOrganizer from "./pages/MyGamesOrganizer";
+import MyGamesScorer from "./pages/MyGamesScorer";
 import MyTournamentMatches from "./pages/MyTournamentMatches";
 import EventDetail from "./pages/EventDetail";
 import CategoryDetail from "./pages/CategoryDetail";
@@ -60,11 +62,34 @@ function App() {
               path="/my-games" 
               element={
                 <AuthGuard>
-                  <MyGames />
+                  <MyGamesPlayer />
                 </AuthGuard>
               } 
             />
-            <Route path="/notifications" element={<Notifications />} />
+            <Route 
+              path="/my-organizer" 
+              element={
+                <AuthGuard>
+                  <MyGamesOrganizer />
+                </AuthGuard>
+              } 
+            />
+            <Route 
+              path="/my-scorer" 
+              element={
+                <AuthGuard>
+                  <MyGamesScorer />
+                </AuthGuard>
+              } 
+            />
+            <Route 
+              path="/notifications" 
+              element={
+                <AuthGuard>
+                  <Notifications />
+                </AuthGuard>
+              } 
+            />
             <Route path="/profile" element={<Profile />} />
           </Route>
 

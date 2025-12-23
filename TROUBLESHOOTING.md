@@ -3,6 +3,7 @@
 ## 問題 1: 找不到佔位符 Match
 
 **錯誤訊息：**
+
 ```
 找不到佔位符 Match，請確認是否已生成賽程結構
 ```
@@ -20,9 +21,10 @@
 #### 方案 A：確保選擇模板和規則
 
 **已修復：** CategoryManager 現在會：
-- ✅ 自動選擇第一個模板
-- ✅ 自動選擇預設規則
-- ✅ 提交前驗證是否已選擇
+
+- 自動選擇第一個模板
+- 自動選擇預設規則
+- 提交前驗證是否已選擇
 
 #### 方案 B：部署 Firestore 規則（必要）⭐
 
@@ -31,11 +33,13 @@ firebase deploy --only firestore:rules
 ```
 
 **為什麼需要：**
+
 - 新增了 `formats` 集合的讀取權限
 - 沒有這個權限，formats 無法載入
 - 模板清單會是空的
 
 **驗證部署成功：**
+
 ```bash
 # 檢查規則
 firebase firestore:rules:get
@@ -46,11 +50,13 @@ firebase firestore:rules:get
 #### 方案 C：檢查 formats 集合資料
 
 在 Firebase Console 中確認：
+
 ```
 Database → Firestore Database → formats
 ```
 
 應該有以下文檔：
+
 - `ko_4`
 - `ko_8`
 - `ko_16`
@@ -59,6 +65,7 @@ Database → Firestore Database → formats
 - `rr_small_2_5`
 
 如果沒有，需要運行 seed script：
+
 ```bash
 # 檢查是否有 seed script
 ls src/scripts/
@@ -72,6 +79,7 @@ npm run seed  # 或者 node src/scripts/seed-db.js
 ## 問題 2: 權限錯誤
 
 **錯誤訊息：**
+
 ```
 Failed to load formats: FirebaseError: Missing or insufficient permissions.
 ```
@@ -91,6 +99,7 @@ firebase deploy --only firestore:rules
 ## 問題 3: toLowerCase 錯誤
 
 **錯誤訊息：**
+
 ```
 Cannot read properties of undefined (reading 'toLowerCase')
 ```
@@ -98,17 +107,20 @@ Cannot read properties of undefined (reading 'toLowerCase')
 ### 解決方案
 
 **已修復：** 在以下檔案中修改：
+
 - `CategoryDetail.tsx`
 - `ScorerCategoryDetail.tsx`
 
 從：
+
 ```typescript
-styles[match.status?.toLowerCase() || ""]
+styles[match.status?.toLowerCase() || ""];
 ```
 
 改為：
+
 ```typescript
-styles[(match.status || "").toLowerCase()]
+styles[(match.status || "").toLowerCase()];
 ```
 
 ---
@@ -120,14 +132,18 @@ styles[(match.status || "").toLowerCase()]
 ### 檢查清單
 
 1. **檢查 Console 錯誤**
+
    - 打開瀏覽器 Console (F12)
    - 查看是否有權限錯誤或其他錯誤
 
 2. **檢查 Firestore 規則**
+
    ```bash
    firebase firestore:rules:get
    ```
+
    應該包含：
+
    ```javascript
    match /formats/{formatId} {
      allow read: if true;
@@ -135,6 +151,7 @@ styles[(match.status || "").toLowerCase()]
    ```
 
 3. **檢查 formats 集合資料**
+
    - 進入 Firebase Console
    - 確認 formats 集合有 6 筆資料
 
@@ -150,15 +167,17 @@ styles[(match.status || "").toLowerCase()]
 ### 檢查步驟
 
 1. **檢查 Console 日誌**
+
    ```
    應該看到：
    "Generated placeholder matches for category: 男子雙打"
-   
+
    如果看到錯誤：
    "Failed to generate placeholder matches: ..."
    ```
 
 2. **檢查是否選擇了模板和規則**
+
    - 在 Step 3 確認有選擇賽制模板
    - 確認有選擇比賽規則
    - 確認看到「賽制預覽」和「規則說明」卡片
@@ -173,11 +192,13 @@ styles[(match.status || "").toLowerCase()]
 如果佔位符確實沒有生成，可以：
 
 #### 方案 A：重新創建賽事
+
 1. 確保已部署 Firestore 規則
 2. 重新創建一個測試賽事
 3. 確保選擇了模板和規則
 
 #### 方案 B：手動生成（後補）
+
 1. 進入「賽程管理」Tab
 2. 系統會使用智能算法生成
 3. 效果相同，只是沒有提前預覽
@@ -214,15 +235,17 @@ Match 沒有 `ruleConfig` 或 `ruleConfig.matchType` 不是 `"set_based"`
 ```
 
 如果缺少這些欄位，代表：
+
 - Category 沒有正確儲存 ruleConfig
 - 佔位符生成時沒有傳遞 ruleConfig
 
 ### 解決方案
 
 重新創建賽事，確保：
-1. ✅ 選擇了比賽規則（BWF標準、單局制等）
-2. ✅ 看到「規則說明」預覽卡片
-3. ✅ 送出後檢查 Console 無錯誤
+
+1.  選擇了比賽規則（BWF 標準、單局制等）
+2.  看到「規則說明」預覽卡片
+3.  送出後檢查 Console 無錯誤
 
 ---
 
@@ -240,18 +263,18 @@ Match 沒有 `ruleConfig` 或 `ruleConfig.matchType` 不是 `"set_based"`
 - [ ] Step 1: 選擇球類項目（羽球、桌球等）
 - [ ] Step 3: 點擊「新增分類」
 - [ ] 確認看到 6 個賽制模板選項
-- [ ] 選擇模板（例如：16強淘汰賽）
+- [ ] 選擇模板（例如：16 強淘汰賽）
 - [ ] 確認看到「賽制預覽」卡片
-- [ ] 確認看到比賽規則選項（例如：BWF標準）
+- [ ] 確認看到比賽規則選項（例如：BWF 標準）
 - [ ] 選擇規則
 - [ ] 確認看到「規則說明」卡片
 - [ ] 點擊「新增」
 - [ ] 確認分類卡片顯示完整資訊（包含規則）
 - [ ] 點擊「建立賽事」
 - [ ] 檢查 Console 應該看到：
-   ```
-   Generated placeholder matches for category: xxx
-   ```
+  ```
+  Generated placeholder matches for category: xxx
+  ```
 
 ### 驗證佔位符
 
@@ -262,7 +285,7 @@ Match 沒有 `ruleConfig` 或 `ruleConfig.matchType` 不是 `"set_based"`
 ### 發布賽程
 
 - [ ] 報名截止後進入「賽程管理」
-- [ ] 如果人數符合，應該看到「✅ 人數符合原定模板」
+- [ ] 如果人數符合，應該看到「 人數符合原定模板」
 - [ ] 點擊「發布賽程」
 - [ ] 佔位符應該變為真實 Match
 
@@ -300,4 +323,3 @@ firebase firestore:rules:get
 3. 提供錯誤截圖和 Console 日誌
 
 **最常見的問題：忘記部署 Firestore 規則** ⭐
-

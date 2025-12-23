@@ -30,6 +30,7 @@
 ## 🎨 UI 效果
 
 ### 狀態 1：未報名
+
 ```
 ┌────── 報名賽事 ──────┐
 │                      │
@@ -46,6 +47,7 @@
 ```
 
 ### 狀態 2：等待確認中
+
 ```
 ┌────── 報名賽事 ──────┐
 │                      │
@@ -60,6 +62,7 @@
 ```
 
 ### 狀態 3：已確認
+
 ```
 ┌────── 報名賽事 ──────┐
 │                      │
@@ -73,6 +76,7 @@
 ```
 
 ### 狀態 4：被婉拒
+
 ```
 ┌────── 報名賽事 ──────┐
 │                      │
@@ -95,13 +99,17 @@
 
 ```typescript
 const checkCategoryRegistration = async (category) => {
-  if (category.matchType === 'singles') {
+  if (category.matchType === "singles") {
     const players = await getPlayers(tournamentId);
-    const myRegistration = players.find(p => p.uid === currentUser.uid);
-    setRegistrationStatus(myRegistration?.status || 'none');
+    const myRegistration = players.find((p) => p.uid === currentUser.uid);
+    setRegistrationStatus(myRegistration?.status || "none");
   } else {
-    const myTeam = await getUserTeam(tournamentId, category.id, currentUser.uid);
-    setRegistrationStatus(myTeam?.status || 'none');
+    const myTeam = await getUserTeam(
+      tournamentId,
+      category.id,
+      currentUser.uid
+    );
+    setRegistrationStatus(myTeam?.status || "none");
   }
 };
 ```
@@ -109,23 +117,38 @@ const checkCategoryRegistration = async (category) => {
 ### 2. 根據狀態顯示 UI
 
 ```typescript
-{registrationStatus === 'pending' && (
-  <div className={styles.statusBadge} style={{ background: 'rgba(255, 193, 7, 0.1)' }}>
-    ⏳ 等待確認中
-  </div>
-)}
+{
+  registrationStatus === "pending" && (
+    <div
+      className={styles.statusBadge}
+      style={{ background: "rgba(255, 193, 7, 0.1)" }}
+    >
+      ⏳ 等待確認中
+    </div>
+  );
+}
 
-{registrationStatus === 'confirmed' && (
-  <div className={styles.statusBadge} style={{ background: 'rgba(0, 230, 118, 0.1)' }}>
-    ✓ 已報名成功
-  </div>
-)}
+{
+  registrationStatus === "confirmed" && (
+    <div
+      className={styles.statusBadge}
+      style={{ background: "rgba(0, 230, 118, 0.1)" }}
+    >
+      ✓ 已報名成功
+    </div>
+  );
+}
 
-{registrationStatus === 'declined' && (
-  <div className={styles.statusBadge} style={{ background: 'rgba(255, 82, 82, 0.1)' }}>
-    ✗ 已被婉拒，可重新報名
-  </div>
-)}
+{
+  registrationStatus === "declined" && (
+    <div
+      className={styles.statusBadge}
+      style={{ background: "rgba(255, 82, 82, 0.1)" }}
+    >
+      ✗ 已被婉拒，可重新報名
+    </div>
+  );
+}
 ```
 
 ### 3. 按鈕狀態控制
@@ -134,25 +157,24 @@ const checkCategoryRegistration = async (category) => {
 <Button
   type="submit"
   disabled={
-    registrationStatus === 'pending' ||
-    registrationStatus === 'confirmed'
+    registrationStatus === "pending" || registrationStatus === "confirmed"
   }
 >
-  {registrationStatus === 'declined' ? '重新報名' : '確認報名'}
+  {registrationStatus === "declined" ? "重新報名" : "確認報名"}
 </Button>
 ```
 
 ### 4. 提交驗證
 
 ```typescript
-if (registrationStatus === 'pending') {
-  setError('您已報名此分類，等待確認中');
-  return;  // 阻止提交
+if (registrationStatus === "pending") {
+  setError("您已報名此分類，等待確認中");
+  return; // 阻止提交
 }
 
-if (registrationStatus === 'confirmed') {
-  setError('您已成功報名此分類');
-  return;  // 阻止提交
+if (registrationStatus === "confirmed") {
+  setError("您已成功報名此分類");
+  return; // 阻止提交
 }
 
 // declined 或 none 才允許提交
@@ -220,32 +242,32 @@ if (registrationStatus === 'confirmed') {
 ## 📋 修改清單
 
 ### 修改文件
-- ✅ `RegistrationForm.tsx`
-  - 添加 registrationStatus 狀態
-  - 切換分類時檢查狀態
-  - 根據狀態顯示不同 UI
-  - pending/confirmed 時禁用按鈕
-  - declined 時按鈕文字改為「重新報名」
-  - 提交時驗證狀態
 
-- ✅ `RegistrationForm.module.scss`
-  - 添加狀態徽章樣式
+- `RegistrationForm.tsx`
+- 添加 registrationStatus 狀態
+- 切換分類時檢查狀態
+- 根據狀態顯示不同 UI
+- pending/confirmed 時禁用按鈕
+- declined 時按鈕文字改為「重新報名」
+- 提交時驗證狀態
 
-## ✅ 修復完成
+- `RegistrationForm.module.scss`
+- 添加狀態徽章樣式
+
+## 修復完成
 
 **正確的報名狀態顯示邏輯！**
 
-- ✅ pending：顯示「等待確認中」，禁用按鈕
-- ✅ confirmed：顯示「已報名成功」，禁用按鈕
-- ✅ declined：顯示「可重新報名」，啟用按鈕
-- ✅ none：正常顯示表單，啟用按鈕
-- ✅ 按鈕文字智能變化（確認報名 / 重新報名）
-- ✅ 顏色清晰標示（黃/綠/紅）
+- pending：顯示「等待確認中」，禁用按鈕
+- confirmed：顯示「已報名成功」，禁用按鈕
+- declined：顯示「可重新報名」，啟用按鈕
+- none：正常顯示表單，啟用按鈕
+- 按鈕文字智能變化（確認報名 / 重新報名）
+- 顏色清晰標示（黃/綠/紅）
 
-**報名邏輯完全正確！** ✅
+**報名邏輯完全正確！**
 
 ---
 
-**修復日期**: 2024年12月21日  
-**狀態**: ✅ 已修復並部署
-
+**修復日期**: 2024 年 12 月 21 日  
+**狀態**: 已修復並部署

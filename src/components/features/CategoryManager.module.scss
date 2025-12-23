@@ -121,6 +121,43 @@
   gap: 24px;
   padding: 0.5rem 0;
   padding-bottom: 90px; // 為 absolute footer 留出空間
+
+  // Material UI TextField 樣式覆蓋
+  :global {
+    .MuiTextField-root {
+      margin-bottom: 0;
+    }
+
+    .MuiOutlinedInput-root {
+      border-radius: 8px;
+      background-color: var(--background-primary);
+
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-color);
+      }
+
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-color);
+        border-width: 2px;
+      }
+    }
+
+    .MuiInputLabel-root {
+      color: var(--text-secondary);
+
+      &.Mui-focused {
+        color: var(--primary-color);
+      }
+    }
+
+    .MuiOutlinedInput-input {
+      color: var(--text-primary);
+    }
+
+    .MuiFormControl-root {
+      width: 100%;
+    }
+  }
 }
 
 .formGroup {
@@ -235,7 +272,7 @@
 .stagesList {
   margin-left: $spacing-md;
   margin-top: $spacing-xs;
-  
+
   li {
     margin: $spacing-xs 0;
   }
@@ -243,8 +280,10 @@
 
 .rulePreview {
   margin-top: $spacing-md;
-  background: rgba(255, 140, 0, 0.05);
-  border: 1px solid rgba(255, 140, 0, 0.2);
+  background: rgba(33, 150, 243, 0.05);
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  padding: $spacing-md;
+  border-radius: 8px;
 }
 
 .ruleDetails {
@@ -264,16 +303,17 @@
   background: rgba(33, 150, 243, 0.05);
   border: 1px solid rgba(33, 150, 243, 0.2);
   padding: $spacing-md;
+  border-radius: 8px;
 }
 
 .infoText {
-  font-size: $font-size-sm;
+  font-size: 14px;
   color: var(--text-primary);
   margin: 0 0 $spacing-xs 0;
 }
 
 .infoTextSmall {
-  font-size: $font-size-xs;
+  font-size: 12px;
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.4;

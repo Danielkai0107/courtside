@@ -8,6 +8,7 @@
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
   scrollbar-width: none; // Firefox
+  background: $bg-color;
 
   &::-webkit-scrollbar {
     display: none;
@@ -20,7 +21,7 @@
 .tab {
   flex: 1;
   padding: $spacing-md;
-  background: none;
+  background: $bg-color;
   border: none;
   color: $text-secondary;
   font-size: 16px;

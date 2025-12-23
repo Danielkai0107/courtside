@@ -18,7 +18,7 @@ export const initBadminton = async () => {
 
     const badmintonData = {
       name: "羽毛球",
-      icon: "🏸",
+      icon: "",
       isActive: true,
       order: 2,
       defaultPresetId: "bwf_standard",
@@ -196,7 +196,7 @@ export const initAllSports = async () => {
     await initPickleball();
     await initBadminton();
     await initTableTennis();
-    console.log("✅ 所有球類項目初始化完成！");
+    console.log(" 所有球類項目初始化完成！");
   } catch (error) {
     console.error("初始化失敗:", error);
     throw error;

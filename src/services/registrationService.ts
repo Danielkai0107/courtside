@@ -39,28 +39,31 @@ export const registerForTournament = async (
   } else {
     existingQuery = query(playersRef, where("uid", "==", userData.uid));
   }
-  
+
   const existingSnapshot = await getDocs(existingQuery);
 
   if (!existingSnapshot.empty) {
     const existingDoc = existingSnapshot.docs[0];
     const existingData = existingDoc.data();
-    
+
     // 如果是被婉拒的，可以重新報名
     if (existingData.status === "declined") {
       // 更新為 pending 狀態
       const updateData: any = {
         status: "pending",
-        name: userData.name,  // 更新名稱（可能有改）
+        name: userData.name, // 更新名稱（可能有改）
         photoURL: userData.photoURL || null,
       };
       if (userData.categoryId) {
         updateData.categoryId = userData.categoryId;
       }
-      await updateDoc(doc(db, "tournaments", tournamentId, "players", existingDoc.id), updateData);
+      await updateDoc(
+        doc(db, "tournaments", tournamentId, "players", existingDoc.id),
+        updateData
+      );
       return existingDoc.id;
     }
-    
+
     // 其他狀態（pending 或 confirmed）不允許重複報名
     throw new Error("您已報名此分類");
   }
@@ -342,7 +345,7 @@ export const getPlayersByCategory = async (
   const playersRef = collection(db, "tournaments", tournamentId, "players");
 
   const constraints: any[] = [where("categoryId", "==", categoryId)];
-  
+
   if (status) {
     constraints.push(where("status", "==", status));
   }
@@ -380,7 +383,7 @@ export const getUserRegisteredTournaments = async (
   );
 
   const querySnapshot = await getDocs(playersQuery);
-  
+
   console.log("📋 [getUserRegisteredTournaments] 找到 player 記錄:", {
     count: querySnapshot.docs.length,
     records: querySnapshot.docs.map((doc) => ({
@@ -404,8 +407,8 @@ export const getUserRegisteredTournaments = async (
 
       try {
         const tournament = await getTournament(tournamentId);
-        
-        console.log("✅ [getUserRegisteredTournaments] 載入賽事成功:", {
+
+        console.log(" [getUserRegisteredTournaments] 載入賽事成功:", {
           tournamentId,
           tournamentName: tournament?.name,
           status: tournament?.status,
@@ -420,7 +423,10 @@ export const getUserRegisteredTournaments = async (
           tournamentId,
         };
       } catch (error) {
-        console.error(`❌ [getUserRegisteredTournaments] 載入賽事失敗 ${tournamentId}:`, error);
+        console.error(
+          `[getUserRegisteredTournaments] 載入賽事失敗 ${tournamentId}:`,
+          error
+        );
         return null;
       }
     })
@@ -431,7 +437,7 @@ export const getUserRegisteredTournaments = async (
     (r): r is NonNullable<typeof r> => r !== null && r.tournament !== null
   );
 
-  console.log("✅ [getUserRegisteredTournaments] 最終結果:", {
+  console.log(" [getUserRegisteredTournaments] 最終結果:", {
     total: validRegistrations.length,
     registrations: validRegistrations.map((r) => ({
       tournamentId: r.tournamentId,

@@ -6,43 +6,43 @@
 
 ---
 
-## ✅ 已完成的更新
+## 已完成的更新
 
 ### 選手視角更新
 
 #### 1. 賽事列表頁面（Events.tsx）
 
-- ✅ 更新狀態篩選支援新狀態值
-- ✅ 「開放報名中」Tab 顯示 `REGISTRATION_OPEN` 狀態的賽事
-- ✅ 「即將開始」Tab 顯示 `REGISTRATION_CLOSED` 狀態的賽事
-- ✅ 「進行中」Tab 顯示 `ONGOING` 狀態的賽事
+- 更新狀態篩選支援新狀態值
+- 「開放報名中」Tab 顯示 `REGISTRATION_OPEN` 狀態的賽事
+- 「即將開始」Tab 顯示 `REGISTRATION_CLOSED` 狀態的賽事
+- 「進行中」Tab 顯示 `ONGOING` 狀態的賽事
 
 #### 2. 賽事詳情頁面（EventDetail.tsx）
 
-- ✅ 報名按鈕支援新狀態 `REGISTRATION_OPEN`
-- ✅ 新增 `getStatusText()` 函數顯示正確狀態文字
-- ✅ 向下相容舊狀態值
+- 報名按鈕支援新狀態 `REGISTRATION_OPEN`
+- 新增 `getStatusText()` 函數顯示正確狀態文字
+- 向下相容舊狀態值
 
 #### 3. 我的比賽頁面（MyGames.tsx）
 
-- ✅ 更新狀態篩選
-  - 「即將到來」：`SCHEDULED`, `IN_PROGRESS`（新）+ `scheduled`, `live`（舊）
-  - 「歷史紀錄」：`COMPLETED`（新）+ `finished`（舊）
-- ✅ 開放報名中賽事篩選支援 `REGISTRATION_OPEN`, `REGISTRATION_CLOSED`
+- 更新狀態篩選
+- 「即將到來」：`SCHEDULED`, `IN_PROGRESS`（新）+ `scheduled`, `live`（舊）
+- 「歷史紀錄」：`COMPLETED`（新）+ `finished`（舊）
+- 開放報名中賽事篩選支援 `REGISTRATION_OPEN`, `REGISTRATION_CLOSED`
 
 #### 4. 比賽卡片組件（MatchCard.tsx）
 
-- ✅ 更新顯示邏輯支援新欄位：
-  - `player1Name`, `player2Name`（新）
-  - `playerA_Name`, `playerB_Name`（舊，向下相容）
-  - `score.player1`, `score.player2`（新）
-  - `score.A`, `score.B`（舊，向下相容）
-- ✅ 新增更多狀態標籤：
-  - `PENDING_PLAYER`: 「等待選手」
-  - `PENDING_COURT`: 「等待場地」
-  - `SCHEDULED`: 「即將開始」
-  - `IN_PROGRESS`: 「進行中」
-  - `COMPLETED`: 「已結束」
+- 更新顯示邏輯支援新欄位：
+- `player1Name`, `player2Name`（新）
+- `playerA_Name`, `playerB_Name`（舊，向下相容）
+- `score.player1`, `score.player2`（新）
+- `score.A`, `score.B`（舊，向下相容）
+- 新增更多狀態標籤：
+- `PENDING_PLAYER`: 「等待選手」
+- `PENDING_COURT`: 「等待場地」
+- `SCHEDULED`: 「即將開始」
+- `IN_PROGRESS`: 「進行中」
+- `COMPLETED`: 「已結束」
 
 ---
 
@@ -50,35 +50,35 @@
 
 #### 5. 紀錄員首頁（ScorerHome.tsx）
 
-- ✅ 修改「我的賽事」卡片點擊導向
-- ✅ 從 `/events/:id` 改為 `/scorer/tournaments/:id`
-- ✅ 點擊後進入紀錄員專用賽事詳情頁
+- 修改「我的賽事」卡片點擊導向
+- 從 `/events/:id` 改為 `/scorer/tournaments/:id`
+- 點擊後進入紀錄員專用賽事詳情頁
 
 #### 6. 賽事場次頁面（TournamentMatches.tsx - 新增）
 
-- ✅ 顯示賽事基本資訊
-- ✅ 按輪次分組顯示所有場次
-- ✅ 輪次標籤：「第一輪」、「準決賽」、「決賽」、「季軍賽」
-- ✅ 每場比賽顯示：
-  - 狀態標籤（顏色區分）
-  - 場地名稱
-  - 選手對戰
-  - BYE 輪空提示
-  - 勝者高亮顯示
-- ✅ 即時監聽比賽變化（自動更新）
-- ✅ 點擊場次卡片進入計分畫面
+- 顯示賽事基本資訊
+- 按輪次分組顯示所有場次
+- 輪次標籤：「第一輪」、「準決賽」、「決賽」、「季軍賽」
+- 每場比賽顯示：
+- 狀態標籤（顏色區分）
+- 場地名稱
+- 選手對戰
+- BYE 輪空提示
+- 勝者高亮顯示
+- 即時監聽比賽變化（自動更新）
+- 點擊場次卡片進入計分畫面
 
 #### 7. 計分畫面（ScoringConsole.tsx）
 
-- ✅ 更新顯示邏輯支援新欄位名稱
-- ✅ 記分函數改為 `recordScore(id, 'player1' | 'player2', 1)`
-- ✅ **關鍵更新**：替換 `finishMatch()` 為 `completeMatch()`
-  - 結束比賽時自動判定勝負
-  - 勝者自動晉級下一輪
-  - 自動釋放場地
-  - 自動分配空閒場地給下一場
-- ✅ 狀態判斷支援新舊狀態值
-- ✅ 向下相容舊比賽資料
+- 更新顯示邏輯支援新欄位名稱
+- 記分函數改為 `recordScore(id, 'player1' | 'player2', 1)`
+- **關鍵更新**：替換 `finishMatch()` 為 `completeMatch()`
+- 結束比賽時自動判定勝負
+- 勝者自動晉級下一輪
+- 自動釋放場地
+- 自動分配空閒場地給下一場
+- 狀態判斷支援新舊狀態值
+- 向下相容舊比賽資料
 
 ---
 
@@ -86,18 +86,18 @@
 
 #### 8. Match Service（matchService.ts）
 
-- ✅ `getMatchesByPlayer()` 更新：
-  - 查詢欄位從 `playerA_Id`, `playerB_Id` 改為 `player1Id`, `player2Id`
-  - 排序方式改為按 `round` 和 `matchOrder`
-- ✅ `recordScore()` 更新：
-  - 參數從 `team: 'A' | 'B'` 改為 `player: 'player1' | 'player2'`
-  - 比分更新到 `score.player1` 和 `score.player2`
-  - Timeline 保留舊格式（向下相容）
-- ✅ `startMatch()` 更新：
-  - 狀態從 `live` 改為 `IN_PROGRESS`
-- ✅ `getMatchesByTournament()` 增強：
-  - 優先使用 `round` + `matchOrder` 排序
-  - 降級機制：索引建立中時使用手動排序
+- `getMatchesByPlayer()` 更新：
+- 查詢欄位從 `playerA_Id`, `playerB_Id` 改為 `player1Id`, `player2Id`
+- 排序方式改為按 `round` 和 `matchOrder`
+- `recordScore()` 更新：
+- 參數從 `team: 'A' | 'B'` 改為 `player: 'player1' | 'player2'`
+- 比分更新到 `score.player1` 和 `score.player2`
+- Timeline 保留舊格式（向下相容）
+- `startMatch()` 更新：
+- 狀態從 `live` 改為 `IN_PROGRESS`
+- `getMatchesByTournament()` 增強：
+- 優先使用 `round` + `matchOrder` 排序
+- 降級機制：索引建立中時使用手動排序
 
 ---
 
@@ -105,8 +105,8 @@
 
 #### 9. App.tsx
 
-- ✅ 新增路由：`/scorer/tournaments/:id` → `TournamentMatches`
-- ✅ RoleGuard 保護（僅紀錄員可訪問）
+- 新增路由：`/scorer/tournaments/:id` → `TournamentMatches`
+- RoleGuard 保護（僅紀錄員可訪問）
 
 ---
 
@@ -293,28 +293,28 @@
 
 ### 選手體驗提升
 
-- ✅ 可以看到主辦方發布的賽事
-- ✅ 報名流程順暢
-- ✅ 清楚看到自己的比賽場次和狀態
-- ✅ 即時比分更新
+- 可以看到主辦方發布的賽事
+- 報名流程順暢
+- 清楚看到自己的比賽場次和狀態
+- 即時比分更新
 
 ### 紀錄員體驗提升
 
-- ✅ 賽事場次總覽（按輪次分組）
-- ✅ 清楚的視覺化呈現
-- ✅ 點擊即可進入計分
-- ✅ **自動晉級系統**：
-  - 不需要手動設定下一輪對戰
-  - 系統自動推進賽程
-  - 場地自動調度
-  - 即時看到晉級結果
+- 賽事場次總覽（按輪次分組）
+- 清楚的視覺化呈現
+- 點擊即可進入計分
+- **自動晉級系統**：
+- 不需要手動設定下一輪對戰
+- 系統自動推進賽程
+- 場地自動調度
+- 即時看到晉級結果
 
 ### 系統穩定性
 
-- ✅ Transaction 確保資料一致性
-- ✅ 即時訂閱提供最新資訊
-- ✅ 向下相容避免舊資料錯誤
-- ✅ 錯誤處理友善
+- Transaction 確保資料一致性
+- 即時訂閱提供最新資訊
+- 向下相容避免舊資料錯誤
+- 錯誤處理友善
 
 ---
 

@@ -5,6 +5,7 @@
 根據您提供的競品截圖（IMG_9638），正確的小組賽顯示應該是：
 
 ### 默認顯示：積分榜
+
 ```
 Group A                      [查看比賽 →]
 ────────────────────────────────────────
@@ -22,6 +23,7 @@ Group A                      [查看比賽 →]
 ```
 
 ### 點擊「查看比賽」：比賽詳情
+
 ```
 Group A                      [收起 →]
 ────────────────────────────────────────
@@ -38,17 +40,20 @@ Gary Llanes / Webster          11  ✓
 ...
 ```
 
-## ✅ 已實現功能
+## 已實現功能
 
 ### 1. standingsService.ts（新增）
 
 **核心函數**：
+
 ```typescript
-calculateGroupStandings(matches, participants)
+calculateGroupStandings(matches, participants);
 ```
 
 **計算邏輯**：
+
 1. **積分（PTS）**：
+
    - 勝：3 分
    - 平：1 分
    - 負：0 分
@@ -56,6 +61,7 @@ calculateGroupStandings(matches, participants)
 2. **勝負場數（W/L）**
 
 3. **淨勝分（PD）**：
+
    - pointDifference = pointsFor - pointsAgainst
 
 4. **排序規則**：
@@ -66,14 +72,16 @@ calculateGroupStandings(matches, participants)
 ### 2. CategoryDetail.tsx（重寫）
 
 **功能**：
-- ✅ 默認顯示積分榜
-- ✅ 點擊「查看比賽」展開比賽詳情
-- ✅ 前 2 名標示綠色（晉級區）
-- ✅ 淨勝分顏色標示（正數綠色、負數紅色）
+
+- 默認顯示積分榜
+- 點擊「查看比賽」展開比賽詳情
+- 前 2 名標示綠色（晉級區）
+- 淨勝分顏色標示（正數綠色、負數紅色）
 
 ### 3. CategoryDetail.module.scss（擴充）
 
 **新增樣式**：
+
 - 積分榜表格樣式
 - 晉級區綠色標示（`.qualified`）
 - 比賽詳情樣式
@@ -140,14 +148,16 @@ Match 6: Grace/Henry 15 - 21 Alice/Bob → Alice/Bob 勝 (+3 分)
 ### 綠色線標示
 
 **顯示邏輯**：
+
 ```typescript
-index < 2 ? styles.qualified : ""
+index < 2 ? styles.qualified : "";
 ```
 
 - 前 2 名：綠色線 ✓
 - 其他：無標示
 
 **CSS**：
+
 ```scss
 .qualified {
   border-left: 4px solid $success-color;
@@ -158,32 +168,36 @@ index < 2 ? styles.qualified : ""
 ### 動態晉級線（未來擴展）
 
 可以根據 `groupConfig.advancePerGroup` 動態標示：
+
 ```typescript
 // 如果每組取前 3 名
-index < groupConfig.advancePerGroup ? styles.qualified : ""
+index < groupConfig.advancePerGroup ? styles.qualified : "";
 ```
 
 ## 📋 修改清單
 
 ### 新增文件
-- ✅ `src/services/standingsService.ts` - 積分榜計算服務
+
+- `src/services/standingsService.ts` - 積分榜計算服務
 
 ### 修改文件
-- ✅ `src/pages/CategoryDetail.tsx`
-  - 重寫小組賽顯示邏輯
-  - 添加積分榜計算
-  - 添加展開/收起功能
-  - 標示晉級區
 
-- ✅ `src/pages/CategoryDetail.module.scss`
-  - 添加積分榜表格樣式
-  - 添加晉級區樣式
-  - 添加比賽詳情樣式
-  - 添加查看按鈕樣式
+- `src/pages/CategoryDetail.tsx`
+- 重寫小組賽顯示邏輯
+- 添加積分榜計算
+- 添加展開/收起功能
+- 標示晉級區
 
-## ✅ 功能檢查清單
+- `src/pages/CategoryDetail.module.scss`
+- 添加積分榜表格樣式
+- 添加晉級區樣式
+- 添加比賽詳情樣式
+- 添加查看按鈕樣式
+
+## 功能檢查清單
 
 ### 積分榜顯示
+
 - [x] 默認顯示積分榜（不是比賽列表）
 - [x] 顯示 PTS（積分）
 - [x] 顯示 W（勝）
@@ -194,6 +208,7 @@ index < groupConfig.advancePerGroup ? styles.qualified : ""
 - [x] 淨勝分顏色標示
 
 ### 比賽詳情
+
 - [x] 點擊「查看比賽」展開
 - [x] 顯示所有比賽
 - [x] 顯示日期時間
@@ -203,6 +218,7 @@ index < groupConfig.advancePerGroup ? styles.qualified : ""
 - [x] 點擊「收起」隱藏
 
 ### 計算邏輯
+
 - [x] 勝利得 3 分
 - [x] 平手得 1 分
 - [x] 失敗得 0 分
@@ -214,16 +230,16 @@ index < groupConfig.advancePerGroup ? styles.qualified : ""
 **小組積分榜已完全按照競品標準實現！**
 
 現在小組 Tab 會顯示：
-- ✅ 標準的積分榜（PTS, W, L, PD）
-- ✅ 晉級區綠色標示
-- ✅ 點擊查看比賽詳情
-- ✅ 符合國際標準UI
+
+- 標準的積分榜（PTS, W, L, PD）
+- 晉級區綠色標示
+- 點擊查看比賽詳情
+- 符合國際標準 UI
 
 **與競品一致的專業小組賽顯示！** 🏆
 
 ---
 
-**實施日期**: 2024年12月21日  
+**實施日期**: 2024 年 12 月 21 日  
 **參考**: 競品截圖 IMG_9638  
-**狀態**: ✅ 已完成
-
+**狀態**: 已完成

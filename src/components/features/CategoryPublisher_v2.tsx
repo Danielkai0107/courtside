@@ -31,15 +31,19 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [recommendedFormats, setRecommendedFormats] = useState<FormatTemplate[]>([]);
-  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(null);
+  const [recommendedFormats, setRecommendedFormats] = useState<
+    FormatTemplate[]
+  >([]);
+  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(
+    null
+  );
 
   useEffect(() => {
     const loadRecommendations = async () => {
       try {
         const formats = await getFormatsByParticipantCount(participants.length);
         setRecommendedFormats(formats);
-        
+
         // 自動選擇第一個推薦模板
         if (formats.length > 0) {
           setSelectedFormat(formats[0]);
@@ -193,10 +197,10 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 
         await Promise.all(notificationPromises);
         console.log(
-          `✅ [CategoryPublisher] 成功發送 ${notificationPromises.length} 個通知`
+          ` [CategoryPublisher] 成功發送 ${notificationPromises.length} 個通知`
         );
       } catch (error) {
-        console.error("❌ [CategoryPublisher] 發送通知失敗:", error);
+        console.error("[CategoryPublisher] 發送通知失敗:", error);
       }
 
       onPublishSuccess();
@@ -225,9 +229,11 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
       {/* 模板推薦 */}
       {recommendedFormats.length > 0 ? (
         <Card className={styles.formatSelectionCard}>
-          <h4 className={styles.subtitle}>📋 選擇賽制模板</h4>
+          <h4 className={styles.subtitle}>選擇賽制</h4>
           <p className={styles.infoText}>
-            根據報名人數（{participants.length} {category.matchType === "singles" ? "人" : "組"}），為您推薦以下賽制：
+            根據報名人數（{participants.length}{" "}
+            {category.matchType === "singles" ? "人" : "組"}
+            ），為您推薦以下賽制：
           </p>
 
           <div className={styles.formatOptions}>
@@ -259,7 +265,11 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
                 <div className={styles.formatStats}>
                   <span>
                     預估場次：
-                    {calculateFormatTotalMatches(format, participants.length)} 場
+                    {calculateFormatTotalMatches(
+                      format,
+                      participants.length
+                    )}{" "}
+                    場
                   </span>
                 </div>
               </div>
@@ -292,4 +302,3 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 };
 
 export default CategoryPublisher;
-

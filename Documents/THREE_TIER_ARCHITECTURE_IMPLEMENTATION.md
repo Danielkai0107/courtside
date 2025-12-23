@@ -23,7 +23,7 @@ Tournament (賽事/錦標賽)
 
 ## 已完成的實施項目
 
-### 1. 數據結構重構 ✅
+### 1. 數據結構重構
 
 **文件**: `src/types/index.ts`
 
@@ -38,7 +38,7 @@ Tournament (賽事/錦標賽)
 - `Tournament`: 簡化為容器角色，移除 format、config、maxPlayers
 - `Match`: 新增 categoryId、stage、groupLabel、roundLabel
 
-### 2. Category Service ✅
+### 2. Category Service
 
 **文件**: `src/services/categoryService.ts`
 
@@ -53,7 +53,7 @@ Tournament (賽事/錦標賽)
 - `isCategoryFull()`: 檢查是否已滿額
 - `subscribeCategories()`: 即時監聽分類變化
 
-### 3. 智能分組推薦算法 ✅
+### 3. 智能分組推薦算法
 
 **文件**: `src/services/groupingService.ts`
 
@@ -83,7 +83,7 @@ Tournament (賽事/錦標賽)
 ];
 ```
 
-### 4. Team Service（雙打隊伍管理）✅
+### 4. Team Service（雙打隊伍管理）
 
 **文件**: `src/services/teamService.ts`
 
@@ -97,7 +97,7 @@ Tournament (賽事/錦標賽)
 - `isUserInTeam()`: 檢查用戶是否已在隊伍中
 - `getUserTeam()`: 獲取用戶所在的隊伍
 
-### 5. 小組賽和混合賽制生成器 ✅
+### 5. 小組賽和混合賽制生成器
 
 **文件**: `src/services/bracketService.ts`
 
@@ -114,7 +114,7 @@ Tournament (賽事/錦標賽)
 - TBC 機制（Match 初始 player1Id: null，顯示為「Group A #1」）
 - 自動輪次標籤（QF, SF, FI, 3RD）
 
-### 6. 創建賽事流程改造 ✅
+### 6. 創建賽事流程改造
 
 **文件**:
 
@@ -128,7 +128,7 @@ Tournament (賽事/錦標賽)
 - 每個設定：名稱、單打/雙打、名額、賽制、分組配置
 - 創建賽事時自動創建所有 Category
 
-### 7. 報名表單重構 ✅
+### 7. 報名表單重構
 
 **文件**: `src/components/features/RegistrationForm.tsx`
 
@@ -141,7 +141,7 @@ Tournament (賽事/錦標賽)
   - 手動輸入隊友姓名（影子帳號）
   - 顯示找到的用戶資訊
 
-### 8. UI 適配層 ✅
+### 8. UI 適配層
 
 **EventDetail** (`src/pages/EventDetail.tsx`):
 
@@ -156,7 +156,7 @@ Tournament (賽事/錦標賽)
 - 雙打顯示隊伍（兩個頭像重疊）
 - 過濾該分類的比賽
 
-### 9. 主辦方控制台組件 ✅
+### 9. 主辦方控制台組件
 
 **文件**: `src/components/features/CategoryPublisher.tsx`
 
@@ -297,11 +297,11 @@ tournaments/{tournamentId}
 ## 總結
 
 成功實施三層賽事架構重構，系統現在支援：
-✅ 單打/雙打分類
-✅ 小組賽+淘汰賽混合賽制
-✅ 智能分組推薦
-✅ 雙打隊友配對
-✅ Category 獨立管理
-✅ 完整的 UI 適配
+單打/雙打分類
+小組賽+淘汰賽混合賽制
+智能分組推薦
+雙打隊友配對
+Category 獨立管理
+完整的 UI 適配
 
 系統具備**「專業賽事的骨架，但有傻瓜模式的操作」**，非常適合 MVP 策略。

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload } from "lucide-react";
 import { Timestamp } from "firebase/firestore";
+import { TextField } from "@mui/material";
 import {
   createTournament,
   updateTournament,
@@ -14,7 +15,6 @@ import { getActiveSports } from "../../services/sportService";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSportPreference } from "../../hooks/useSportPreference";
 import Button from "../../components/common/Button";
-import Input from "../../components/common/Input";
 import Loading from "../../components/common/Loading";
 import CategoryManager from "../../components/features/CategoryManager";
 import styles from "./CreateTournament.module.scss";
@@ -250,7 +250,7 @@ const CreateTournament: React.FC = () => {
           currentParticipants: 0,
         });
 
-        console.log(`✅ [CreateTournament] 分類已創建`);
+        console.log(` [CreateTournament] 分類已創建`);
       }
 
       console.log(
@@ -279,9 +279,7 @@ const CreateTournament: React.FC = () => {
           <h2 className={styles.headerTitle}>建立賽事</h2>
         </div>
         <div className={styles.content}>
-          <div className={styles.error}>
-            請先在首頁選擇您的運動項目偏好
-          </div>
+          <div className={styles.error}>請先在首頁選擇您的運動項目偏好</div>
         </div>
       </div>
     );
@@ -303,12 +301,15 @@ const CreateTournament: React.FC = () => {
           {/* Step 1: Basic Info */}
           {currentStep === 1 && (
             <div className={styles.step}>
-              <Input
+              <TextField
                 label="賽事名稱"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="例如：2024 秋季羽球大賽"
                 required
+                fullWidth
+                variant="outlined"
+                size="medium"
               />
 
               <div className={styles.formGroup}>
@@ -349,28 +350,39 @@ const CreateTournament: React.FC = () => {
           {/* Step 2: Time & Location */}
           {currentStep === 2 && (
             <div className={styles.step}>
-              <Input
+              <TextField
                 label="比賽日期"
                 type="datetime-local"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
+                fullWidth
+                variant="outlined"
+                size="medium"
+                InputLabelProps={{ shrink: true }}
               />
 
-              <Input
+              <TextField
                 label="報名截止日期"
                 type="datetime-local"
                 value={registrationDeadline}
                 onChange={(e) => setRegistrationDeadline(e.target.value)}
                 required
+                fullWidth
+                variant="outlined"
+                size="medium"
+                InputLabelProps={{ shrink: true }}
               />
 
-              <Input
+              <TextField
                 label="比賽地點"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="例如：台北市立體育館"
                 required
+                fullWidth
+                variant="outlined"
+                size="medium"
               />
             </div>
           )}
@@ -394,16 +406,17 @@ const CreateTournament: React.FC = () => {
           {/* Step 4: Description */}
           {currentStep === 4 && (
             <div className={styles.step}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>賽事說明（選填）</label>
-                <textarea
-                  className={styles.textarea}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="詳細說明賽事規則、獎品、注意事項等..."
-                  rows={8}
-                />
-              </div>
+              <TextField
+                label="賽事說明（選填）"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="詳細說明賽事規則、獎品、注意事項等..."
+                multiline
+                rows={8}
+                fullWidth
+                variant="outlined"
+                size="medium"
+              />
             </div>
           )}
         </div>

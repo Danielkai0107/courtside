@@ -3,11 +3,12 @@
 ## 功能說明
 
 已為所有 Tabs 組件添加左右滑動切換功能：
-- ✅ 向左滑動：切換到下一個 tab
-- ✅ 向右滑動：切換到上一個 tab
-- ✅ 自動判斷滑動方向（橫向/縱向）
-- ✅ 嵌套 tabs 支持（內層優先響應）
-- ✅ 向後兼容（預設不啟用滑動）
+
+- 向左滑動：切換到下一個 tab
+- 向右滑動：切換到上一個 tab
+- 自動判斷滑動方向（橫向/縱向）
+- 嵌套 tabs 支持（內層優先響應）
+- 向後兼容（預設不啟用滑動）
 
 ## 基本使用
 
@@ -18,7 +19,7 @@ import Tabs from "../../components/common/Tabs";
 
 function MyComponent() {
   const [activeTab, setActiveTab] = useState("tab1");
-  
+
   const tabs = [
     { id: "tab1", label: "選項 1" },
     { id: "tab2", label: "選項 2" },
@@ -30,7 +31,7 @@ function MyComponent() {
       tabs={tabs}
       activeTab={activeTab}
       onChange={setActiveTab}
-      enableSwipe={true}  // 啟用滑動切換
+      enableSwipe={true} // 啟用滑動切換
       swipeThreshold={50} // 滑動距離閾值（可選，預設 50px）
     >
       {/* Tab 內容區域 */}
@@ -51,7 +52,7 @@ import SwipeableTabs from "../../components/common/SwipeableTabs";
 
 function MyComponent() {
   const [activeTab, setActiveTab] = useState("tab1");
-  
+
   const tabs = [
     { id: "tab1", label: "選項 1" },
     { id: "tab2", label: "選項 2" },
@@ -83,7 +84,7 @@ import Tabs from "../../components/common/Tabs";
 
 function MyComponent() {
   const [activeTab, setActiveTab] = useState("tab1");
-  
+
   const tabs = [
     { id: "tab1", label: "選項 1" },
     { id: "tab2", label: "選項 2" },
@@ -100,11 +101,12 @@ function MyComponent() {
   return (
     <div>
       <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-      
-      <div 
+
+      <div
         {...swipeHandlers}
         style={{
-          touchAction: swipeState.swipeDirection === "horizontal" ? "none" : "auto",
+          touchAction:
+            swipeState.swipeDirection === "horizontal" ? "none" : "auto",
         }}
       >
         {activeTab === "tab1" && <div>內容 1</div>}
@@ -124,7 +126,7 @@ function MyComponent() {
 function TournamentDashboard() {
   // 外層 tabs（主要 tabs）
   const [outerTab, setOuterTab] = useState("players");
-  
+
   // 內層 tabs（分類 tabs）
   const [innerTab, setInnerTab] = useState("category1");
 
@@ -158,7 +160,7 @@ function TournamentDashboard() {
                 activeTab={innerTab}
                 onChange={setInnerTab}
                 enableSwipe={true}
-                nested={true}  // 👈 重要！內層優先響應
+                nested={true} // 👈 重要！內層優先響應
               >
                 <div>
                   {innerTab === "category1" && <div>男子單打內容</div>}
@@ -193,17 +195,15 @@ const TournamentDashboard: React.FC = () => {
 
   return (
     <div className={styles.dashboard}>
-      <div className={styles.header}>
-        {/* ... header content ... */}
-      </div>
+      <div className={styles.header}>{/* ... header content ... */}</div>
 
       <div className={styles.content}>
         {/* 啟用滑動切換 */}
-        <Tabs 
-          tabs={tabs} 
-          activeTab={activeTab} 
+        <Tabs
+          tabs={tabs}
+          activeTab={activeTab}
           onChange={setActiveTab}
-          enableSwipe={true}  // 👈 加入這一行
+          enableSwipe={true} // 👈 加入這一行
           swipeThreshold={60} // 可選：調整滑動靈敏度
         >
           <div className={styles.tabContent}>
@@ -222,11 +222,11 @@ const TournamentDashboard: React.FC = () => {
 
 ## 參數說明
 
-| 參數 | 類型 | 預設值 | 說明 |
-|------|------|--------|------|
-| `enableSwipe` | boolean | `false` | 是否啟用滑動切換 |
-| `swipeThreshold` | number | `50` | 滑動距離閾值（px），超過此距離才會觸發切換 |
-| `nested` | boolean | `false` | 是否為嵌套的內層 tabs，設為 true 時優先響應滑動 |
+| 參數             | 類型    | 預設值  | 說明                                            |
+| ---------------- | ------- | ------- | ----------------------------------------------- |
+| `enableSwipe`    | boolean | `false` | 是否啟用滑動切換                                |
+| `swipeThreshold` | number  | `50`    | 滑動距離閾值（px），超過此距離才會觸發切換      |
+| `nested`         | boolean | `false` | 是否為嵌套的內層 tabs，設為 true 時優先響應滑動 |
 
 ## 注意事項
 
@@ -239,15 +239,18 @@ const TournamentDashboard: React.FC = () => {
 ## 故障排除
 
 ### 問題：滑動無反應
+
 - 確認已設置 `enableSwipe={true}`
 - 確認 tab 內容已包裹在 `<Tabs>` 子元素中
 - 檢查是否有其他元素阻擋了觸控事件
 
 ### 問題：嵌套 tabs 滑動衝突
+
 - 確認內層 tabs 設置了 `nested={true}`
 - 確認內外層 tabs 都正確包裹了內容區域
 
 ### 問題：頁面整體也會跟著滑動
+
 - 確認 `touchAction` 樣式正確應用
 - 檢查是否有父元素覆蓋了 touch-action 屬性
 
@@ -266,4 +269,3 @@ const TournamentDashboard: React.FC = () => {
   }
 }
 ```
-

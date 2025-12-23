@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Mail, User } from "lucide-react";
+import { TextField } from "@mui/material";
 import Button from "../common/Button";
 import Card from "../common/Card";
 import Modal from "../common/Modal";
-import Input from "../common/Input";
 import styles from "./CategoryStaffManager.module.scss";
 import type { Category } from "../../types";
 import {
@@ -223,13 +223,16 @@ const CategoryStaffManager: React.FC<CategoryStaffManagerProps> = ({
       >
         <div className={styles.modalContent}>
           <div className={styles.searchSection}>
-            <Input
+            <TextField
               label="Email"
               type="email"
               value={staffEmail}
               onChange={(e) => setStaffEmail(e.target.value)}
               placeholder="紀錄員的 Email"
               required
+              fullWidth
+              variant="outlined"
+              size="medium"
             />
             <Button
               variant="secondary"
@@ -248,12 +251,15 @@ const CategoryStaffManager: React.FC<CategoryStaffManagerProps> = ({
             </div>
           )}
 
-          <Input
+          <TextField
             label="姓名"
             value={staffName}
             onChange={(e) => setStaffName(e.target.value)}
             placeholder="請輸入姓名"
             required
+            fullWidth
+            variant="outlined"
+            size="medium"
           />
 
           <p className={styles.hint}>

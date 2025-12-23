@@ -1,24 +1,24 @@
 # 📬 通知系統測試指南
 
-## ✅ 實施完成項目
+## 實施完成項目
 
 通知系統已完全實施，包括：
 
-- ✅ 通知資料模型與類型定義
-- ✅ 完整的通知服務層（CRUD + 即時監聽）
-- ✅ 三個服務層的通知整合（報名、工作人員、賽程）
-- ✅ NotificationCard 組件
-- ✅ Notifications 頁面
-- ✅ 底部導航整合（含未讀徽章）
-- ✅ Firestore 索引配置
-- ✅ Firestore 安全規則
-- ✅ 路由配置
+- 通知資料模型與類型定義
+- 完整的通知服務層（CRUD + 即時監聽）
+- 三個服務層的通知整合（報名、工作人員、賽程）
+- NotificationCard 組件
+- Notifications 頁面
+- 底部導航整合（含未讀徽章）
+- Firestore 索引配置
+- Firestore 安全規則
+- 路由配置
 
 ## 🎯 通知類型測試清單（14 種）
 
 ### 🏃 運動員角色通知（6 種）
 
-#### 1. ✅ 報名錄取（REGISTRATION_APPROVED）
+#### 1. 報名錄取（REGISTRATION_APPROVED）
 
 **觸發方式**：
 
@@ -33,7 +33,7 @@
 - 通知包含「查看賽事」快速操作按鈕
 - 圖示：綠色勾號 (CheckCircle)
 
-#### 2. ✅ 報名被拒（REGISTRATION_REJECTED）
+#### 2. 報名被拒（REGISTRATION_REJECTED）
 
 **觸發方式**：
 
@@ -48,7 +48,7 @@
 - 無快速操作按鈕
 - 圖示：紅色叉號 (XCircle)
 
-#### 3. ✅ 賽程發布（SCHEDULE_PUBLISHED）
+#### 3. 賽程發布（SCHEDULE_PUBLISHED）
 
 **觸發方式**：
 
@@ -82,7 +82,7 @@
 
 ### 🏆 主辦方角色通知（4 種）
 
-#### 7. ✅ 新報名申請（NEW_REGISTRATION）
+#### 7. 新報名申請（NEW_REGISTRATION）
 
 **觸發方式**：
 
@@ -95,7 +95,7 @@
 - 通知包含「前往審核」快速操作按鈕
 - 圖示：藍色新增用戶 (UserPlus)
 
-#### 8. ✅ 工作人員接受邀請（STAFF_ACCEPTED）
+#### 8. 工作人員接受邀請（STAFF_ACCEPTED）
 
 **觸發方式**：
 
@@ -111,7 +111,7 @@
 - 通知包含「查看工作人員」快速操作按鈕
 - 圖示：綠色勾號 (CheckCircle)
 
-#### 9. ✅ 工作人員拒絕邀請（STAFF_DECLINED）
+#### 9. 工作人員拒絕邀請（STAFF_DECLINED）
 
 **觸發方式**：
 
@@ -136,7 +136,7 @@
 
 ### 📝 紀錄員角色通知（4 種）
 
-#### 11. ✅ 收到工作邀請（STAFF_INVITATION）
+#### 11. 收到工作邀請（STAFF_INVITATION）
 
 **觸發方式**：
 
@@ -259,15 +259,15 @@
 
 ## 📊 實施優先級總結
 
-### ✅ P0 - 已完成（7 種核心通知）
+### P0 - 已完成（7 種核心通知）
 
-1. ✅ 報名錄取 (REGISTRATION_APPROVED)
-2. ✅ 報名被拒 (REGISTRATION_REJECTED)
-3. ✅ 賽程發布 (SCHEDULE_PUBLISHED)
-4. ✅ 新報名申請 (NEW_REGISTRATION)
-5. ✅ 工作人員接受邀請 (STAFF_ACCEPTED)
-6. ✅ 工作人員拒絕邀請 (STAFF_DECLINED)
-7. ✅ 收到工作邀請 (STAFF_INVITATION)
+1.  報名錄取 (REGISTRATION_APPROVED)
+2.  報名被拒 (REGISTRATION_REJECTED)
+3.  賽程發布 (SCHEDULE_PUBLISHED)
+4.  新報名申請 (NEW_REGISTRATION)
+5.  工作人員接受邀請 (STAFF_ACCEPTED)
+6.  工作人員拒絕邀請 (STAFF_DECLINED)
+7.  收到工作邀請 (STAFF_INVITATION)
 
 ### ⏸️ P1/P2 - 待實施（7 種進階通知）
 
@@ -303,7 +303,7 @@
 
 ---
 
-## 💡 後續增強建議
+## 後續增強建議
 
 ### 短期優化
 

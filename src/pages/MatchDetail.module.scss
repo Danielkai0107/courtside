@@ -17,6 +17,8 @@
   display: flex;
   align-items: center;
   gap: $spacing-md;
+  border-bottom: 1px solid $border-color;
+  height: 50px;
 }
 
 .backButton {

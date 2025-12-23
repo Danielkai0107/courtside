@@ -12,6 +12,45 @@
   flex-direction: column;
   gap: $spacing-lg;
   padding-bottom: 12px;
+
+  // Material UI 樣式覆蓋
+  :global {
+    .MuiTextField-root,
+    .MuiFormControl-root {
+      margin-bottom: 0;
+    }
+
+    .MuiOutlinedInput-root {
+      border-radius: 8px;
+      background-color: white;
+
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-color);
+      }
+
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-color);
+        border-width: 2px;
+      }
+    }
+
+    .MuiInputLabel-root {
+      color: var(--text-secondary);
+
+      &.Mui-focused {
+        color: var(--primary-color);
+      }
+    }
+
+    .MuiOutlinedInput-input {
+      color: var(--text-primary);
+      font-size: 16px; /* 防止移動設備自動放大 */
+    }
+
+    .MuiSelect-select {
+      font-size: 16px; /* 防止移動設備自動放大 */
+    }
+  }
 }
 
 .title {

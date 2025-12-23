@@ -53,14 +53,10 @@ const BottomNav: React.FC = () => {
   // 統一的導覽列項目
   const navItems = [
     { name: "首頁", path: "/", icon: "home" },
-    { name: "我的賽事", path: "/my-games", icon: "editor_choice" },
-    {
-      name: "通知",
-      path: "/notifications",
-      icon: "notifications",
-      badge: unreadCount,
-    },
-    { name: "個人", path: "/profile", icon: "person" },
+    { name: "我的比賽", path: "/my-games", icon: "sports_tennis" },
+    { name: "我的主辦", path: "/my-organizer", icon: "emoji_events" },
+    { name: "計分任務", path: "/my-scorer", icon: "scoreboard" },
+    { name: "個人", path: "/profile", icon: "person", badge: unreadCount },
   ];
 
   return (

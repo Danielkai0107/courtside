@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Users, AlertTriangle } from "lucide-react";
+import { Calendar, Users, AlertTriangle, CheckCheck } from "lucide-react";
 import Button from "../common/Button";
 import Card from "../common/Card";
 import Tabs from "../common/Tabs";
@@ -42,8 +42,12 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
   const [showSeedingModal, setShowSeedingModal] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [scheduleStats, setScheduleStats] = useState<any>(null);
-  const [recommendedFormats, setRecommendedFormats] = useState<FormatTemplate[]>([]);
-  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(null);
+  const [recommendedFormats, setRecommendedFormats] = useState<
+    FormatTemplate[]
+  >([]);
+  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(
+    null
+  );
   const [adjustedParticipants, setAdjustedParticipants] = useState<any[]>([]);
 
   useEffect(() => {
@@ -93,16 +97,18 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
 
         // Load recommended formats
         if (participantsList.length >= 2) {
-          const formats = await getFormatsByParticipantCount(participantsList.length);
+          const formats = await getFormatsByParticipantCount(
+            participantsList.length
+          );
           setRecommendedFormats(formats);
-          
+
           // 優先使用分類已設定的模板，沒有才用推薦的第一個
           if (category.selectedFormatId) {
             const { getFormat } = await import("../../services/formatService");
             try {
               const existingFormat = await getFormat(category.selectedFormatId);
               if (existingFormat) {
-                console.log("✅ 載入分類已設定的模板:", existingFormat.name);
+                console.log(" 載入分類已設定的模板:", existingFormat.name);
                 setSelectedFormat(existingFormat);
               } else if (formats.length > 0) {
                 setSelectedFormat(formats[0]);
@@ -131,7 +137,10 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
 
         // Load schedule stats
         if (categoryMatches.length > 0) {
-          const stats = await getCategoryScheduleStats(tournamentId, activeCategory);
+          const stats = await getCategoryScheduleStats(
+            tournamentId,
+            activeCategory
+          );
           setScheduleStats(stats);
         }
       } catch (error) {
@@ -202,17 +211,22 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
 
   const handleOpenSeedingAdjustment = () => {
     // 檢查是否有已開始的比賽
-    if (scheduleStats && (scheduleStats.inProgress > 0 || scheduleStats.completed > 0)) {
+    if (
+      scheduleStats &&
+      (scheduleStats.inProgress > 0 || scheduleStats.completed > 0)
+    ) {
       setShowWarningModal(true);
     } else {
       setShowSeedingModal(true);
     }
   };
 
-  const handleSaveSeedingAdjustment = (reorderedParticipants: Array<{ id: string; name: string }>) => {
+  const handleSaveSeedingAdjustment = (
+    reorderedParticipants: Array<{ id: string; name: string }>
+  ) => {
     setAdjustedParticipants(reorderedParticipants);
     setShowSeedingModal(false);
-    console.log("✅ 已儲存種子位調整，準備重新生成賽程");
+    console.log(" 已儲存種子位調整，準備重新生成賽程");
   };
 
   const handleRegenerateSchedule = async () => {
@@ -227,14 +241,14 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
     }
 
     const confirmed = window.confirm(
-      `⚠️ 確定要重新生成賽程嗎？\n\n` +
+      `確定要重新生成賽程嗎？\n\n` +
         `這將執行以下操作：\n` +
         `1. 刪除所有未開始的比賽（${scheduleStats?.scheduled || 0} 場）\n` +
         `2. 使用調整後的種子位重新生成對戰\n` +
         `3. 已開始或已完成的比賽不受影響\n\n` +
         `此操作無法撤銷，請確認！`
     );
-    
+
     if (!confirmed) return;
 
     setRegenerating(true);
@@ -249,14 +263,16 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
 
       // 保存選擇的模板ID到分類
       if (selectedFormat) {
-        const { updateCategory } = await import("../../services/categoryService");
+        const { updateCategory } = await import(
+          "../../services/categoryService"
+        );
         await updateCategory(tournamentId, activeCategory, {
           selectedFormatId: selectedFormat.id,
         });
-        console.log(`✅ 已保存模板選擇: ${selectedFormat.name}`);
+        console.log(` 已保存模板選擇: ${selectedFormat.name}`);
       }
 
-      alert("✅ 賽程重新生成成功！");
+      alert(" 賽程重新生成成功！");
 
       // Reload data
       const allMatches = await getMatchesByTournament(tournamentId);
@@ -265,10 +281,16 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
       );
       setMatches(categoryMatches);
 
-      const stats = await getCategoryScheduleStats(tournamentId, activeCategory);
+      const stats = await getCategoryScheduleStats(
+        tournamentId,
+        activeCategory
+      );
       setScheduleStats(stats);
+
+      // 關閉確認彈窗
+      setAdjustedParticipants(participants);
     } catch (err: any) {
-      alert(`❌ 重新生成失敗：\n${err.message}`);
+      alert(`重新生成失敗：\n${err.message}`);
     } finally {
       setRegenerating(false);
     }
@@ -322,45 +344,48 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
           // Already published - show status and reassign option
           <Card className={styles.publishedCard}>
             <div className={styles.publishedHeader}>
-              <div className={styles.publishedIcon}>✓</div>
               <div className={styles.publishedText}>
-                <h3>賽程已發布</h3>
+                <div className={styles.publishedTitle}>
+                  <CheckCheck size={32} color="#72b664" />
+                  <h3>賽程已發布</h3>
+                </div>
                 <p>此分類的賽程已經生成並發布給選手</p>
               </div>
-            </div>
-
-            <div className={styles.publishedStats}>
-              <div className={styles.statItem}>
-                <Calendar size={20} />
-                <span>{matches.length} 場比賽</span>
-              </div>
-              <div className={styles.statItem}>
-                <Users size={20} />
-                <span>
-                  {participants.length}{" "}
-                  {currentCategoryData?.matchType === "singles"
-                    ? "位選手"
-                    : "支隊伍"}
-                </span>
+              <div className={styles.publishedStats}>
+                <div className={styles.statItem}>
+                  <Calendar size={20} />
+                  <span>{matches.length} 場比賽</span>
+                </div>
+                <div className={styles.statItem}>
+                  <Users size={20} />
+                  <span>
+                    {participants.length}{" "}
+                    {currentCategoryData?.matchType === "singles"
+                      ? "位選手"
+                      : "支隊伍"}
+                  </span>
+                </div>
               </div>
             </div>
 
             <div className={styles.publishedActions}>
-              <Button
-                variant="secondary"
-                onClick={handleReassignCourts}
-                loading={reassigning}
-                disabled={courts.length === 0}
-              >
-                重新分配場地
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleOpenSeedingAdjustment}
-                disabled={!selectedFormat || participants.length < 2}
-              >
-                ⚙️ 調整配對並重新生成
-              </Button>
+              <div className={styles.publishedActionsLeft}>
+                <Button
+                  variant="secondary"
+                  onClick={handleReassignCourts}
+                  loading={reassigning}
+                  disabled={courts.length === 0}
+                >
+                  重新分配場地
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleOpenSeedingAdjustment}
+                  disabled={!selectedFormat || participants.length < 2}
+                >
+                  調整選手配對
+                </Button>
+              </div>
               <Button
                 variant="primary"
                 onClick={() => {
@@ -416,15 +441,15 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
       <Modal
         isOpen={showWarningModal}
         onClose={() => setShowWarningModal(false)}
-        title="⚠️ 無法重新生成賽程"
+        title="無法重新生成賽程"
         size="md"
       >
         <div className={styles.warningModalContent}>
-          <div className={styles.warningIcon}>
-            <AlertTriangle size={48} color="#ff6b00" />
-          </div>
           <p className={styles.warningMessage}>
-            此分類有比賽已經開始或已完成，無法重新生成賽程。
+            <AlertTriangle size={32} color="#ff6b00" />
+            此分類有比賽已經開始或已完成
+            <br />
+            無法重新生成賽程。
           </p>
           <div className={styles.warningStats}>
             <div className={styles.statRow}>
@@ -441,14 +466,20 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
             </div>
           </div>
           <div className={styles.warningHint}>
-            <p>💡 <strong>建議：</strong></p>
+            <p>
+              <strong>建議：</strong>
+            </p>
             <ul>
               <li>使用「重新分配場地」功能調整未開始的比賽場地</li>
               <li>等待所有比賽完成後再重新生成賽程</li>
             </ul>
           </div>
           <div className={styles.warningActions}>
-            <Button variant="primary" onClick={() => setShowWarningModal(false)} fullWidth>
+            <Button
+              variant="primary"
+              onClick={() => setShowWarningModal(false)}
+              fullWidth
+            >
               我知道了
             </Button>
           </div>
@@ -456,45 +487,49 @@ const CategoryScheduleManager: React.FC<CategoryScheduleManagerProps> = ({
       </Modal>
 
       {/* 確認重新生成彈窗 */}
-      {adjustedParticipants.length > 0 && 
-       adjustedParticipants !== participants && 
-       !showSeedingModal && (
-        <Modal
-          isOpen={true}
-          onClose={() => setAdjustedParticipants(participants)}
-          title="確認重新生成賽程"
-          size="md"
-        >
-          <div className={styles.confirmModalContent}>
-            <p>您已調整種子位，是否要立即重新生成賽程？</p>
-            <div className={styles.confirmStats}>
-              <div className={styles.statRow}>
-                <span>將刪除未開始的比賽：</span>
-                <strong>{scheduleStats?.scheduled || 0} 場</strong>
+      {adjustedParticipants.length > 0 &&
+        adjustedParticipants !== participants &&
+        !showSeedingModal && (
+          <Modal
+            isOpen={true}
+            onClose={() => setAdjustedParticipants(participants)}
+            title="確認重新生成賽程"
+            size="md"
+          >
+            <div className={styles.confirmModalContent}>
+              <p>您已調整種子位，是否要立即重新生成賽程？</p>
+              <div className={styles.confirmStats}>
+                <div className={styles.statRow}>
+                  <span>將刪除未開始的比賽：</span>
+                  <strong>{scheduleStats?.scheduled || 0} 場</strong>
+                </div>
+                <div className={styles.statRow}>
+                  <span>將保留已開始/完成的比賽：</span>
+                  <strong>
+                    {(scheduleStats?.inProgress || 0) +
+                      (scheduleStats?.completed || 0)}{" "}
+                    場
+                  </strong>
+                </div>
               </div>
-              <div className={styles.statRow}>
-                <span>將保留已開始/完成的比賽：</span>
-                <strong>{(scheduleStats?.inProgress || 0) + (scheduleStats?.completed || 0)} 場</strong>
+              <div className={styles.confirmActions}>
+                <Button
+                  variant="outline"
+                  onClick={() => setAdjustedParticipants(participants)}
+                >
+                  取消
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleRegenerateSchedule}
+                  loading={regenerating}
+                >
+                  確認重新生成
+                </Button>
               </div>
             </div>
-            <div className={styles.confirmActions}>
-              <Button 
-                variant="text" 
-                onClick={() => setAdjustedParticipants(participants)}
-              >
-                取消
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleRegenerateSchedule}
-                loading={regenerating}
-              >
-                確認重新生成
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        )}
     </div>
   );
 };

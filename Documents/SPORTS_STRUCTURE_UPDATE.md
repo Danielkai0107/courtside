@@ -13,7 +13,7 @@
 {
   id: string;                    // 文檔 ID（如 "badminton"）
   name: string;                  // 運動名稱（如 "羽毛球"）
-  icon: string;                  // 圖示 emoji（如 "🏸"）
+  icon: string;                  // 圖示 emoji（如 ""）
   isActive: boolean;             // 是否啟用
   order: number;                 // 排序
   defaultPresetId: string;       // 預設規則 ID（如 "bwf_standard"）
@@ -58,7 +58,7 @@
 
 #### 羽毛球 (Badminton)
 - **ID**: `badminton`
-- **圖示**: 🏸
+- **圖示**: 
 - **規則預設**:
   1. BWF 標準賽制（每局21分，3局2勝，30分封頂）
   2. 單局30分制（快速比賽）

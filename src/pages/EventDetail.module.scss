@@ -3,7 +3,9 @@
 
 .eventDetail {
   @include page-container;
-  padding-top: 62px;
+  padding-top: 50px;
+  overflow: hidden;
+  position: relative;
 }
 
 .header {
@@ -29,14 +31,15 @@
 
 .banner {
   width: 100%;
-  aspect-ratio: 3;
+  aspect-ratio: 4;
   overflow: hidden;
   background: $border-color;
+  position: sticky;
 }
 
 .content {
   height: 100%;
-  padding: $spacing-lg 0;
+  padding: 16px 0;
   padding-bottom: 120px; // 避免被底部導航欄遮擋
 }
 
@@ -44,7 +47,6 @@
 
 .basicInfo {
   text-align: center;
-  margin-bottom: $spacing-sm;
   padding: 0 $spacing-lg;
 }
 
@@ -57,7 +59,6 @@
 .organizerIcon {
   width: 48px;
   height: 48px;
-  background: $text-primary;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -83,7 +84,6 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: $spacing-xs;
 }
 
 .title {
@@ -108,7 +108,7 @@
 }
 
 .registerButtonWrapper {
-  margin-top: $spacing-lg;
+  margin-top: 16px;
   width: 100%;
 }
 
@@ -145,6 +145,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
+  padding-bottom: 200px;
 }
 
 .infoGrid {
@@ -217,7 +218,7 @@
 .categoriesTab {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  padding-bottom: 200px;
 }
 
 .categoryCard {
@@ -272,8 +273,22 @@
   margin-left: $spacing-md;
 }
 
-.galleryTab,
+.galleryTab {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: 24px;
+  padding-bottom: 200px;
+}
+
 .resultsTab {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  padding-bottom: 200px;
+}
+
+.categoryResultSection {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
@@ -287,19 +302,9 @@
 }
 
 .resultCard {
-  margin-bottom: $spacing-md;
-}
-
-.resultHeader {
-  padding-bottom: $spacing-md;
-  border-bottom: 1px solid $border-color;
-  margin-bottom: $spacing-md;
-}
-
-.resultTitle {
-  font-size: $font-size-base;
-  font-weight: 600;
-  color: $text-primary;
+  border-radius: $radius-sm;
+  border: 1px solid $border-color;
+  background: $background-secondary;
 }
 
 .championSection {
@@ -307,7 +312,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: $spacing-md 0;
+  padding: $spacing-lg;
 }
 
 .medalIcon {
@@ -329,19 +334,48 @@
   margin-bottom: $spacing-lg;
 }
 
+.teamAvatars {
+  display: flex;
+  position: relative;
+
+  & > *:first-child {
+    position: relative;
+    z-index: 2;
+  }
+
+  & > *:last-child {
+    position: relative;
+    margin-left: -20px;
+    z-index: 1;
+  }
+}
+
+.winnerAvatar {
+  flex-shrink: 0;
+
+  span {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
 .winnerDetails {
   text-align: left;
+  flex: 1;
 }
 
 .winnerName {
-  font-size: $font-size-base;
+  font-size: 18px;
   font-weight: 600;
   color: $text-primary;
+  margin-bottom: 4px;
 }
 
 .winnerTeam {
   font-size: $font-size-sm;
   color: $text-secondary;
+  font-weight: 400;
 }
 
 .actionButtons {
@@ -434,13 +468,8 @@
   }
 }
 
-.descriptionCard {
-  h3 {
-    font-size: $font-size-base;
-    font-weight: 600;
-    color: $text-secondary;
-    margin: 0 0 $spacing-md 0;
-  }
+.descriptionContent {
+  padding: 0 $spacing-lg;
 
   p {
     font-size: $font-size-base;
@@ -449,6 +478,72 @@
     margin: 0;
     white-space: pre-wrap;
   }
+}
+
+.categoryRuleSection {
+  padding: $spacing-md 0;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.ruleDivider {
+  height: 1px;
+  background: $border-color;
+  margin: $spacing-md 0;
+}
+
+.categoryRuleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding: 0 $spacing-lg;
+}
+
+.categoryRuleTitle {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.categoryRuleType {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  background: $text-bg;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.ruleDetails {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: 0 $spacing-lg;
+}
+
+.ruleItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-xs 0;
+}
+
+.ruleLabel {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.ruleValue {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  font-weight: 500;
+  text-align: right;
 }
 
 .error {

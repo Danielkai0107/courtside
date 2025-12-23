@@ -150,6 +150,43 @@
   display: flex;
   flex-direction: column;
   gap: $font-size-base;
+
+  // Material UI TextField 樣式覆蓋
+  :global {
+    .MuiTextField-root {
+      margin-bottom: 0;
+    }
+
+    .MuiOutlinedInput-root {
+      border-radius: 8px;
+      background-color: var(--background-primary);
+
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-color);
+      }
+
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-color);
+        border-width: 2px;
+      }
+    }
+
+    .MuiInputLabel-root {
+      color: var(--text-secondary);
+
+      &.Mui-focused {
+        color: var(--primary-color);
+      }
+    }
+
+    .MuiOutlinedInput-input {
+      color: var(--text-primary);
+    }
+
+    .MuiFormControl-root {
+      width: 100%;
+    }
+  }
 }
 
 .searchSection {

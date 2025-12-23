@@ -32,10 +32,15 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [recommendedFormats, setRecommendedFormats] = useState<FormatTemplate[]>([]);
-  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(null);
+  const [recommendedFormats, setRecommendedFormats] = useState<
+    FormatTemplate[]
+  >([]);
+  const [selectedFormat, setSelectedFormat] = useState<FormatTemplate | null>(
+    null
+  );
   const [isSeedingModalOpen, setIsSeedingModalOpen] = useState(false);
-  const [adjustedParticipants, setAdjustedParticipants] = useState(participants);
+  const [adjustedParticipants, setAdjustedParticipants] =
+    useState(participants);
 
   useEffect(() => {
     setAdjustedParticipants(participants);
@@ -46,14 +51,14 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
       try {
         const formats = await getFormatsByParticipantCount(participants.length);
         setRecommendedFormats(formats);
-        
+
         // 優先使用分類已設定的模板，沒有才用推薦的第一個
         if (category.selectedFormatId) {
           const { getFormat } = await import("../../services/formatService");
           try {
             const existingFormat = await getFormat(category.selectedFormatId);
             if (existingFormat) {
-              console.log("✅ 載入分類已設定的模板:", existingFormat.name);
+              console.log(" 載入分類已設定的模板:", existingFormat.name);
               setSelectedFormat(existingFormat);
             } else if (formats.length > 0) {
               setSelectedFormat(formats[0]);
@@ -76,9 +81,11 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
     loadRecommendations();
   }, [participants.length, category.selectedFormatId]);
 
-  const handleSaveSeedingAdjustment = (reorderedParticipants: Array<{ id: string; name: string }>) => {
+  const handleSaveSeedingAdjustment = (
+    reorderedParticipants: Array<{ id: string; name: string }>
+  ) => {
     setAdjustedParticipants(reorderedParticipants);
-    console.log("✅ [CategoryPublisher] 已儲存種子位調整");
+    console.log(" [CategoryPublisher] 已儲存種子位調整");
   };
 
   const handlePublish = async () => {
@@ -153,7 +160,9 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
         const knockoutSize = knockoutStage.size || 8;
 
         // 計算每組人數
-        const teamsPerGroup = Math.floor(adjustedParticipants.length / totalGroups);
+        const teamsPerGroup = Math.floor(
+          adjustedParticipants.length / totalGroups
+        );
         const remainder = adjustedParticipants.length % totalGroups;
         const teamsPerGroupArray = Array(totalGroups)
           .fill(teamsPerGroup)
@@ -176,15 +185,22 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
       } else {
         // 純淘汰賽
         console.log("⚡ 生成純淘汰賽");
-        
+
         // 檢查是否需要自動計算規模（size: 0）
-        const knockoutStage = selectedFormat.stages.find(s => s.type === "knockout");
+        const knockoutStage = selectedFormat.stages.find(
+          (s) => s.type === "knockout"
+        );
         if (knockoutStage && knockoutStage.size === 0) {
           // 通用模板：自動計算最接近的 2^n
-          const autoSize = Math.pow(2, Math.ceil(Math.log2(adjustedParticipants.length)));
-          console.log(`📐 自動計算淘汰賽規模: ${adjustedParticipants.length}人 → ${autoSize}強`);
+          const autoSize = Math.pow(
+            2,
+            Math.ceil(Math.log2(adjustedParticipants.length))
+          );
+          console.log(
+            `📐 自動計算淘汰賽規模: ${adjustedParticipants.length}人 → ${autoSize}強`
+          );
         }
-        
+
         await generateKnockoutOnly(
           tournamentId,
           category.id,
@@ -196,11 +212,13 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 
       // 發布成功後，將選擇的模板ID保存到分類
       if (selectedFormat) {
-        const { updateCategory } = await import("../../services/categoryService");
+        const { updateCategory } = await import(
+          "../../services/categoryService"
+        );
         await updateCategory(tournamentId, category.id, {
           selectedFormatId: selectedFormat.id,
         });
-        console.log(`✅ 已保存模板選擇: ${selectedFormat.name}`);
+        console.log(` 已保存模板選擇: ${selectedFormat.name}`);
       }
 
       // 發布成功後，自動檢查並轉換賽事狀態為 ONGOING
@@ -241,10 +259,10 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 
         await Promise.all(notificationPromises);
         console.log(
-          `✅ [CategoryPublisher] 成功發送 ${notificationPromises.length} 個通知`
+          ` [CategoryPublisher] 成功發送 ${notificationPromises.length} 個通知`
         );
       } catch (error) {
-        console.error("❌ [CategoryPublisher] 發送通知失敗:", error);
+        console.error("[CategoryPublisher] 發送通知失敗:", error);
       }
 
       onPublishSuccess();
@@ -273,9 +291,11 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
       {/* 模板推薦 */}
       {recommendedFormats.length > 0 ? (
         <Card className={styles.formatSelectionCard}>
-          <h4 className={styles.subtitle}>📋 選擇賽制模板</h4>
+          <h4 className={styles.subtitle}>選擇賽制</h4>
           <p className={styles.infoText}>
-            根據報名人數（{participants.length} {category.matchType === "singles" ? "人" : "組"}），為您推薦以下賽制：
+            根據報名人數（{participants.length}{" "}
+            {category.matchType === "singles" ? "人" : "組"}
+            ），為您推薦以下賽制：
           </p>
 
           <div className={styles.formatOptions}>
@@ -307,7 +327,11 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
                 <div className={styles.formatStats}>
                   <span>
                     預估場次：
-                    {calculateFormatTotalMatches(format, participants.length)} 場
+                    {calculateFormatTotalMatches(
+                      format,
+                      participants.length
+                    )}{" "}
+                    場
                   </span>
                 </div>
               </div>
@@ -358,4 +382,3 @@ const CategoryPublisher: React.FC<CategoryPublisherProps> = ({
 };
 
 export default CategoryPublisher;
-

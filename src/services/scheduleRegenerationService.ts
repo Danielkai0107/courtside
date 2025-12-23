@@ -33,7 +33,7 @@ export async function deleteUnstartedMatchesByCategory(
   );
 
   const snapshot = await getDocs(q);
-  
+
   if (snapshot.empty) {
     return 0;
   }
@@ -45,8 +45,8 @@ export async function deleteUnstartedMatchesByCategory(
   });
 
   await batch.commit();
-  
-  console.log(`✅ 已刪除 ${snapshot.size} 場未開始的比賽`);
+
+  console.log(` 已刪除 ${snapshot.size} 場未開始的比賽`);
   return snapshot.size;
 }
 
@@ -66,7 +66,7 @@ export async function hasStartedMatches(
   );
 
   const snapshot = await getDocs(q);
-  
+
   return {
     hasStarted: !snapshot.empty,
     count: snapshot.size,
@@ -92,7 +92,7 @@ export async function regenerateSchedule(
   if (hasStarted) {
     throw new Error(
       `此分類有 ${count} 場比賽已開始或已完成，無法重新生成賽程。\n` +
-      `建議：僅重新分配場地，或完成所有比賽後再重新生成。`
+        `建議：僅重新分配場地，或完成所有比賽後再重新生成。`
     );
   }
 
@@ -145,7 +145,9 @@ export async function regenerateSchedule(
     const advancePerGroup = groupStage.advance || 2;
     const knockoutSize = knockoutStage.size || 8;
 
-    const teamsPerGroup = Math.floor(reorderedParticipants.length / totalGroups);
+    const teamsPerGroup = Math.floor(
+      reorderedParticipants.length / totalGroups
+    );
     const remainder = reorderedParticipants.length % totalGroups;
     const teamsPerGroupArray = Array(totalGroups)
       .fill(teamsPerGroup)
@@ -176,7 +178,7 @@ export async function regenerateSchedule(
     );
   }
 
-  console.log(`✅ 賽程重新生成完成`);
+  console.log(` 賽程重新生成完成`);
 }
 
 /**
@@ -199,7 +201,7 @@ export async function getCategoryScheduleStats(
   );
 
   const snapshot = await getDocs(q);
-  
+
   const stats = {
     total: snapshot.size,
     scheduled: 0,
@@ -216,4 +218,3 @@ export async function getCategoryScheduleStats(
 
   return stats;
 }
-

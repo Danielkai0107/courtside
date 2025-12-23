@@ -22,9 +22,10 @@ TournamentMatches（紀錄員視角）
 ```
 
 **問題**：
-- ❌ 沒有分類（混在一起）
-- ❌ 沒有小組賽積分榜
-- ❌ 不符合標準賽事UI
+
+- 沒有分類（混在一起）
+- 沒有小組賽積分榜
+- 不符合標準賽事 UI
 
 ### 修復後：與 CategoryDetail 一致
 
@@ -47,14 +48,16 @@ TournamentMatches（紀錄員視角）
 ```
 
 **改進**：
-- ✅ 按分類組織（與選手視角一致）
-- ✅ 小組積分榜（與選手視角一致）
-- ✅ 對陣圖分輪次（與選手視角一致）
-- ✅ 點擊比賽 → 計分頁面（紀錄員專屬）
+
+- 按分類組織（與選手視角一致）
+- 小組積分榜（與選手視角一致）
+- 對陣圖分輪次（與選手視角一致）
+- 點擊比賽 → 計分頁面（紀錄員專屬）
 
 ## 🎨 UI 效果
 
 ### Category Tabs
+
 ```
 ┌─────────────────────────────────┐
 │ [男子雙打] [女子單打]          │
@@ -63,6 +66,7 @@ TournamentMatches（紀錄員視角）
 ```
 
 ### 小組 Tab（默認顯示積分榜）
+
 ```
 ┌──────────────────────────────────┐
 │ Group A               [查看比賽 →]│
@@ -75,6 +79,7 @@ TournamentMatches（紀錄員視角）
 ```
 
 ### 點擊「查看比賽」（展開）
+
 ```
 ┌──────────────────────────────────┐
 │ Group A               [收起 →]   │
@@ -94,6 +99,7 @@ TournamentMatches（紀錄員視角）
 ```
 
 ### 對陣圖 Tab
+
 ```
 ┌──────────────────────────────────┐
 │ [QF] [SF] [FI]                   │
@@ -111,11 +117,13 @@ TournamentMatches（紀錄員視角）
 ## 🔗 導航邏輯
 
 ### 選手視角（EventDetail → CategoryDetail）
+
 ```
 點擊比賽 → 查看比賽詳情（只讀）
 ```
 
 ### 紀錄員視角（TournamentMatches）
+
 ```
 點擊比賽 → 進入計分頁面（可操作）
 navigate(`/scorer/matches/${match.id}`)
@@ -126,30 +134,30 @@ navigate(`/scorer/matches/${match.id}`)
 ### 共用的邏輯
 
 **小組積分榜計算**：
+
 ```typescript
 import { calculateGroupStandings } from "../../services/standingsService";
 
-const standings = calculateGroupStandings(
-  groupMatches,
-  groupParticipants
-);
+const standings = calculateGroupStandings(groupMatches, groupParticipants);
 ```
 
 **對陣圖 Tabs 生成**：
+
 ```typescript
 const roundLabels = Array.from(
-  new Set(knockoutMatches.map(m => m.roundLabel).filter(Boolean))
+  new Set(knockoutMatches.map((m) => m.roundLabel).filter(Boolean))
 );
 
 const labelOrder = ["R32", "R16", "QF", "SF", "3RD", "FI"];
 const tabs = labelOrder
-  .filter(label => roundLabels.includes(label))
-  .map(label => ({ id: label.toLowerCase(), label }));
+  .filter((label) => roundLabels.includes(label))
+  .map((label) => ({ id: label.toLowerCase(), label }));
 ```
 
 ### 紀錄員專屬的邏輯
 
 **點擊導航**：
+
 ```typescript
 <div
   className={styles.matchCard}
@@ -160,9 +168,10 @@ const tabs = labelOrder
 ```
 
 **即時監聽**：
+
 ```typescript
 const unsubscribe = subscribeMatchesByTournament(id, (updatedMatches) => {
-  setMatches(updatedMatches);  // 即時更新比賽狀態
+  setMatches(updatedMatches); // 即時更新比賽狀態
 });
 ```
 
@@ -200,41 +209,44 @@ const unsubscribe = subscribeMatchesByTournament(id, (updatedMatches) => {
 
 ## 📊 一致性對照
 
-| 功能 | 選手視角（CategoryDetail） | 紀錄員視角（TournamentMatches） |
-|------|---------------------------|--------------------------------|
-| Category Tabs | ✅ | ✅ |
-| Main Tabs | ✅ | ✅ |
-| 小組積分榜 | ✅ | ✅ |
-| 查看比賽按鈕 | ✅ | ✅ |
-| 對陣圖 Sub-tabs | ✅ | ✅ |
-| 比賽狀態顯示 | ✅ | ✅ |
-| 比分顯示 | ✅ | ✅ |
-| 點擊比賽 | 查看詳情 | **進入計分** ⭐ |
-| 即時更新 | - | ✅ |
+| 功能            | 選手視角（CategoryDetail） | 紀錄員視角（TournamentMatches） |
+| --------------- | -------------------------- | ------------------------------- |
+| Category Tabs   |                            |                                 |
+| Main Tabs       |                            |                                 |
+| 小組積分榜      |                            |                                 |
+| 查看比賽按鈕    |                            |                                 |
+| 對陣圖 Sub-tabs |                            |                                 |
+| 比賽狀態顯示    |                            |                                 |
+| 比分顯示        |                            |                                 |
+| 點擊比賽        | 查看詳情                   | **進入計分** ⭐                 |
+| 即時更新        | -                          |                                 |
 
 ## 📋 修改清單
 
 ### 修改文件
-- ✅ `src/pages/scorer/TournamentMatches.tsx`
-  - 導入 Categories, Tabs, Standings
-  - 添加 Category Tabs
-  - 添加 Main Tabs（小組/對陣圖/球員）
-  - 實現小組積分榜
-  - 實現對陣圖分輪次
-  - 保持點擊導航到計分頁面
 
-- ✅ `src/pages/scorer/TournamentMatches.module.scss`
-  - 添加小組賽樣式（與 CategoryDetail 一致）
-  - 添加積分榜樣式
-  - 添加對陣圖樣式
-  - 添加球員列表樣式
+- `src/pages/scorer/TournamentMatches.tsx`
+- 導入 Categories, Tabs, Standings
+- 添加 Category Tabs
+- 添加 Main Tabs（小組/對陣圖/球員）
+- 實現小組積分榜
+- 實現對陣圖分輪次
+- 保持點擊導航到計分頁面
+
+- `src/pages/scorer/TournamentMatches.module.scss`
+- 添加小組賽樣式（與 CategoryDetail 一致）
+- 添加積分榜樣式
+- 添加對陣圖樣式
+- 添加球員列表樣式
 
 ### 共用的 Service
-- ✅ `standingsService.ts` - 積分榜計算（兩個頁面共用）
 
-## ✅ 功能檢查清單
+- `standingsService.ts` - 積分榜計算（兩個頁面共用）
+
+## 功能檢查清單
 
 ### UI 一致性
+
 - [x] Category Tabs 顯示
 - [x] Main Tabs 顯示
 - [x] 小組積分榜（與選手視角一致）
@@ -242,6 +254,7 @@ const unsubscribe = subscribeMatchesByTournament(id, (updatedMatches) => {
 - [x] 樣式風格一致
 
 ### 紀錄員功能
+
 - [x] 點擊比賽進入計分
 - [x] 即時監聽比賽更新
 - [x] 顯示比賽狀態
@@ -249,6 +262,7 @@ const unsubscribe = subscribeMatchesByTournament(id, (updatedMatches) => {
 - [x] 顯示場地
 
 ### 賽制支援
+
 - [x] 純淘汰賽
 - [x] 小組賽 + 淘汰賽
 - [x] 單打
@@ -258,17 +272,16 @@ const unsubscribe = subscribeMatchesByTournament(id, (updatedMatches) => {
 
 **紀錄員視角現在與選手視角完全一致！**
 
-- ✅ 相同的 UI 結構
-- ✅ 相同的積分榜顯示
-- ✅ 相同的對陣圖組織
-- ✅ 點擊進入計分（紀錄員專屬）
-- ✅ 即時更新（紀錄員專屬）
+- 相同的 UI 結構
+- 相同的積分榜顯示
+- 相同的對陣圖組織
+- 點擊進入計分（紀錄員專屬）
+- 即時更新（紀錄員專屬）
 
 **專業、一致、易用！** 🏆
 
 ---
 
-**實施日期**: 2024年12月21日  
-**狀態**: ✅ 已完成  
+**實施日期**: 2024 年 12 月 21 日  
+**狀態**: 已完成  
 **影響**: 紀錄員體驗大幅提升
-

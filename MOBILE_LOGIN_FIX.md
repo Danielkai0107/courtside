@@ -16,7 +16,7 @@ Access blocked: courtside-25c9e.firebaseapp.com's request does not comply with G
 
 ## 解決方案
 
-### 1. 代碼修改（已完成✅）
+### 1. 代碼修改（已完成）
 
 已修改 `src/contexts/AuthContext.tsx`：
 
@@ -85,8 +85,8 @@ firebase deploy --only hosting
    - 直接在瀏覽器中輸入網址
 
 2. **避免使用應用內瀏覽器**：
-   - ❌ Facebook、Instagram、LINE 內的瀏覽器
-   - ❌ 其他社交媒體應用的內嵌瀏覽器
+   - Facebook、Instagram、LINE 內的瀏覽器
+   - 其他社交媒體應用的內嵌瀏覽器
 
 3. **測試登入流程**：
    - 點擊「使用 Google 登入」
@@ -136,9 +136,9 @@ firebase deploy --only hosting
 | 特性 | signInWithPopup | signInWithRedirect |
 |------|-----------------|-------------------|
 | 用戶體驗 | 彈窗，不離開頁面 | 全頁跳轉 |
-| 移動設備支援 | ⚠️ 可能被阻止 | ✅ 完全支援 |
-| 桌面設備支援 | ✅ 最佳體驗 | ✅ 支援但較麻煩 |
-| 需要處理重定向 | ❌ 不需要 | ✅ 需要 |
+| 移動設備支援 | 可能被阻止 |  完全支援 |
+| 桌面設備支援 |  最佳體驗 |  支援但較麻煩 |
+| 需要處理重定向 | 不需要 |  需要 |
 
 ### 設備檢測邏輯
 

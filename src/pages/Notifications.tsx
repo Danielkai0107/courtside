@@ -142,6 +142,11 @@ const Notifications: React.FC = () => {
 
   return (
     <div className={styles.notifications}>
+      {/* Header */}
+      <div className={styles.header}>
+        <h1 className={styles.headerTitle}>通知</h1>
+      </div>
+
       <Tabs
         tabs={[
           { label: "全部", value: "all" },

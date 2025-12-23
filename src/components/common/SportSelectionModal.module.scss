@@ -85,26 +85,21 @@
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
-  background: $background-secondary;
-  border: 2px solid transparent;
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
-
-  &:hover {
-    background: lighten($background-secondary, 2%);
-    transform: translateY(-2px);
-  }
+  border: 1px solid $border-color;
 
   &.selected {
-    background: rgba($primary-color, 0.1);
     border-color: $primary-color;
+    border-width: 2px;
   }
 }
 
 .icon {
   font-size: 48px;
   margin-bottom: 8px;
+  display: none;
 }
 
 .name {
@@ -128,6 +123,7 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
+  display: none;
 }
 
 .footer {
@@ -136,18 +132,4 @@
   background: white;
   padding-top: 16px;
   border-top: 1px solid $border-color;
-}
-
-@media (max-width: 768px) {
-  .sportList {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
-  .sportCard {
-    padding: 20px 12px;
-  }
-
-  .icon {
-    font-size: 40px;
-  }
 }

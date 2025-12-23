@@ -4,7 +4,7 @@
 .profile {
   @include page-container;
   overflow: auto;
-  padding-top: 62px;
+  padding-top: 50px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -12,21 +12,79 @@
 }
 
 .header {
-  @include page-header;
-  padding-right: 16px;
-  padding-left: 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #fff;
   border-bottom: 1px solid $border-color;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: $spacing-md;
+  height: 50px;
+  min-height: 50px;
+  max-height: 50px;
 }
 
 .headerTitle {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: $primary-color;
   margin: 0;
+}
+
+.notificationButton {
+  border: none;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  color: $text-primary;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .material-symbols-rounded {
+    font-size: 24px;
+  }
+}
+
+.iconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: $error-color;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .sportSelector {

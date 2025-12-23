@@ -39,28 +39,29 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: $background-secondary;
+  background: $primary-color;
   border-bottom: 1px solid $border-color;
   padding: $spacing-sm $spacing-lg;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: $spacing-xs;
   font-size: $font-size-sm;
 }
 
 .statusInfoLabel {
-  color: $text-secondary;
+  color: #fff;
   font-weight: 400;
 }
 
 .statusInfoValue {
-  color: $text-primary;
+  color: #fff;
   font-weight: 500;
 }
 
 .content {
   height: 100dvh;
-  padding-top: 62px;
+  padding-top: 50px;
   overflow: hidden;
 }
 

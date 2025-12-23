@@ -266,7 +266,7 @@ const Home: React.FC = () => {
                   '"FILL" 0, "wght" 300, "GRAD" 0, "opsz" 20',
               }}
             >
-              swap_horiz
+              arrow_drop_down
             </span>
           </button>
         )}

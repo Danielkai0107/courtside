@@ -13,14 +13,14 @@
 1. 用戶在創建/編輯賽事時選擇了「小組賽+淘汰賽」模板
 2. 分類的 `selectedFormatId` 被正確儲存
 3. 進入賽程管理或發布頁面時：
-   - ❌ 系統根據參賽者人數推薦模板
-   - ❌ 自動選擇推薦的第一個模板（可能是純淘汰賽）
-   - ❌ 覆蓋了原本設定的小組賽模板
+   - 系統根據參賽者人數推薦模板
+   - 自動選擇推薦的第一個模板（可能是純淘汰賽）
+   - 覆蓋了原本設定的小組賽模板
 4. 打開選手配對調整時：
-   - ❌ 使用了錯誤的模板（淘汰賽而非小組賽）
-   - ❌ 顯示對戰配對而不是小組分組
+   - 使用了錯誤的模板（淘汰賽而非小組賽）
+   - 顯示對戰配對而不是小組分組
 
-## ✅ 修正內容
+## 修正內容
 
 ### 核心原則
 
@@ -29,31 +29,33 @@
 ### 1. CategoryScheduleManager.tsx
 
 **Before（錯誤）：**
+
 ```typescript
 // Load recommended formats
 if (participantsList.length >= 2) {
   const formats = await getFormatsByParticipantCount(participantsList.length);
   setRecommendedFormats(formats);
   if (formats.length > 0) {
-    setSelectedFormat(formats[0]);  // ❌ 直接覆蓋
+    setSelectedFormat(formats[0]); // 直接覆蓋
   }
 }
 ```
 
 **After（修正）：**
+
 ```typescript
 // Load recommended formats
 if (participantsList.length >= 2) {
   const formats = await getFormatsByParticipantCount(participantsList.length);
   setRecommendedFormats(formats);
-  
+
   // 優先使用分類已設定的模板，沒有才用推薦的第一個
   if (category.selectedFormatId) {
     const { getFormat } = await import("../../services/formatService");
     try {
       const existingFormat = await getFormat(category.selectedFormatId);
       if (existingFormat) {
-        console.log("✅ 載入分類已設定的模板:", existingFormat.name);
+        console.log(" 載入分類已設定的模板:", existingFormat.name);
         setSelectedFormat(existingFormat);
       } else if (formats.length > 0) {
         setSelectedFormat(formats[0]);
@@ -73,16 +75,17 @@ if (participantsList.length >= 2) {
 ### 2. CategoryPublisher.tsx
 
 **Before（錯誤）：**
+
 ```typescript
 useEffect(() => {
   const loadRecommendations = async () => {
     try {
       const formats = await getFormatsByParticipantCount(participants.length);
       setRecommendedFormats(formats);
-      
+
       // 自動選擇第一個推薦模板
       if (formats.length > 0) {
-        setSelectedFormat(formats[0]);  // ❌ 直接覆蓋
+        setSelectedFormat(formats[0]); // 直接覆蓋
       }
     } catch (error) {
       console.error("Failed to load format recommendations:", error);
@@ -94,20 +97,21 @@ useEffect(() => {
 ```
 
 **After（修正）：**
+
 ```typescript
 useEffect(() => {
   const loadRecommendations = async () => {
     try {
       const formats = await getFormatsByParticipantCount(participants.length);
       setRecommendedFormats(formats);
-      
+
       // 優先使用分類已設定的模板，沒有才用推薦的第一個
       if (category.selectedFormatId) {
         const { getFormat } = await import("../../services/formatService");
         try {
           const existingFormat = await getFormat(category.selectedFormatId);
           if (existingFormat) {
-            console.log("✅ 載入分類已設定的模板:", existingFormat.name);
+            console.log(" 載入分類已設定的模板:", existingFormat.name);
             setSelectedFormat(existingFormat);
           } else if (formats.length > 0) {
             setSelectedFormat(formats[0]);
@@ -128,7 +132,7 @@ useEffect(() => {
   };
 
   loadRecommendations();
-}, [participants.length, category.selectedFormatId]);  // ✅ 添加依賴
+}, [participants.length, category.selectedFormatId]); //  添加依賴
 ```
 
 ## 📊 修正效果
@@ -160,11 +164,11 @@ PlayerSeedingModal：顯示對戰配對 ❌
            ↓
 系統：載入推薦模板 → [純淘汰賽, 循環賽, ...]
            ↓
-系統：檢查 selectedFormatId ✅
+系統：檢查 selectedFormatId
            ↓
-系統：載入已設定模板 → 小組賽+淘汰賽 ✅
+系統：載入已設定模板 → 小組賽+淘汰賽
            ↓
-PlayerSeedingModal：顯示小組分組 ✅
+PlayerSeedingModal：顯示小組分組
 ```
 
 ## 🎯 邏輯流程圖
@@ -210,17 +214,17 @@ PlayerSeedingModal：顯示小組分組 ✅
 
 ### 測試 1：已設定小組賽模板
 
-1. 創建賽事，選擇「4組取2晉級8強」模板
+1. 創建賽事，選擇「4 組取 2 晉級 8 強」模板
 2. 進入賽程管理
-3. **預期**：應該載入「4組取2晉級8強」模板
+3. **預期**：應該載入「4 組取 2 晉級 8 強」模板
 4. 打開選手配對調整
-5. **預期**：應該顯示小組分組（A組、B組、C組、D組）
+5. **預期**：應該顯示小組分組（A 組、B 組、C 組、D 組）
 
 ### 測試 2：已設定淘汰賽模板
 
-1. 創建賽事，選擇「16強淘汰賽」模板
+1. 創建賽事，選擇「16 強淘汰賽」模板
 2. 進入賽程管理
-3. **預期**：應該載入「16強淘汰賽」模板
+3. **預期**：應該載入「16 強淘汰賽」模板
 4. 打開選手配對調整
 5. **預期**：應該顯示對戰配對
 
@@ -265,9 +269,9 @@ try {
 
 ### 2. 向後兼容
 
-- ✅ 舊的分類沒有 `selectedFormatId` → 使用推薦模板
-- ✅ `selectedFormatId` 為空字串 → 使用推薦模板
-- ✅ `selectedFormatId` 指向不存在的模板 → 降級使用推薦模板
+- 舊的分類沒有 `selectedFormatId` → 使用推薦模板
+- `selectedFormatId` 為空字串 → 使用推薦模板
+- `selectedFormatId` 指向不存在的模板 → 降級使用推薦模板
 
 ## 📝 相關文件
 
@@ -285,7 +289,7 @@ try {
 ```typescript
 useEffect(() => {
   // ...
-}, [participants.length, category.selectedFormatId]);  // ✅ 添加依賴
+}, [participants.length, category.selectedFormatId]); //  添加依賴
 ```
 
 ### 2. 動態導入
@@ -301,7 +305,7 @@ const { getFormat } = await import("../../services/formatService");
 添加日誌幫助調試：
 
 ```typescript
-console.log("✅ 載入分類已設定的模板:", existingFormat.name);
+console.log(" 載入分類已設定的模板:", existingFormat.name);
 console.warn("載入已設定模板失敗，使用推薦模板");
 ```
 
@@ -318,4 +322,3 @@ console.warn("載入已設定模板失敗，使用推薦模板");
 **修正日期：** 2024-12-23  
 **開發者：** SportFlow Team  
 **問題來源：** 用戶回報 - 明明是小組卻顯示對戰
-
